@@ -18,7 +18,11 @@
 	<classpathentry kind="lib" path="lib/slick/lib/natives-mac.jar"/>
 	<classpathentry kind="lib" path="lib/slick/lib/natives-windows.jar"/>
 	<classpathentry kind="lib" path="lib/slick/lib/slick-examples.jar"/>
-	<classpathentry kind="lib" path="lib/slick/lib/slick.jar"/>
+	<classpathentry kind="lib" path="lib/slick/lib/slick.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Dirtbox/lib/slick/javadoc.zip!/javadoc"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/slick/lib/tinylinepp.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
