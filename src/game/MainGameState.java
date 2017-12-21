@@ -24,7 +24,8 @@ public class MainGameState extends DefaultGameState {
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
-		world.draw(g);
+		Viewport vp = new Viewport(g);
+		world.draw(vp);
 	}
 
 	@Override
