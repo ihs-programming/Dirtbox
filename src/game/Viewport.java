@@ -10,6 +10,7 @@ import org.newdawn.slick.geom.Vector2f;
 public class Viewport implements KeyListener {
 	private Graphics g;
 	private Vector2f center = new Vector2f();
+	private Vector2f screenCenter = new Vector2f();
 	private float scaleFactor = 1f;
 	private Vector2f movement = new Vector2f();
 	
@@ -27,8 +28,8 @@ public class Viewport implements KeyListener {
 	
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
-		Vector2f res = t.transform(s.loc);
-		g.drawImage(s.img.getScaledCopy(scaleFactor), res.x, res.y);
+		Vector2f res = t.transform(s.loc.copy());
+		g.drawImage(s.img.getScaledCopy(scaleFactor), res.x + screenCenter.x, res.y + screenCenter.y);
 	}
 	
 	public void draw(Shape s) {
@@ -36,8 +37,9 @@ public class Viewport implements KeyListener {
 	}
 	
 	private Transform getDrawTransform() {
-		Transform t = Transform.createTranslateTransform(-center.x, -center.y);
+		Transform t = new Transform();
 		t.concatenate(Transform.createScaleTransform(scaleFactor, scaleFactor));
+		t.concatenate(Transform.createTranslateTransform(-center.x, -center.y));
 		return t;
 	}
 	
@@ -46,7 +48,11 @@ public class Viewport implements KeyListener {
 	}
 	
 	public void update(int delta) {
-		center.add(movement.copy().scale(delta));
+		center.add(movement.copy().scale(delta/scaleFactor));
+	}
+	
+	public void setScreenCenter(Vector2f center) {
+		screenCenter.set(center);
 	}
 
 	@Override
