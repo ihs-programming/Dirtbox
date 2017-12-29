@@ -3,6 +3,10 @@ package game;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.GameState;
 
+/**
+ * Abstracts away all window callbacks for gamestate
+ * @author Peachball
+ */
 public abstract class DefaultGameState implements GameState {
 
 	@Override
@@ -56,7 +60,7 @@ public abstract class DefaultGameState implements GameState {
 	@Override
 	public boolean isAcceptingInput() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

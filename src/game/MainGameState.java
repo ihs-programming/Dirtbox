@@ -2,20 +2,16 @@ package game;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-public class MainState extends DefaultGameState {
+public class MainGameState extends DefaultGameState {
+	private World world = new World();
+	private Viewport vp = new Viewport();
 
 	@Override
-	public void enter(GameContainer arg0, StateBasedGame arg1) throws SlickException {
-	}
-
-	@Override
-	public int getID() {
-		return 0;
+	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
+		gc.getInput().addKeyListener(vp);
 	}
 
 	@Override
@@ -28,14 +24,17 @@ public class MainState extends DefaultGameState {
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
-		g.drawString("Hello world!", 100, 100);
-
+		vp.setGraphics(g);
+		world.draw(vp);
 	}
 
 	@Override
-	public void update(GameContainer arg0, StateBasedGame arg1, int arg2) throws SlickException {
-		// TODO Auto-generated method stub
-
+	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
+		vp.update(delta);
 	}
 
+	@Override
+	public int getID() {
+		return 0;
+	}
 }
