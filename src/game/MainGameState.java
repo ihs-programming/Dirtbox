@@ -6,16 +6,16 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
 public class MainGameState extends DefaultGameState {
-	private World world;
+	private World world = new World();
+	private Viewport vp = new Viewport();
 
 	@Override
-	public void enter(GameContainer arg0, StateBasedGame arg1) throws SlickException {
+	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
+		gc.getInput().addKeyListener(vp);
 	}
-
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
-		world = new World();
 	}
 
 	@Override
@@ -24,12 +24,13 @@ public class MainGameState extends DefaultGameState {
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
-		Viewport vp = new Viewport(g);
+		vp.setGraphics(g);
 		world.draw(vp);
 	}
 
 	@Override
-	public void update(GameContainer arg0, StateBasedGame arg1, int arg2) throws SlickException {
+	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
+		vp.update(delta);
 	}
 
 	@Override
