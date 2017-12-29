@@ -48,7 +48,7 @@ public class Viewport implements KeyListener {
 	}
 	
 	public void update(int delta) {
-		center.add(movement.copy().scale(delta));
+		center.add(movement.copy().scale(delta/scaleFactor));
 	}
 	
 	public void setScreenCenter(Vector2f center) {
