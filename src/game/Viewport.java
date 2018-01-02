@@ -7,10 +7,10 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
-public class Viewport implements KeyListener {
+public class Viewport implements DefaultKeyListener {
 	private Graphics g;
-	private Vector2f center = new Vector2f();
-	private Vector2f screenCenter = new Vector2f();
+	private Vector2f center = new Vector2f(); // in game units
+	private Vector2f screenCenter = new Vector2f(); // in pixels
 	private float scaleFactor = 1f;
 	private Vector2f movement = new Vector2f();
 	
@@ -29,7 +29,16 @@ public class Viewport implements KeyListener {
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
 		Vector2f res = t.transform(s.loc.copy());
-		g.drawImage(s.img.getScaledCopy(scaleFactor), res.x + screenCenter.x, res.y + screenCenter.y);
+		g.drawImage(s.img.getScaledCopy(scaleFactor), res.x, res.y);
+	}
+	
+	private void printDebugInfo() {
+		Transform t = getDrawTransform();
+
+		System.out.printf("Center: %s\n", center.toString());
+		System.out.printf("Screen center: %s\n", screenCenter.toString());
+		System.out.printf("Scale factor: %f", scaleFactor);
+		System.out.println(t.transform(new Vector2f(1, 1)));
 	}
 	
 	public void draw(Shape s) {
@@ -38,6 +47,10 @@ public class Viewport implements KeyListener {
 	
 	private Transform getDrawTransform() {
 		Transform t = new Transform();
+		
+		// Note that the transforms are applied in reverse order
+		// e.g. the first concatenated transform is applied last
+		t.concatenate(Transform.createTranslateTransform(screenCenter.x, screenCenter.y));
 		t.concatenate(Transform.createScaleTransform(scaleFactor, scaleFactor));
 		t.concatenate(Transform.createTranslateTransform(-center.x, -center.y));
 		return t;
@@ -53,29 +66,6 @@ public class Viewport implements KeyListener {
 	
 	public void setScreenCenter(Vector2f center) {
 		screenCenter.set(center);
-	}
-
-	@Override
-	public void inputEnded() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void inputStarted() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean isAcceptingInput() {
-		return true;
-	}
-
-	@Override
-	public void setInput(Input input) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -98,6 +88,9 @@ public class Viewport implements KeyListener {
 			break;
 		case Input.KEY_EQUALS:
 			scaleFactor *= SCALE_INCREASE;
+			break;
+		case Input.KEY_P:
+			printDebugInfo();
 			break;
 		}
 	}
