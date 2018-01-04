@@ -6,7 +6,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
-public class MainGameState extends DefaultGameState {
+public class MainGameState implements DefaultGameState {
 	private World world = new World();
 	private Viewport vp = new Viewport();
 
