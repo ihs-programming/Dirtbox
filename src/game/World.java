@@ -1,14 +1,30 @@
 package game;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Vector2f;
+
+import game.entities.Entity;
 
 public class World {
 	private final static int DEBUG_WORLD_DEFAULT_SIZE=100;
 	
 	Block[][] blocks = new Block[DEBUG_WORLD_DEFAULT_SIZE][DEBUG_WORLD_DEFAULT_SIZE];
+	ArrayList<Entity> characters;
 	
 	public World() {
 		generateWorld();
+		characters = new ArrayList<Entity>();
+		try {
+			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1, new Vector2f(0, 0));
+			characters.add(stalin);
+		} catch (SlickException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void draw(Viewport vp) {
@@ -18,6 +34,9 @@ public class World {
 						i*Block.BLOCK_SPRITE_SIZE,
 						j*Block.BLOCK_SPRITE_SIZE);
 			}
+		}
+		for(Entity e : this.characters) {
+			e.draw(vp);
 		}
 	}
 	
