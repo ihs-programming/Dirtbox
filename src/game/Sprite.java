@@ -1,7 +1,6 @@
 package game;
 
 import org.newdawn.slick.Image;
-import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
 public class Sprite {
