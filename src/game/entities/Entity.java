@@ -17,6 +17,9 @@ public class Entity {
 	private Vector2f vel;
 	private Vector2f accel;
 	private float scale = 1f;
+	
+	//based on self acceleration
+	private float maxHorzSpeed;
 
 	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth, float hitheight, Vector2f pos) {
 		this.pos = pos.copy();
@@ -73,5 +76,24 @@ public class Entity {
 	
 	public void magnify(float factor) {
 		this.scale *= factor;
+	}
+	
+	public Vector2f getAccel() {
+		return this.accel;
+	}
+	public void setAccel(Vector2f newAccel) {
+		this.accel = newAccel;
+	}
+	public Vector2f getVel() {
+		return this.vel;
+	}
+	public void setVel(Vector2f newVel) {
+		this.vel = newVel;
+	}
+	public float getMaxHorzSpeed() {
+		return this.maxHorzSpeed;
+	}
+	public void setMaxHorzSpeed(float newMaxHorzSpeed) {
+		this.maxHorzSpeed = newMaxHorzSpeed;
 	}
 }
