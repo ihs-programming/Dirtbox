@@ -35,10 +35,34 @@ public class World {
 	 * Improve world generation algorithm to have biomes and stuff
 	 */
 	public void generateWorld() {
+		int blocksez[][];
+		blocksez = new int[DEBUG_WORLD_DEFAULT_SIZE][DEBUG_WORLD_DEFAULT_SIZE];
 		for (int i = 0; i < DEBUG_WORLD_DEFAULT_SIZE; i++) {
-			for (int j = 0; j < DEBUG_WORLD_DEFAULT_SIZE; j++) {
-				int empty = (int) (Math.random() + .5);
-				blocks[i][j] = new Block(empty, empty);
+			blocks[i][DEBUG_WORLD_DEFAULT_SIZE-1] = new Block(3);
+			blocksez[i][DEBUG_WORLD_DEFAULT_SIZE-1] = 3;
+		}
+		for (int j = 98; (j>=0); j--) {
+			for (int i = 0; i < DEBUG_WORLD_DEFAULT_SIZE; i++) {
+				
+				int empty = (int) (Math.random()+(j/30.0));
+				System.out.println(empty);
+				
+				blocks[i][j] = new Block(0);
+				if (blocksez[i][j+1]!=(0)) {
+					
+					blocksez[i][j] = empty;
+					blocks[i][j] = new Block(empty);
+				}
+				if (blocksez[i][j+1]==5) {
+					blocksez[i][j]=0;
+					blocks[i][j] = new Block(0);
+				}
+				if (blocksez[i][j+1]==(1)&&blocksez[i][j+2]!=(5)&&j<30.0*Math.random()) {
+					blocksez[i][j] = 5;
+					blocks[i][j] = new Block(5);
+				}
+				
+				
 			}
 		}
 	}
