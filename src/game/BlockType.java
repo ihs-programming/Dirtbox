@@ -9,7 +9,7 @@ public enum BlockType {
 	DIRT(2, 0),
 	EMPTY(1, 1),
 	GOLD(0, 2),
-	GRAVEL(0, 0),
+	GRAVEL(3, 1),
 	GRASS(3, 0),
 	STONE(1, 0),
 	UNDEFINED(10, 1),

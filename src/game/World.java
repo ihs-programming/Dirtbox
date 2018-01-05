@@ -68,15 +68,30 @@ public class World {
 				if (blocksez[i][j + 1] != 0) {
 					blocksez[i][j] = empty;
 					blockType = empty;
+					if (empty==1&&!(i-1<0)&&!(i+1>=DEBUG_WORLD_DEFAULT_SIZE)) {
+						if ((blocksez[i+1][j+1]!=0)&&(blocksez[i-1][j+1]!=0)) {
+							blocksez[i][j] = empty;
+							blockType = empty;
+						}else {
+							blocksez[i][j] = 0;
+							blockType = 0;
+						}
+					}
 				}
+				
 				if (blocksez[i][j + 1] == 5) {
 					blocksez[i][j] = 0;
 					blockType = 0;
 				}
-				if (blocksez[i][j + 1] == (1) && blocksez[i][j + 2] != (5) && j < 30.0 * Math.random()) {
+				if (blocksez[i][j + 1] == (1) && blocksez[i][j + 2] != (5) && blocksez[i][j + 1] != (0) && j < 30.0 * Math.random()) {
 					blocksez[i][j] = 5;
 					blockType = 5;
 				}
+				if (blocksez[i][j+1]==0){
+					blocksez[i][j] = 0;
+					blockType = 0;
+				}
+				
 
 				BlockType type = BlockType.EMPTY;
 				switch (blockType) {
@@ -87,10 +102,10 @@ public class World {
 					type = BlockType.DIRT;
 					break;
 				case 2:
-					type = BlockType.STONE;
+					type = BlockType.GRAVEL;
 					break;
 				case 3:
-					type = BlockType.GRAVEL;
+					type = BlockType.STONE;
 					break;
 				case 4:
 					type = BlockType.GOLD;
