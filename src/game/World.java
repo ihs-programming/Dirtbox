@@ -9,8 +9,6 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.entities.Entity;
 
-import org.newdawn.slick.geom.Vector2f;
-
 public class World {
 	private final static int DEBUG_WORLD_DEFAULT_SIZE=100;
 	
@@ -23,6 +21,7 @@ public class World {
 		try {
 			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1, new Vector2f(0, 0));
 			characters.add(stalin);
+			stalin.magnify(.1f);
 		} catch (SlickException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
