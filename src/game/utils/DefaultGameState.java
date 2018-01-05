@@ -1,4 +1,4 @@
-package game;
+package game.utils;
 
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.GameState;

@@ -7,6 +7,8 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.utils.DefaultKeyListener;
+
 public class Viewport implements DefaultKeyListener {
 	private Graphics g;
 	private Vector2f center = new Vector2f(); // in game units
