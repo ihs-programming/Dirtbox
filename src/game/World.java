@@ -14,9 +14,7 @@ public class World {
 	public void draw(Viewport vp) {
 		for (int i = 0; i < blocks.length; i++) {
 			for (int j = 0; j < blocks[i].length; j++) {
-				blocks[i][j].draw(vp,
-						i*Block.BLOCK_SPRITE_SIZE,
-						j*Block.BLOCK_SPRITE_SIZE);
+				blocks[i][j].draw(vp);
 			}
 		}
 	}
@@ -38,7 +36,11 @@ public class World {
 		for (int i = 0; i < DEBUG_WORLD_DEFAULT_SIZE; i++) {
 			for (int j = 0; j < DEBUG_WORLD_DEFAULT_SIZE; j++) {
 				int empty = (int) (Math.random() + .5);
-				blocks[i][j] = new Block(empty, empty);
+				BlockType t = BlockType.Dirt;
+				switch(empty) {
+				case 0: t = BlockType.Stone;
+				}
+				blocks[i][j] = new SolidBlock(t, i, j);
 			}
 		}
 	}
