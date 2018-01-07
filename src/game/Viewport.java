@@ -30,7 +30,9 @@ public class Viewport implements DefaultKeyListener {
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
 		Vector2f res = t.transform(s.loc.copy());
-		g.drawImage(s.img.getScaledCopy(scaleFactor), res.x, res.y);
+		int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
+		int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
+		g.drawImage(s.img.getScaledCopy(nw, nh), (int) res.x, (int) res.y);
 	}
 
 	private void printDebugInfo() {
