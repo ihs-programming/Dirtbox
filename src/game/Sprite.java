@@ -10,4 +10,5 @@ public class Sprite {
 	public Sprite(Image img) {
 		this.img = img;
 	}
+
 }

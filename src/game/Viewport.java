@@ -2,6 +2,7 @@ package game;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
@@ -11,7 +12,7 @@ import game.utils.DefaultKeyListener;
 public class Viewport implements DefaultKeyListener {
 	private Graphics g;
 	private Vector2f center = new Vector2f(); // in game units
-	private Vector2f screenCenter = new Vector2f(); // in pixels
+	private Vector2f screenDimensions = new Vector2f(); // in pixels
 	private float scaleFactor = 1f;
 	private Vector2f movement = new Vector2f();
 
@@ -39,7 +40,7 @@ public class Viewport implements DefaultKeyListener {
 		Transform t = getDrawTransform();
 
 		System.out.printf("Center: %s\n", center.toString());
-		System.out.printf("Screen center: %s\n", screenCenter.toString());
+		System.out.printf("Screen center: %s\n", screenDimensions.toString());
 		System.out.printf("Scale factor: %f", scaleFactor);
 		System.out.println(t.transform(new Vector2f(1, 1)));
 	}
@@ -53,7 +54,8 @@ public class Viewport implements DefaultKeyListener {
 
 		// Note that the transforms are applied in reverse order
 		// e.g. the first concatenated transform is applied last
-		t.concatenate(Transform.createTranslateTransform(screenCenter.x, screenCenter.y));
+		t.concatenate(
+				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2));
 		t.concatenate(Transform.createScaleTransform(scaleFactor, scaleFactor));
 		t.concatenate(Transform.createTranslateTransform(-center.x, -center.y));
 		return t;
@@ -68,7 +70,12 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	public void setScreenCenter(Vector2f center) {
-		screenCenter.set(center);
+		screenDimensions.set(center.copy().scale(2f));
+	}
+
+	public Rectangle getViewRectangle() {
+		Transform t = getDrawTransform();
+		return (Rectangle) new Rectangle(0, 0, screenDimensions.x, screenDimensions.y).transform(t);
 	}
 
 	@Override
