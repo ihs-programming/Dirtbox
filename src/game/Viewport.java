@@ -29,11 +29,21 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	public void draw(Sprite s) {
+		Rectangle resultImageBox = s.getBoundingBox();
 		Transform t = getDrawTransform();
-		Vector2f res = t.transform(s.loc.copy());
-		int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
-		int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
-		g.drawImage(s.img.getScaledCopy(nw, nh), (int) res.x, (int) res.y);
+		if (!getViewShape().contains(resultImageBox.transform(t))) {
+			Vector2f res = t.transform(s.loc.copy());
+			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
+			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
+			g.drawImage(s.img.getScaledCopy(nw, nh), (int) res.x, (int) res.y);
+		}
+	}
+
+	public void draw(Shape s) {
+		Shape resultShape = s.transform(getDrawTransform());
+		if (getViewShape().contains(resultShape)) {
+			g.draw(s.transform(getDrawTransform()));
+		}
 	}
 
 	private void printDebugInfo() {
@@ -43,10 +53,6 @@ public class Viewport implements DefaultKeyListener {
 		System.out.printf("Screen center: %s\n", screenDimensions.toString());
 		System.out.printf("Scale factor: %f", scaleFactor);
 		System.out.println(t.transform(new Vector2f(1, 1)));
-	}
-
-	public void draw(Shape s) {
-		g.draw(s.transform(getDrawTransform()));
 	}
 
 	private Transform getDrawTransform() {
@@ -73,9 +79,11 @@ public class Viewport implements DefaultKeyListener {
 		screenDimensions.set(center.copy().scale(2f));
 	}
 
-	public Rectangle getViewRectangle() {
-		Transform t = getDrawTransform();
-		return (Rectangle) new Rectangle(0, 0, screenDimensions.x, screenDimensions.y).transform(t);
+	public Shape getViewShape() {
+		Transform t = new Transform();
+		t = t.concatenate(Transform.createScaleTransform(1f, .8f));
+		t.concatenate(getDrawTransform());
+		return new Rectangle(0, 0, screenDimensions.x, screenDimensions.y).transform(t);
 	}
 
 	@Override
