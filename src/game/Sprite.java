@@ -13,6 +13,6 @@ public class Sprite {
 	}
 
 	public Rectangle getBoundingBox() {
-		return new Rectangle(0, 0, img.getWidth(), img.getHeight());
+		return new Rectangle(loc.x, loc.y, img.getWidth(), img.getHeight());
 	}
 }

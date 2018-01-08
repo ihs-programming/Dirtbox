@@ -31,7 +31,7 @@ public class Viewport implements DefaultKeyListener {
 	public void draw(Sprite s) {
 		Rectangle resultImageBox = s.getBoundingBox();
 		Transform t = getDrawTransform();
-		if (!getViewShape().contains(resultImageBox.transform(t))) {
+		if (getViewShape().contains(resultImageBox.transform(t))) {
 			Vector2f res = t.transform(s.loc.copy());
 			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
 			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
@@ -49,10 +49,7 @@ public class Viewport implements DefaultKeyListener {
 	private void printDebugInfo() {
 		Transform t = getDrawTransform();
 
-		System.out.printf("Center: %s\n", center.toString());
-		System.out.printf("Screen center: %s\n", screenDimensions.toString());
-		System.out.printf("Scale factor: %f", scaleFactor);
-		System.out.println(t.transform(new Vector2f(1, 1)));
+		System.out.println(getViewShape());
 	}
 
 	private Transform getDrawTransform() {
@@ -64,6 +61,18 @@ public class Viewport implements DefaultKeyListener {
 				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2));
 		t.concatenate(Transform.createScaleTransform(scaleFactor, scaleFactor));
 		t.concatenate(Transform.createTranslateTransform(-center.x, -center.y));
+		return t;
+	}
+
+	private Transform getInverseDrawTransform() {
+		Transform t = new Transform();
+
+		// Note that the transforms are applied in reverse order
+		// e.g. the first concatenated transform is applied last
+		t.concatenate(Transform.createTranslateTransform(-center.x, -center.y));
+		t.concatenate(Transform.createScaleTransform(scaleFactor, scaleFactor));
+		t.concatenate(
+				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2));
 		return t;
 	}
 
@@ -81,9 +90,10 @@ public class Viewport implements DefaultKeyListener {
 
 	public Shape getViewShape() {
 		Transform t = new Transform();
-		t = t.concatenate(Transform.createScaleTransform(1f, .8f));
-		t.concatenate(getDrawTransform());
-		return new Rectangle(0, 0, screenDimensions.x, screenDimensions.y).transform(t);
+		// t = t.concatenate(Transform.createScaleTransform(.5f, .5f));
+		t.concatenate(getInverseDrawTransform());
+		Rectangle viewRectangle = new Rectangle(0, 0, screenDimensions.x, screenDimensions.y);
+		return viewRectangle.transform(t);
 	}
 
 	@Override
