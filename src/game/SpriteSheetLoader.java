@@ -5,7 +5,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 
 public class SpriteSheetLoader {
-	private static final SpriteSheet BLOCK_SHEET = loadSpriteSheet("data/blocks.png", 40, 40);
+	private static final SpriteSheet BLOCK_SHEET = loadSpriteSheet("data/blocks.png", 16, 16);
 
 	private static SpriteSheet loadSpriteSheet(String filename, int spriteWidth, int spriteHeight) {
 		Image spriteSheetImage;

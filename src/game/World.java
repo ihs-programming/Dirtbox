@@ -58,7 +58,7 @@ public class World {
 		blocksez = new int[DEBUG_WORLD_DEFAULT_SIZE][DEBUG_WORLD_DEFAULT_HEIGHT];
 		for (int i = 0; i < DEBUG_WORLD_DEFAULT_SIZE; i++) {
 			int depth = DEBUG_WORLD_DEFAULT_HEIGHT - 1;
-			blocks[i][depth] = new SolidBlock(BlockType.STONE, i * Block.BLOCK_SPRITE_SIZE,
+			blocks[i][depth] = new SolidBlock(BlockType.BEDROCK, i * Block.BLOCK_SPRITE_SIZE,
 					depth * Block.BLOCK_SPRITE_SIZE);
 			blocksez[i][depth] = 3;
 		}
@@ -70,7 +70,7 @@ public class World {
 				if (blocksez[i][j + 1] != 0) {
 					blocksez[i][j] = empty;
 					blockType = empty;
-					if (empty - 2 >= Math.random() * 50) {
+					if (empty - 1 >= Math.random() * 50) {
 						blockType = 4;
 						blocksez[i][j] = 4;
 					}
@@ -91,7 +91,7 @@ public class World {
 					blockType = 0;
 				}
 				if (blocksez[i][j + 1] == 1 && blocksez[i][j + 2] != 5 && blocksez[i][j + 1] != 0
-						&& j < 30.0 * Math.random()) {
+						&& j < DEBUG_WORLD_DEFAULT_HEIGHT * 30.0 / 100.0 * Math.random()) {
 					blocksez[i][j] = 5;
 					blockType = 5;
 				}
@@ -109,13 +109,35 @@ public class World {
 					type = BlockType.DIRT;
 					break;
 				case 2:
-					type = BlockType.GRAVEL;
+					if (Math.random() * j < 0.05 * Math.random() * DEBUG_WORLD_DEFAULT_HEIGHT) {
+						type = BlockType.GRAVEL;
+					} else {
+						type = BlockType.STONE;
+					}
 					break;
 				case 3:
 					type = BlockType.STONE;
 					break;
 				case 4:
-					type = BlockType.GOLD;
+					if (DEBUG_WORLD_DEFAULT_HEIGHT - j <= DEBUG_WORLD_DEFAULT_HEIGHT / 10.0
+							&& Math.random() <= 0.3) {
+						if (Math.random() < 0.4) {
+							type = BlockType.DIAMOND_ORE;
+						} else {
+							type = BlockType.REDSTONE_ORE;
+						}
+					} else {
+						double oreselection = Math.random();
+						if (oreselection < 0.1) {
+							type = BlockType.GOLD_ORE;
+						}
+						if (oreselection >= 0.1 && oreselection < 0.35) {
+							type = BlockType.IRON_ORE;
+						}
+						if (oreselection >= 0.35) {
+							type = BlockType.COAL_ORE;
+						}
+					}
 					break;
 				case 5:
 					type = BlockType.GRASS;
