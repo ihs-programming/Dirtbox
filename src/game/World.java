@@ -20,8 +20,7 @@ public class World {
 		generateWorld();
 		characters = new ArrayList<>();
 		try {
-			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1,
-					new Vector2f(0, 0));
+			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1, new Vector2f(0, 0));
 			characters.add(stalin);
 			stalin.magnify(.1f);
 		} catch (SlickException e) {
@@ -119,8 +118,7 @@ public class World {
 					type = BlockType.STONE;
 					break;
 				case 4:
-					if (DEBUG_WORLD_DEFAULT_HEIGHT - j <= DEBUG_WORLD_DEFAULT_HEIGHT / 10.0
-							&& Math.random() <= 0.3) {
+					if (DEBUG_WORLD_DEFAULT_HEIGHT - j <= DEBUG_WORLD_DEFAULT_HEIGHT / 10.0 && Math.random() <= 0.3) {
 						if (Math.random() < 0.4) {
 							type = BlockType.DIAMOND_ORE;
 						} else {
@@ -144,9 +142,20 @@ public class World {
 					break;
 				default:
 					type = BlockType.UNDEFINED;
+					/*
+				BlockType type = BlockType.UNDEFINED;
+				// @formatter:off
+				BlockType[] typeMapping = new BlockType[] {
+						BlockType.EMPTY, BlockType.DIRT, BlockType.GRAVEL,
+						BlockType.STONE, BlockType.GOLD, BlockType.GRASS
+				};
+				// @formatter:on
+
+				if (blockType >= 0 && blockType < typeMapping.length) {
+					type = typeMapping[blockType];
+				 */
 				}
-				blocks[i][j] = new SolidBlock(type, i * Block.BLOCK_SPRITE_SIZE,
-						j * Block.BLOCK_SPRITE_SIZE);
+				blocks[i][j] = new SolidBlock(type, i * Block.BLOCK_SPRITE_SIZE, j * Block.BLOCK_SPRITE_SIZE);
 			}
 		}
 	}
