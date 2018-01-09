@@ -13,7 +13,7 @@ import org.newdawn.slick.geom.Vector2f;
 import game.entities.Entity;
 
 public class World {
-	private final static int DEBUG_WORLD_DEFAULT_SIZE = 100;
+	private final static int CHUNK_SIZE = 100;
 	private final static int BEDROCK_LAYER = 100;
 
 	private Map<Position, Block> blocks = new HashMap<>();
@@ -36,7 +36,6 @@ public class World {
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(), view.getWidth(),
 				view.getHeight());
-		System.out.println(viewRect.getMaxX());
 		generateRegion(viewRect);
 		for (Block b : blocks.values()) {
 			b.draw(vp);
@@ -77,24 +76,24 @@ public class World {
 	 * TODO Improve world generation algorithm to have biomes and stuff
 	 */
 	public Block[][] generateChunk(int x, int y) {
-		Block[][] blocks = new Block[DEBUG_WORLD_DEFAULT_SIZE][DEBUG_WORLD_DEFAULT_SIZE];
+		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_SIZE];
 		int blocksez[][];
-		blocksez = new int[DEBUG_WORLD_DEFAULT_SIZE][DEBUG_WORLD_DEFAULT_SIZE];
-		for (int i = 0; i < DEBUG_WORLD_DEFAULT_SIZE; i++) {
-			int depth = DEBUG_WORLD_DEFAULT_SIZE - 1;
+		blocksez = new int[CHUNK_SIZE][CHUNK_SIZE];
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			int depth = CHUNK_SIZE - 1;
 			blocks[i][depth] = new SolidBlock(BlockType.STONE, (i + x) * Block.BLOCK_SPRITE_SIZE,
 					(depth + y) * Block.BLOCK_SPRITE_SIZE);
 			blocksez[i][depth] = 3;
 		}
 		for (int j = 98; j >= 0; j--) {
-			for (int i = 0; i < DEBUG_WORLD_DEFAULT_SIZE; i++) {
+			for (int i = 0; i < CHUNK_SIZE; i++) {
 				int empty = (int) (Math.random() + j / 30.0);
 				int blockType = 0;
 
 				if (blocksez[i][j + 1] != 0) {
 					blocksez[i][j] = empty;
 					blockType = empty;
-					if (empty == 1 && !(i - 1 < 0) && !(i + 1 >= DEBUG_WORLD_DEFAULT_SIZE)) {
+					if (empty == 1 && !(i - 1 < 0) && !(i + 1 >= CHUNK_SIZE)) {
 						if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
 							blocksez[i][j] = empty;
 							blockType = empty;

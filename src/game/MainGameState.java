@@ -20,7 +20,7 @@ public class MainGameState implements DefaultGameState {
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		vp.setScreenCenter(new Vector2f(gc.getWidth() / 2, gc.getHeight() / 2));
-		vp.zoom(20f);
+		vp.zoom(10f);
 	}
 
 	@Override
