@@ -92,6 +92,14 @@ public class Viewport implements DefaultKeyListener {
 		return t;
 	}
 
+	public void zoom(float factor) {
+		scaleFactor *= factor;
+	}
+
+	public void setZoom(float factor) {
+		scaleFactor = factor;
+	}
+
 	/**
 	 * Note that this method implicitly depends on getDrawTransform (if this method
 	 * is changed, likely so should getDrawTransform)

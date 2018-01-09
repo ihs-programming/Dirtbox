@@ -6,12 +6,15 @@ import java.util.Map;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.entities.Entity;
 
 public class World {
 	private final static int DEBUG_WORLD_DEFAULT_SIZE = 100;
+	private final static int BEDROCK_LAYER = 100;
 
 	private Map<Position, Block> blocks = new HashMap<>();
 	private ArrayList<Entity> characters;
@@ -30,11 +33,34 @@ public class World {
 	}
 
 	public void draw(Viewport vp) {
+		Shape view = vp.getGameViewShape();
+		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(), view.getWidth(),
+				view.getHeight());
+		System.out.println(viewRect.getMaxX());
+		generateRegion(viewRect);
 		for (Block b : blocks.values()) {
 			b.draw(vp);
 		}
 		for (Entity e : this.characters) {
 			e.draw(vp);
+		}
+	}
+
+	private void generateRegion(Rectangle s) {
+		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
+			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxX() + 1; j++) {
+				Position curpos = new Position(i, j);
+				if (blocks.containsKey(curpos)) {
+					continue;
+				}
+				if (j >= BEDROCK_LAYER) {
+					blocks.put(curpos, new SolidBlock(BlockType.UNDEFINED, i, j));
+				} else if (j >= 0) {
+					generateWorld(i, 0);
+				} else {
+					// Do not generate blocks in the air
+				}
+			}
 		}
 	}
 
@@ -131,5 +157,32 @@ class Position {
 	Position(int x, int y) {
 		this.x = x;
 		this.y = y;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Position) {
+			Position p = (Position) o;
+			return p.x == x && p.y == y;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		int px = mapToPositive(x);
+		int py = mapToPositive(y);
+
+		// Cantor pairing function
+		// See: https://en.wikipedia.org/wiki/Pairing_function
+		return (px + py) * (px + py + 1) / 2 + py;
+	}
+
+	private int mapToPositive(int v) {
+		if (v < 0) {
+			return 2 * -v + 1;
+		} else {
+			return 2 * v;
+		}
 	}
 }
