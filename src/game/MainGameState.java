@@ -6,6 +6,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
+import game.utils.DefaultGameState;
+
 public class MainGameState implements DefaultGameState {
 	private World world = new World();
 	private Viewport vp = new Viewport();
@@ -17,7 +19,7 @@ public class MainGameState implements DefaultGameState {
 
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-		vp.setScreenCenter(new Vector2f(gc.getWidth()/2, gc.getHeight()/2));
+		vp.setScreenCenter(new Vector2f(gc.getWidth() / 2, gc.getHeight() / 2));
 	}
 
 	@Override

@@ -19,8 +19,8 @@ public class SpriteSheetLoader {
 		}
 		return null;
 	}
-	
-	public static Image getBlockImage (int x, int y) {
+
+	public static Image getBlockImage(int x, int y) {
 		Image img = BLOCK_SHEET.getSprite(x, y);
 		img.setFilter(Image.FILTER_NEAREST);
 		return img.getScaledCopy(Block.BLOCK_SPRITE_SIZE, Block.BLOCK_SPRITE_SIZE);

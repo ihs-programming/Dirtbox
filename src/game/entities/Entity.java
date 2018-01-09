@@ -50,7 +50,7 @@ public class Entity {
 	}
 
 	public void setSpriteSheet(Image sheet, int width, int height) {
-		this.spritesheet = new SpriteSheet(sheet, sheet.getWidth()/width, sheet.getHeight()/height);
+		this.spritesheet = new SpriteSheet(sheet, sheet.getWidth() / width, sheet.getHeight() / height);
 		this.sprite = new Sprite(this.spritesheet.getSprite(0, 0));
 		this.sprite.loc = pos;
 	}
@@ -58,7 +58,7 @@ public class Entity {
 	public void generateHitBox() {
 		float width = this.spritesheet.getWidth() / this.spritesheet.getHorizontalCount();
 		float height = this.spritesheet.getHeight() / this.spritesheet.getVerticalCount();
-		this.hitbox = new Rectangle(-width/2, -height/2, width, height);
+		this.hitbox = new Rectangle(-width / 2, -height / 2, width, height);
 	}
 
 	public void draw(Viewport vp) {
@@ -73,7 +73,7 @@ public class Entity {
 		this.hitbox.setCenterX(this.pos.x);
 		this.hitbox.setCenterY(this.pos.y);
 	}
-	
+
 	public void magnify(float factor) {
 		this.scale *= factor;
 	}
