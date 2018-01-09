@@ -20,8 +20,7 @@ public class World {
 		generateWorld();
 		characters = new ArrayList<>();
 		try {
-			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1,
-					new Vector2f(0, 0));
+			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1, new Vector2f(0, 0));
 			characters.add(stalin);
 			stalin.magnify(.1f);
 		} catch (SlickException e) {
@@ -100,31 +99,18 @@ public class World {
 					blockType = 0;
 				}
 
-				BlockType type = BlockType.EMPTY;
-				switch (blockType) {
-				case 0:
-					type = BlockType.EMPTY;
-					break;
-				case 1:
-					type = BlockType.DIRT;
-					break;
-				case 2:
-					type = BlockType.GRAVEL;
-					break;
-				case 3:
-					type = BlockType.STONE;
-					break;
-				case 4:
-					type = BlockType.GOLD;
-					break;
-				case 5:
-					type = BlockType.GRASS;
-					break;
-				default:
-					type = BlockType.UNDEFINED;
+				BlockType type = BlockType.UNDEFINED;
+				// @formatter:off
+				BlockType[] typeMapping = new BlockType[] {
+						BlockType.EMPTY, BlockType.DIRT, BlockType.GRAVEL,
+						BlockType.STONE, BlockType.GOLD, BlockType.GRASS
+				};
+				// @formatter:on
+
+				if (blockType >= 0 && blockType < typeMapping.length) {
+					type = typeMapping[blockType];
 				}
-				blocks[i][j] = new SolidBlock(type, i * Block.BLOCK_SPRITE_SIZE,
-						j * Block.BLOCK_SPRITE_SIZE);
+				blocks[i][j] = new SolidBlock(type, i * Block.BLOCK_SPRITE_SIZE, j * Block.BLOCK_SPRITE_SIZE);
 			}
 		}
 	}
