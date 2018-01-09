@@ -4,8 +4,8 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.SlickException;
 
 public class Dirtbox {
-	private static final int DEFAULT_WIDTH = 640;
-	private static final int DEFAULT_HEIGHT = 480;
+	private static final int DEFAULT_WIDTH = 800;
+	private static final int DEFAULT_HEIGHT = 800;
 
 	private static final int DEFAULT_FRAME_RATE = 60;
 	private static boolean DEFAULT_FULLSCREEN = false;

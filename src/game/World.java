@@ -1,69 +1,96 @@
 package game;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.entities.Entity;
 
 public class World {
-	private final static int DEBUG_WORLD_DEFAULT_SIZE = 100;
-	private final static int DEBUG_WORLD_DEFAULT_HEIGHT = 100;
+	private final static int CHUNK_HEIGHT = 100;
+	private final static int CHUNK_SIZE = 100;
+	private final static int BEDROCK_LAYER = 100;
 
-	Block[][] blocks = new Block[DEBUG_WORLD_DEFAULT_SIZE][DEBUG_WORLD_DEFAULT_HEIGHT];
-	ArrayList<Entity> characters;
+	private Map<Position, Block> blocks = new HashMap<>();
+	private ArrayList<Entity> characters;
 
 	public World() {
-		generateWorld();
+		generateWorld(0, 0);
 		characters = new ArrayList<>();
 		try {
 			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1, new Vector2f(0, 0));
 			characters.add(stalin);
 			stalin.magnify(.1f);
 		} catch (SlickException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	public void draw(Viewport vp) {
-		for (Block[] block : blocks) {
-			for (Block element : block) {
-				element.draw(vp);
-			}
+		Shape view = vp.getGameViewShape();
+		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(), view.getWidth(), view.getHeight());
+		generateRegion(viewRect);
+		for (Block b : blocks.values()) {
+			b.draw(vp);
 		}
 		for (Entity e : this.characters) {
 			e.draw(vp);
 		}
 	}
 
-	/**
-	 * TODO Loads a file specifying the world map into the game
-	 *
-	 * @param filename
-	 * @throws IOException
-	 */
-	public void loadFromFile(String filename) throws IOException {
+	private void generateRegion(Rectangle s) {
+		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
+			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxY() + 1; j++) {
+				Position curpos = new Position(i, j);
+				if (blocks.containsKey(curpos)) {
+					continue;
+				}
+				if (j >= BEDROCK_LAYER) {
+					blocks.put(curpos, new SolidBlock(BlockType.BEDROCK, i, j));
+				} else if (j >= 0) {
+					int chunkStart = i / CHUNK_SIZE * CHUNK_SIZE;
+					if (i < 0) {
+						chunkStart -= CHUNK_SIZE;
+					}
+					generateWorld(chunkStart, 0);
+				} else {
+					// Do not generate blocks in the air
+				}
+			}
+		}
+	}
+
+	public void generateWorld(int x, int y) {
+		Block[][] chunk = generateChunk(x, y);
+		for (int i = 0; i < chunk.length; i++) {
+			for (int j = 0; j < chunk[i].length; j++) {
+				blocks.put(new Position(i + x, j + y), chunk[i][j]);
+			}
+		}
 	}
 
 	/**
 	 * TODO Improve world generation algorithm to have biomes and stuff
 	 */
-	public void generateWorld() {
+	public Block[][] generateChunk(int x, int y) {
+		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		int blocksez[][];
-		blocksez = new int[DEBUG_WORLD_DEFAULT_SIZE][DEBUG_WORLD_DEFAULT_HEIGHT];
-		for (int i = 0; i < DEBUG_WORLD_DEFAULT_SIZE; i++) {
-			int depth = DEBUG_WORLD_DEFAULT_HEIGHT - 1;
-			blocks[i][depth] = new SolidBlock(BlockType.BEDROCK, i * Block.BLOCK_SPRITE_SIZE,
-					depth * Block.BLOCK_SPRITE_SIZE);
+		blocksez = new int[CHUNK_SIZE][CHUNK_SIZE];
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			int depth = CHUNK_SIZE - 1;
+			blocks[i][depth] = new SolidBlock(BlockType.STONE, (i + x) * Block.BLOCK_SPRITE_SIZE,
+					(depth + y) * Block.BLOCK_SPRITE_SIZE);
 			blocksez[i][depth] = 3;
 		}
-		for (int j = DEBUG_WORLD_DEFAULT_HEIGHT - 2; j >= 0; j--) {
-			for (int i = 0; i < DEBUG_WORLD_DEFAULT_SIZE; i++) {
-				int empty = (int) (Math.random() + j / (DEBUG_WORLD_DEFAULT_HEIGHT * 30.0 / 100.0));
+		for (int j = CHUNK_HEIGHT - 2; j >= 0; j--) {
+			for (int i = 0; i < CHUNK_SIZE; i++) {
+				int empty = (int) (Math.random() + j / (CHUNK_HEIGHT * 30.0 / 100.0));
 				int blockType = 0;
 
 				if (blocksez[i][j + 1] != 0) {
@@ -73,11 +100,10 @@ public class World {
 						blockType = 4;
 						blocksez[i][j] = 4;
 					}
-					if (empty == 1 && !(i - 1 < 0) && !(i + 1 >= DEBUG_WORLD_DEFAULT_SIZE)) {
+					if (empty == 1 && !(i - 1 < 0) && !(i + 1 >= CHUNK_SIZE)) {
 						if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
 							blocksez[i][j] = empty;
 							blockType = empty;
-
 						} else {
 							blocksez[i][j] = 0;
 							blockType = 0;
@@ -90,7 +116,7 @@ public class World {
 					blockType = 0;
 				}
 				if (blocksez[i][j + 1] == 1 && blocksez[i][j + 2] != 5 && blocksez[i][j + 1] != 0
-						&& j < DEBUG_WORLD_DEFAULT_HEIGHT * 30.0 / 100.0 * Math.random()) {
+						&& j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
 					blocksez[i][j] = 5;
 					blockType = 5;
 				}
@@ -108,7 +134,7 @@ public class World {
 					type = BlockType.DIRT;
 					break;
 				case 2:
-					if (Math.random() * j < 0.05 * Math.random() * DEBUG_WORLD_DEFAULT_HEIGHT) {
+					if (Math.random() * j < 0.05 * Math.random() * CHUNK_HEIGHT) {
 						type = BlockType.GRAVEL;
 					} else {
 						type = BlockType.STONE;
@@ -118,8 +144,7 @@ public class World {
 					type = BlockType.STONE;
 					break;
 				case 4:
-					if (DEBUG_WORLD_DEFAULT_HEIGHT - (j + 1) <= DEBUG_WORLD_DEFAULT_HEIGHT / 10.0
-							&& Math.random() <= 0.3) {
+					if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
 						if (Math.random() < 0.4) {
 							type = BlockType.DIAMOND_ORE;
 						} else {
@@ -143,21 +168,48 @@ public class World {
 					break;
 				default:
 					type = BlockType.UNDEFINED;
-					/*
-				BlockType type = BlockType.UNDEFINED;
-				// @formatter:off
-				BlockType[] typeMapping = new BlockType[] {
-						BlockType.EMPTY, BlockType.DIRT, BlockType.GRAVEL,
-						BlockType.STONE, BlockType.GOLD, BlockType.GRASS
-				};
-				// @formatter:on
-
-				if (blockType >= 0 && blockType < typeMapping.length) {
-					type = typeMapping[blockType];
-				 */
 				}
-				blocks[i][j] = new SolidBlock(type, i * Block.BLOCK_SPRITE_SIZE, j * Block.BLOCK_SPRITE_SIZE);
+				blocks[i][j] = new SolidBlock(type, (i + x) * Block.BLOCK_SPRITE_SIZE,
+						(j + y) * Block.BLOCK_SPRITE_SIZE);
 			}
+		}
+		return blocks;
+	}
+}
+
+class Position {
+	public int x;
+	public int y;
+
+	Position(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Position) {
+			Position p = (Position) o;
+			return p.x == x && p.y == y;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		int px = mapToPositive(x);
+		int py = mapToPositive(y);
+
+		// Cantor pairing function
+		// See: https://en.wikipedia.org/wiki/Pairing_function
+		return (px + py) * (px + py + 1) / 2 + py;
+	}
+
+	private int mapToPositive(int v) {
+		if (v < 0) {
+			return 2 * -v + 1;
+		} else {
+			return 2 * v;
 		}
 	}
 }
