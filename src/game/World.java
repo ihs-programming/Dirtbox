@@ -47,7 +47,7 @@ public class World {
 
 	private void generateRegion(Rectangle s) {
 		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
-			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxX() + 1; j++) {
+			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxY() + 1; j++) {
 				Position curpos = new Position(i, j);
 				if (blocks.containsKey(curpos)) {
 					continue;
@@ -55,7 +55,11 @@ public class World {
 				if (j >= BEDROCK_LAYER) {
 					blocks.put(curpos, new SolidBlock(BlockType.UNDEFINED, i, j));
 				} else if (j >= 0) {
-					generateWorld(i, 0);
+					int chunkStart = i / CHUNK_SIZE * CHUNK_SIZE;
+					if (i < 0) {
+						chunkStart -= CHUNK_SIZE;
+					}
+					generateWorld(chunkStart, 0);
 				} else {
 					// Do not generate blocks in the air
 				}
