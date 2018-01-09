@@ -50,18 +50,6 @@ public class Viewport implements DefaultKeyListener {
 		System.out.println("debug button pressed");
 	}
 
-	private Transform getDrawTransform() {
-		Transform t = new Transform();
-
-		// Note that the transforms are applied in reverse order
-		// e.g. the first concatenated transform is applied last
-		t.concatenate(
-				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2));
-		t.concatenate(Transform.createScaleTransform(scaleFactor, scaleFactor));
-		t.concatenate(Transform.createTranslateTransform(-center.x, -center.y));
-		return t;
-	}
-
 	public void setGraphics(Graphics g) {
 		this.g = g;
 	}
@@ -76,6 +64,54 @@ public class Viewport implements DefaultKeyListener {
 
 	public Shape getViewShape() {
 		return new Rectangle(0, 0, screenDimensions.x, screenDimensions.y);
+	}
+
+	public Shape getGameViewShape() {
+		return getViewShape().transform(getInverseDrawTransform());
+	}
+
+	/**
+	 * Note that this method implicitly depends on getInverseDrawTransform (if this
+	 * method is changed, likely so should getInverseDrawTransform)
+	 *
+	 * @return
+	 */
+	private Transform getDrawTransform() {
+		Transform t = new Transform();
+
+		// Note that the transforms are applied in reverse order
+		// e.g. the first concatenated transform is applied last
+		Transform[] trans = new Transform[] {
+				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2),
+				Transform.createScaleTransform(scaleFactor, scaleFactor),
+				Transform.createTranslateTransform(-center.x, -center.y) };
+
+		for (Transform ts : trans) {
+			t.concatenate(ts);
+		}
+		return t;
+	}
+
+	/**
+	 * Note that this method implicitly depends on getDrawTransform (if this method
+	 * is changed, likely so should getDrawTransform)
+	 *
+	 * @return
+	 */
+	private Transform getInverseDrawTransform() {
+		Transform t = new Transform();
+
+		// Inverted order and transformation of getDrawTransform
+		Transform[] trans = new Transform[] {
+				Transform.createTranslateTransform(-screenDimensions.x / 2,
+						-screenDimensions.y / 2),
+				Transform.createScaleTransform(1f / scaleFactor, 1f / scaleFactor),
+				Transform.createTranslateTransform(center.x, center.y) };
+
+		for (int i = trans.length - 1; i >= 0; i--) {
+			t.concatenate(trans[i]);
+		}
+		return t;
 	}
 
 	@Override
