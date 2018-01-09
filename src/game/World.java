@@ -70,7 +70,7 @@ public class World {
 				if (blocksez[i][j + 1] != 0) {
 					blocksez[i][j] = empty;
 					blockType = empty;
-					if (empty - 2 >= Math.random() * 100) {
+					if (empty - 2 >= Math.random() * 50) {
 						blockType = 4;
 						blocksez[i][j] = 4;
 					}
