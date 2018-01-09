@@ -29,9 +29,9 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	public void draw(Sprite s) {
-		Rectangle resultImageBox = s.getBoundingBox();
 		Transform t = getDrawTransform();
-		if (getViewShape().contains(resultImageBox.transform(t))) {
+		Shape resultImageBox = s.getBoundingBox().transform(t);
+		if (getViewShape().contains(resultImageBox) || getViewShape().intersects(resultImageBox)) {
 			Vector2f res = t.transform(s.loc.copy());
 			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
 			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
@@ -47,9 +47,7 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	private void printDebugInfo() {
-		Transform t = getDrawTransform();
-
-		System.out.println(getViewShape());
+		System.out.println("debug button pressed");
 	}
 
 	private Transform getDrawTransform() {
@@ -61,18 +59,6 @@ public class Viewport implements DefaultKeyListener {
 				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2));
 		t.concatenate(Transform.createScaleTransform(scaleFactor, scaleFactor));
 		t.concatenate(Transform.createTranslateTransform(-center.x, -center.y));
-		return t;
-	}
-
-	private Transform getInverseDrawTransform() {
-		Transform t = new Transform();
-
-		// Note that the transforms are applied in reverse order
-		// e.g. the first concatenated transform is applied last
-		t.concatenate(Transform.createTranslateTransform(-center.x, -center.y));
-		t.concatenate(Transform.createScaleTransform(scaleFactor, scaleFactor));
-		t.concatenate(
-				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2));
 		return t;
 	}
 
@@ -89,11 +75,7 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	public Shape getViewShape() {
-		Transform t = new Transform();
-		// t = t.concatenate(Transform.createScaleTransform(.5f, .5f));
-		t.concatenate(getInverseDrawTransform());
-		Rectangle viewRectangle = new Rectangle(0, 0, screenDimensions.x, screenDimensions.y);
-		return viewRectangle.transform(t);
+		return new Rectangle(0, 0, screenDimensions.x, screenDimensions.y);
 	}
 
 	@Override
