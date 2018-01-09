@@ -118,7 +118,8 @@ public class World {
 					type = BlockType.STONE;
 					break;
 				case 4:
-					if (DEBUG_WORLD_DEFAULT_HEIGHT - j <= DEBUG_WORLD_DEFAULT_HEIGHT / 10.0 && Math.random() <= 0.3) {
+					if (DEBUG_WORLD_DEFAULT_HEIGHT - (j + 1) <= DEBUG_WORLD_DEFAULT_HEIGHT / 10.0
+							&& Math.random() <= 0.3) {
 						if (Math.random() < 0.4) {
 							type = BlockType.DIAMOND_ORE;
 						} else {
