@@ -88,7 +88,7 @@ public class World {
 		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		int blocksez[][];
 		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
-		blocksez = new int[CHUNK_SIZE][CHUNK_SIZE];
+		blocksez = new int[CHUNK_SIZE][CHUNK_HEIGHT];
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			int depth = CHUNK_SIZE - 1;
 			blocks[i][depth] = new SolidBlock(BlockType.STONE, (i + x) * Block.BLOCK_SPRITE_SIZE,
