@@ -1,8 +1,9 @@
 package game;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Comparator;
+import java.util.NavigableSet;
+import java.util.TreeMap;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
@@ -17,7 +18,7 @@ public class World {
 	private final static int CHUNK_SIZE = 100;
 	private final static int BEDROCK_LAYER = 100;
 
-	private Map<Position, Block> blocks = new HashMap<>();
+	private TreeMap<Position, Block> blocks = new TreeMap<>(new PositionComparator());
 	private ArrayList<Entity> characters;
 
 	public World() {
@@ -36,8 +37,13 @@ public class World {
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(), view.getWidth(), view.getHeight());
 		generateRegion(viewRect);
-		for (Block b : blocks.values()) {
-			b.draw(vp);
+		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
+			Position start = new Position(i, (int) (viewRect.getMinY() - 1));
+			Position end = new Position(i, (int) (viewRect.getMaxY() + 1));
+			NavigableSet<Position> existingBlocks = blocks.navigableKeySet().subSet(start, true, end, true);
+			for (Position p : existingBlocks) {
+				blocks.get(p).draw(vp);
+			}
 		}
 		for (Entity e : this.characters) {
 			e.draw(vp);
@@ -174,6 +180,16 @@ public class World {
 			}
 		}
 		return blocks;
+	}
+}
+
+class PositionComparator implements Comparator<Position> {
+	@Override
+	public int compare(Position p1, Position p2) {
+		if (p1.x == p2.x) {
+			return p1.y - p2.y;
+		}
+		return p1.x - p2.x;
 	}
 }
 
