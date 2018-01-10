@@ -87,6 +87,7 @@ public class World {
 	public Block[][] generateChunk(int x, int y) {
 		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		int blocksez[][];
+		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
 		blocksez = new int[CHUNK_SIZE][CHUNK_SIZE];
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			int depth = CHUNK_SIZE - 1;
@@ -132,6 +133,7 @@ public class World {
 				}
 
 				BlockType type = BlockType.EMPTY;
+				blocksenum[i][j] = BlockType.EMPTY;
 				switch (blockType) {
 				case 0:
 					type = BlockType.EMPTY;
@@ -148,9 +150,19 @@ public class World {
 					break;
 				case 3:
 					type = BlockType.STONE;
+					if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT && j - 1 >= 0) {
+						for (int blocksearch = 0; blocksearch < 8; blocksearch++) {
+							int looky = (int) Math.round(Math.random() * 2 - 1);
+							int lookx = (int) Math.round(Math.random() * 2 - 1);
+							if (blocksez[i + lookx][j + looky] == 4) {
+								type = blocksenum[i + lookx][j + looky];
+							}
+						}
+					}
+
 					break;
 				case 4:
-					if (Math.random() > 0.5) {
+					if (Math.random() <= 0.1) {
 						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
 							if (Math.random() < 0.4) {
 								type = BlockType.DIAMOND_ORE;
@@ -179,6 +191,7 @@ public class World {
 				default:
 					type = BlockType.UNDEFINED;
 				}
+				blocksenum[i][j] = type;
 				blocks[i][j] = new SolidBlock(type, (i + x) * Block.BLOCK_SPRITE_SIZE,
 						(j + y) * Block.BLOCK_SPRITE_SIZE);
 			}
