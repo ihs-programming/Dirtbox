@@ -150,23 +150,27 @@ public class World {
 					type = BlockType.STONE;
 					break;
 				case 4:
-					if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
-						if (Math.random() < 0.4) {
-							type = BlockType.DIAMOND_ORE;
+					if (Math.random() > 0.5) {
+						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
+							if (Math.random() < 0.4) {
+								type = BlockType.DIAMOND_ORE;
+							} else {
+								type = BlockType.REDSTONE_ORE;
+							}
 						} else {
-							type = BlockType.REDSTONE_ORE;
+							double oreselection = Math.random();
+							if (oreselection < 0.1) {
+								type = BlockType.GOLD_ORE;
+							}
+							if (oreselection >= 0.1 && oreselection < 0.35) {
+								type = BlockType.IRON_ORE;
+							}
+							if (oreselection >= 0.35) {
+								type = BlockType.COAL_ORE;
+							}
 						}
 					} else {
-						double oreselection = Math.random();
-						if (oreselection < 0.1) {
-							type = BlockType.GOLD_ORE;
-						}
-						if (oreselection >= 0.1 && oreselection < 0.35) {
-							type = BlockType.IRON_ORE;
-						}
-						if (oreselection >= 0.35) {
-							type = BlockType.COAL_ORE;
-						}
+						type = BlockType.STONE;
 					}
 					break;
 				case 5:
