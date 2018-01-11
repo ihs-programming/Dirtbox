@@ -5,14 +5,19 @@ public enum BlockType {
 	// Git keeps track of what lines change, so keeping blocks on different
 	// lines should reduce merge conflicts)
 	//
-	// Notice also that the blocks are alphabetically ordered...
+	// Notice also that the blocks are alphabetically ordered...	
+	BEDROCK(1, 1),
+	COAL_ORE(2, 2),
+	DIAMOND_ORE(2, 3),
 	DIRT(2, 0),
-	EMPTY(1, 1),
-	GOLD(0, 2),
-	GRAVEL(0, 0),
+	EMPTY(4, 11),
+	GOLD_ORE(0, 2),
+	GRAVEL(3, 1),
 	GRASS(3, 0),
+	IRON_ORE(1, 2),
+	REDSTONE_ORE(3, 3),
 	STONE(1, 0),
-	UNDEFINED(10, 1),
+	UNDEFINED(14, 1),
 	WOOD(4, 1);
 
 	int sx;

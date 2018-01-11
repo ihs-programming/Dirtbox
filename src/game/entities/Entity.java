@@ -67,7 +67,6 @@ public class Entity {
 	}
 
 	public void update(float frametime) {
-		Vector2f prevpos = pos.copy();
 		this.pos.add(this.vel.scale(frametime));
 		this.vel.add(this.accel.scale(frametime));
 		this.hitbox.setCenterX(this.pos.x);

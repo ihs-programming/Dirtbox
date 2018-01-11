@@ -1,6 +1,7 @@
 package game;
 
 import org.newdawn.slick.Image;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
 public class Sprite {
@@ -9,5 +10,9 @@ public class Sprite {
 
 	public Sprite(Image img) {
 		this.img = img;
+	}
+
+	public Rectangle getBoundingBox() {
+		return new Rectangle(loc.x, loc.y, img.getWidth(), img.getHeight());
 	}
 }
