@@ -25,9 +25,11 @@ public class World {
 		generateWorld(0, 0);
 		characters = new ArrayList<>();
 		try {
-			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1, new Vector2f(0, 0));
+			Image stalinsprite = new Image("data/characters/stalin.png");
+			stalinsprite.setFilter(Image.FILTER_NEAREST);
+			stalinsprite = stalinsprite.getScaledCopy(1, 2);
+			Entity stalin = new Entity(stalinsprite, 1, 1, new Vector2f(0, 0));
 			characters.add(stalin);
-			stalin.magnify(.1f);
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
