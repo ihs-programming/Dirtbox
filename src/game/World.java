@@ -14,9 +14,9 @@ import org.newdawn.slick.geom.Vector2f;
 import game.entities.Entity;
 
 public class World {
-	private static final int CHUNK_HEIGHT = 100;
-	private static final int CHUNK_SIZE = 100;
-	private static final int BEDROCK_LAYER = 100;
+	private static final int CHUNK_HEIGHT = 255;
+	private static final int CHUNK_SIZE = 127;
+	private static final int BEDROCK_LAYER = 255;
 
 	private TreeMap<Position, Block> blocks = new TreeMap<>(new PositionComparator());
 	private ArrayList<Entity> characters;
@@ -108,7 +108,7 @@ public class World {
 				if (blocksez[i][j + 1] != 0) {
 					blocksez[i][j] = empty;
 					blockType = empty;
-					if (empty - 1 >= Math.random() * 50) {
+					if (empty - 1 >= Math.random() * 30.0) {
 						blockType = 4;
 						blocksez[i][j] = 4;
 					}
@@ -169,10 +169,10 @@ public class World {
 
 					break;
 				case 4:
-					if (Math.random() <= 0.1) {
+					if (Math.random() <= 0.05) {
 						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0
 								&& Math.random() <= 0.3) {
-							if (Math.random() < 0.4) {
+							if (Math.random() < 0.2) {
 								type = BlockType.DIAMOND_ORE;
 							} else {
 								type = BlockType.REDSTONE_ORE;
