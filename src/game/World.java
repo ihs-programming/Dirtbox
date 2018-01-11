@@ -11,6 +11,9 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.blocks.Block;
+import game.blocks.BlockType;
+import game.blocks.SolidBlock;
 import game.entities.Entity;
 
 public class World {

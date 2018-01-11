@@ -1,4 +1,4 @@
-package game;
+package game.blocks;
 
 public enum BlockType {
 	// Align the blocks like this to help git with version control

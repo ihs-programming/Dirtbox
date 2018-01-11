@@ -1,4 +1,4 @@
-package game;
+package game.blocks;
 
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
