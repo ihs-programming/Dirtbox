@@ -1,7 +1,7 @@
 package game;
 
+import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.NavigableSet;
 import java.util.TreeMap;
 
@@ -21,7 +21,12 @@ public class World {
 	private static final int CHUNK_SIZE = 127;
 	private static final int BEDROCK_LAYER = 255;
 
-	private TreeMap<Position, Block> blocks = new TreeMap<>(new PositionComparator());
+	private TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
+		if (p1.x == p2.x) {
+			return p1.y - p2.y;
+		}
+		return p1.x - p2.x;
+	});
 	private ArrayList<Entity> characters;
 
 	public World() {
@@ -40,15 +45,15 @@ public class World {
 
 	public void draw(Viewport vp) {
 		Shape view = vp.getGameViewShape();
-		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
-				view.getWidth(), view.getHeight());
+		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(), view.getWidth(),
+				view.getHeight());
 		generateRegion(viewRect);
 		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
-			Position start = new Position(i, (int) (viewRect.getMinY() - 1));
-			Position end = new Position(i, (int) (viewRect.getMaxY() + 1));
-			NavigableSet<Position> existingBlocks = blocks.navigableKeySet()
-					.subSet(start, true, end, true);
-			for (Position p : existingBlocks) {
+			Point start = new Point(i, (int) (viewRect.getMinY() - 1));
+			Point end = new Point(i, (int) (viewRect.getMaxY() + 1));
+			NavigableSet<Point> existingBlocks = blocks.navigableKeySet().subSet(start, true, end,
+					true);
+			for (Point p : existingBlocks) {
 				blocks.get(p).draw(vp);
 			}
 		}
@@ -66,7 +71,7 @@ public class World {
 	}
 
 	public void generateWorld(int x, int y) {
-		Position curpos = new Position(x, y);
+		Point curpos = new Point(x, y);
 		if (blocks.containsKey(curpos)) {
 			return;
 		}
@@ -80,7 +85,7 @@ public class World {
 			Block[][] chunk = generateChunk(chunkStart, 0);
 			for (int i = 0; i < chunk.length; i++) {
 				for (int j = 0; j < chunk[i].length; j++) {
-					blocks.put(new Position(i + chunkStart, j), chunk[i][j]);
+					blocks.put(new Point(i + chunkStart, j), chunk[i][j]);
 				}
 			}
 		} else {
@@ -98,8 +103,7 @@ public class World {
 		blocksez = new int[CHUNK_SIZE][CHUNK_HEIGHT];
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			int depth = CHUNK_HEIGHT - 1;
-			blocks[i][depth] = new SolidBlock(BlockType.STONE,
-					(i + x) * Block.BLOCK_SPRITE_SIZE,
+			blocks[i][depth] = new SolidBlock(BlockType.STONE, (i + x) * Block.BLOCK_SPRITE_SIZE,
 					(depth + y) * Block.BLOCK_SPRITE_SIZE);
 			blocksez[i][depth] = 3;
 		}
@@ -130,8 +134,7 @@ public class World {
 					blocksez[i][j] = 0;
 					blockType = 0;
 				}
-				if (blocksez[i][j + 1] == 1 && blocksez[i][j + 2] != 5
-						&& blocksez[i][j + 1] != 0
+				if (blocksez[i][j + 1] == 1 && blocksez[i][j + 2] != 5 && blocksez[i][j + 1] != 0
 						&& j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
 					blocksez[i][j] = 5;
 					blockType = 5;
@@ -159,8 +162,7 @@ public class World {
 					break;
 				case 3:
 					type = BlockType.STONE;
-					if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT
-							&& j - 1 >= 0) {
+					if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT && j - 1 >= 0) {
 						for (int blocksearch = 0; blocksearch < 8; blocksearch++) {
 							int looky = (int) Math.round(Math.random() * 2 - 1);
 							int lookx = (int) Math.round(Math.random() * 2 - 1);
@@ -173,8 +175,7 @@ public class World {
 					break;
 				case 4:
 					if (Math.random() <= 0.05) {
-						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0
-								&& Math.random() <= 0.3) {
+						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
 							if (Math.random() < 0.2) {
 								type = BlockType.DIAMOND_ORE;
 							} else {
@@ -208,52 +209,5 @@ public class World {
 			}
 		}
 		return blocks;
-	}
-}
-
-class PositionComparator implements Comparator<Position> {
-	@Override
-	public int compare(Position p1, Position p2) {
-		if (p1.x == p2.x) {
-			return p1.y - p2.y;
-		}
-		return p1.x - p2.x;
-	}
-}
-
-class Position {
-	public int x;
-	public int y;
-
-	Position(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o instanceof Position) {
-			Position p = (Position) o;
-			return p.x == x && p.y == y;
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		int px = mapToPositive(x);
-		int py = mapToPositive(y);
-
-		// Cantor pairing function
-		// See: https://en.wikipedia.org/wiki/Pairing_function
-		return (px + py) * (px + py + 1) / 2 + py;
-	}
-
-	private int mapToPositive(int v) {
-		if (v < 0) {
-			return 2 * -v + 1;
-		} else {
-			return 2 * v;
-		}
 	}
 }
