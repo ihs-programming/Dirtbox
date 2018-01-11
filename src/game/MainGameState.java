@@ -2,6 +2,7 @@ package game;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
@@ -11,6 +12,8 @@ import game.utils.DefaultGameState;
 public class MainGameState implements DefaultGameState {
 	private World world = new World();
 	private Viewport vp = new Viewport();
+	private boolean inGame = true;
+	private GameUI ui;
 
 	@Override
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
@@ -21,6 +24,7 @@ public class MainGameState implements DefaultGameState {
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		vp.setScreenCenter(new Vector2f(gc.getWidth() / 2, gc.getHeight() / 2));
 		vp.zoom(10f);
+		ui = new GameUI(gc);
 	}
 
 	@Override
@@ -29,8 +33,13 @@ public class MainGameState implements DefaultGameState {
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
-		vp.setGraphics(g);
-		world.draw(vp);
+		if (inGame) {
+			vp.setGraphics(g);
+			world.draw(vp);
+		} else {
+			// Display ui
+			ui.draw(g);
+		}
 	}
 
 	@Override
@@ -41,5 +50,12 @@ public class MainGameState implements DefaultGameState {
 	@Override
 	public int getID() {
 		return 0;
+	}
+
+	@Override
+	public void keyPressed(int keycode, char c) {
+		if (keycode == Input.KEY_ESCAPE) {
+			inGame = false;
+		}
 	}
 }
