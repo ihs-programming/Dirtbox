@@ -14,9 +14,9 @@ import org.newdawn.slick.geom.Vector2f;
 import game.entities.Entity;
 
 public class World {
-	private final static int CHUNK_HEIGHT = 100;
-	private final static int CHUNK_SIZE = 100;
-	private final static int BEDROCK_LAYER = 100;
+	private static final int CHUNK_HEIGHT = 100;
+	private static final int CHUNK_SIZE = 100;
+	private static final int BEDROCK_LAYER = 100;
 
 	private TreeMap<Position, Block> blocks = new TreeMap<>(new PositionComparator());
 	private ArrayList<Entity> characters;
@@ -25,7 +25,8 @@ public class World {
 		generateWorld(0, 0);
 		characters = new ArrayList<>();
 		try {
-			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1, new Vector2f(0, 0));
+			Entity stalin = new Entity(new Image("data/characters/stalin.jpg"), 1, 1,
+					new Vector2f(0, 0));
 			characters.add(stalin);
 			stalin.magnify(.1f);
 		} catch (SlickException e) {
@@ -35,12 +36,14 @@ public class World {
 
 	public void draw(Viewport vp) {
 		Shape view = vp.getGameViewShape();
-		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(), view.getWidth(), view.getHeight());
+		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
+				view.getWidth(), view.getHeight());
 		generateRegion(viewRect);
 		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
 			Position start = new Position(i, (int) (viewRect.getMinY() - 1));
 			Position end = new Position(i, (int) (viewRect.getMaxY() + 1));
-			NavigableSet<Position> existingBlocks = blocks.navigableKeySet().subSet(start, true, end, true);
+			NavigableSet<Position> existingBlocks = blocks.navigableKeySet()
+					.subSet(start, true, end, true);
 			for (Position p : existingBlocks) {
 				blocks.get(p).draw(vp);
 			}
@@ -91,7 +94,8 @@ public class World {
 		blocksez = new int[CHUNK_SIZE][CHUNK_HEIGHT];
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			int depth = CHUNK_HEIGHT - 1;
-			blocks[i][depth] = new SolidBlock(BlockType.STONE, (i + x) * Block.BLOCK_SPRITE_SIZE,
+			blocks[i][depth] = new SolidBlock(BlockType.STONE,
+					(i + x) * Block.BLOCK_SPRITE_SIZE,
 					(depth + y) * Block.BLOCK_SPRITE_SIZE);
 			blocksez[i][depth] = 3;
 		}
@@ -122,7 +126,8 @@ public class World {
 					blocksez[i][j] = 0;
 					blockType = 0;
 				}
-				if (blocksez[i][j + 1] == 1 && blocksez[i][j + 2] != 5 && blocksez[i][j + 1] != 0
+				if (blocksez[i][j + 1] == 1 && blocksez[i][j + 2] != 5
+						&& blocksez[i][j + 1] != 0
 						&& j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
 					blocksez[i][j] = 5;
 					blockType = 5;
@@ -150,7 +155,8 @@ public class World {
 					break;
 				case 3:
 					type = BlockType.STONE;
-					if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT && j - 1 >= 0) {
+					if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT
+							&& j - 1 >= 0) {
 						for (int blocksearch = 0; blocksearch < 8; blocksearch++) {
 							int looky = (int) Math.round(Math.random() * 2 - 1);
 							int lookx = (int) Math.round(Math.random() * 2 - 1);
@@ -163,7 +169,8 @@ public class World {
 					break;
 				case 4:
 					if (Math.random() <= 0.1) {
-						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
+						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0
+								&& Math.random() <= 0.3) {
 							if (Math.random() < 0.4) {
 								type = BlockType.DIAMOND_ORE;
 							} else {
