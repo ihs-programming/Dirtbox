@@ -66,4 +66,16 @@
             <classpath refid="Dirtbox.classpath"/>
         </java>
     </target>
+
+    <!-- Checkstyle setup -->
+    <target name="init-checkstyle">
+        <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+            classpath="lib/checkstyle/checkstyle-8.7-all.jar"/>
+    </target>
+    <target name="checkstyle" depends="init-checkstyle">
+        <checkstyle config="lib/checkstyle/dirtbox_checks.xml">
+            <fileset dir="src" includes="**/*.java" />
+            <property key="checkstyle.cache.file" file="checkstyle.cache" />
+        </checkstyle>
+    </target>
 </project>

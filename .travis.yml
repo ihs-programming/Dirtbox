@@ -4,4 +4,7 @@ jdk:
   - oraclejdk8
 
 install: true
-script: ant build
+script:
+  - ant build
+  - ant checkstyle
+

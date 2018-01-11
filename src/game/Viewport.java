@@ -10,7 +10,7 @@ import org.newdawn.slick.geom.Vector2f;
 import game.utils.DefaultKeyListener;
 
 public class Viewport implements DefaultKeyListener {
-	private Graphics g;
+	private Graphics graphics;
 	private Vector2f center = new Vector2f(); // in game units
 	private Vector2f screenDimensions = new Vector2f(); // in pixels
 	private float scaleFactor = 1f;
@@ -25,7 +25,7 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	public Viewport(Graphics g) {
-		this.g = g;
+		this.graphics = g;
 	}
 
 	public void draw(Sprite s) {
@@ -35,14 +35,14 @@ public class Viewport implements DefaultKeyListener {
 			Vector2f res = t.transform(s.loc.copy());
 			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
 			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
-			g.drawImage(s.img.getScaledCopy(nw, nh), (int) res.x, (int) res.y);
+			graphics.drawImage(s.img.getScaledCopy(nw, nh), (int) res.x, (int) res.y);
 		}
 	}
 
 	public void draw(Shape s) {
 		Shape resultShape = s.transform(getDrawTransform());
 		if (getViewShape().contains(resultShape)) {
-			g.draw(s.transform(getDrawTransform()));
+			graphics.draw(s.transform(getDrawTransform()));
 		}
 	}
 
@@ -51,7 +51,7 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	public void setGraphics(Graphics g) {
-		this.g = g;
+		this.graphics = g;
 	}
 
 	public void update(int delta) {
@@ -72,7 +72,7 @@ public class Viewport implements DefaultKeyListener {
 
 	/**
 	 * Note that this method implicitly depends on getInverseDrawTransform (if this
-	 * method is changed, likely so should getInverseDrawTransform)
+	 * method is changed, likely so should getInverseDrawTransform).
 	 *
 	 * @return
 	 */
@@ -111,8 +111,7 @@ public class Viewport implements DefaultKeyListener {
 
 		// Inverted order and transformation of getDrawTransform
 		Transform[] trans = new Transform[] {
-				Transform.createTranslateTransform(-screenDimensions.x / 2,
-						-screenDimensions.y / 2),
+				Transform.createTranslateTransform(-screenDimensions.x / 2, -screenDimensions.y / 2),
 				Transform.createScaleTransform(1f / scaleFactor, 1f / scaleFactor),
 				Transform.createTranslateTransform(center.x, center.y) };
 
@@ -146,6 +145,8 @@ public class Viewport implements DefaultKeyListener {
 		case Input.KEY_P:
 			printDebugInfo();
 			break;
+		default:
+			break;
 		}
 	}
 
@@ -163,6 +164,8 @@ public class Viewport implements DefaultKeyListener {
 			break;
 		case Input.KEY_LEFT:
 			movement.x += MOVEMENT_FACTOR;
+			break;
+		default:
 			break;
 		}
 	}
