@@ -4,8 +4,10 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 
+import game.blocks.Block;
+
 public class SpriteSheetLoader {
-	private static final SpriteSheet BLOCK_SHEET = loadSpriteSheet("data/blocks.png", 40, 40);
+	private static final SpriteSheet BLOCK_SHEET = loadSpriteSheet("data/blocks.png", 16, 16);
 
 	private static SpriteSheet loadSpriteSheet(String filename, int spriteWidth, int spriteHeight) {
 		Image spriteSheetImage;
@@ -19,8 +21,8 @@ public class SpriteSheetLoader {
 		}
 		return null;
 	}
-	
-	public static Image getBlockImage (int x, int y) {
+
+	public static Image getBlockImage(int x, int y) {
 		Image img = BLOCK_SHEET.getSprite(x, y);
 		img.setFilter(Image.FILTER_NEAREST);
 		return img.getScaledCopy(Block.BLOCK_SPRITE_SIZE, Block.BLOCK_SPRITE_SIZE);
