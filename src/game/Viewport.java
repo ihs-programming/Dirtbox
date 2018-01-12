@@ -111,7 +111,8 @@ public class Viewport implements DefaultKeyListener {
 
 		// Inverted order and transformation of getDrawTransform
 		Transform[] trans = new Transform[] {
-				Transform.createTranslateTransform(-screenDimensions.x / 2, -screenDimensions.y / 2),
+				Transform.createTranslateTransform(-screenDimensions.x / 2,
+						-screenDimensions.y / 2),
 				Transform.createScaleTransform(1f / scaleFactor, 1f / scaleFactor),
 				Transform.createTranslateTransform(center.x, center.y) };
 

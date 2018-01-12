@@ -1,5 +1,9 @@
 package game;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -14,6 +18,8 @@ public class MainGameState implements DefaultGameState {
 	private Viewport vp = new Viewport();
 	private boolean inGame = true;
 	private GameUI ui;
+
+	public File gameSave;
 
 	@Override
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
@@ -57,5 +63,15 @@ public class MainGameState implements DefaultGameState {
 		if (keycode == Input.KEY_ESCAPE) {
 			inGame = false;
 		}
+	}
+
+	public void save() throws FileNotFoundException {
+		Scanner scan = new Scanner(gameSave);
+		String worldString = world.toString();
+		// String playerString
+	}
+
+	private void load(File f) {
+
 	}
 }

@@ -25,4 +25,7 @@ public abstract class Block {
 	public Vector2f getPos() {
 		return pos;
 	}
+
+	@Override
+	public abstract String toString();
 }
