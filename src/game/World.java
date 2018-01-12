@@ -17,9 +17,9 @@ import game.blocks.SolidBlock;
 import game.entities.Entity;
 
 public class World {
-	private static final int CHUNK_HEIGHT = 255;
-	private static final int CHUNK_SIZE = 127;
-	private static final int BEDROCK_LAYER = 255;
+	private static final int CHUNK_HEIGHT = 200;
+	private static final int CHUNK_SIZE = 100;
+	private static final int BEDROCK_LAYER = 200;
 	private static final int CHUNK_BOUNDARY_HEIGHT = (int) (CHUNK_HEIGHT * 0.7);
 
 	private TreeMap<Position, Block> blocks = new TreeMap<>(new PositionComparator());
@@ -56,6 +56,7 @@ public class World {
 		for (Entity e : this.characters) {
 			e.draw(vp);
 		}
+
 	}
 
 	private void generateRegion(Rectangle s) {
@@ -176,7 +177,8 @@ public class World {
 								blockType = 0;
 							}
 							if (j < CHUNK_HEIGHT - (0.9
-									+ Math.pow((i - CHUNK_SIZE / 2.0) / (CHUNK_SIZE / 2.0), 2) / 10)
+									+ (Math.pow((i - CHUNK_SIZE / 2.0) / (CHUNK_SIZE / 2.0), 2)
+											+ (Math.random() - 0.5) / 5) / 10)
 									* CHUNK_BOUNDARY_HEIGHT) {
 								blocksez[i][j] = 0;
 								blockType = 0;
@@ -185,9 +187,11 @@ public class World {
 						}
 					} else {
 						if (empty == 1) {
-							if (j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
-								blocksez[i][j] = 0;
-								blockType = 0;
+							if (biometype != BiomeType.MOUNTAIN) {
+								if (j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
+									blocksez[i][j] = 0;
+									blockType = 0;
+								}
 							}
 
 							if (i <= 2) {
@@ -315,7 +319,13 @@ public class World {
 				blocksenum[i][j] = BlockType.EMPTY;
 				switch (blockType) {
 				case 0:
-					type = BlockType.EMPTY;
+					if (biometype != BiomeType.OCEAN) {
+						type = BlockType.EMPTY;
+					} else {
+						if (j >= CHUNK_HEIGHT - (CHUNK_BOUNDARY_HEIGHT - 2)) {
+							type = BlockType.WATER;
+						}
+					}
 					break;
 				case 1:
 					type = BlockType.UNDEFINED;
@@ -353,10 +363,12 @@ public class World {
 						}
 					} else {
 						if (i + 1 >= CHUNK_SIZE || i - 1 < 0) {
-							if (j < CHUNK_HEIGHT * 35.0 / 100.0 * Math.random()) {
-								blocksez[i][j] = 0;
-								blockType = 0;
-								type = BlockType.EMPTY;
+							if (biometype != BiomeType.MOUNTAIN) {
+								if (j < CHUNK_HEIGHT * 35.0 / 100.0 * Math.random()) {
+									blocksez[i][j] = 0;
+									blockType = 0;
+									type = BlockType.EMPTY;
+								}
 							}
 						}
 					}
@@ -410,6 +422,7 @@ public class World {
 				blocks[i][j] = new SolidBlock(type, (i + x) * Block.BLOCK_SPRITE_SIZE,
 						(j + y) * Block.BLOCK_SPRITE_SIZE);
 			}
+
 		}
 		return blocks;
 	}
