@@ -20,6 +20,7 @@ public class World {
 	private static final int CHUNK_HEIGHT = 255;
 	private static final int CHUNK_SIZE = 127;
 	private static final int BEDROCK_LAYER = 255;
+	private static final int CHUNK_BOUNDARY_HEIGHT = (int) (CHUNK_HEIGHT * 0.7);
 
 	private TreeMap<Position, Block> blocks = new TreeMap<>(new PositionComparator());
 	private ArrayList<Entity> characters;
@@ -132,7 +133,7 @@ public class World {
 						blockType = 4;
 						blocksez[i][j] = 4;
 					}
-					if (empty == 1 && !(i - 2 < 0) && !(i + 2 >= CHUNK_SIZE)) {
+					if (empty == 1 && !(i < 2) && !(i >= CHUNK_SIZE - 2)) {
 						switch (biometype) {
 						case PLAIN:
 							if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
@@ -174,24 +175,125 @@ public class World {
 								blocksez[i][j] = 0;
 								blockType = 0;
 							}
+							if (j < CHUNK_HEIGHT - (0.9
+									+ Math.pow((i - CHUNK_SIZE / 2.0) / (CHUNK_SIZE / 2.0), 2) / 10)
+									* CHUNK_BOUNDARY_HEIGHT) {
+								blocksez[i][j] = 0;
+								blockType = 0;
+							}
 							break;
 						}
 					} else {
-						if (j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
-							blocksez[i][j] = 0;
-							blockType = 0;
-						}
-						if (i > 2 && i < CHUNK_SIZE - 2) {
+						if (empty == 1) {
 							if (j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
 								blocksez[i][j] = 0;
 								blockType = 0;
 							}
-						} else {
-							if (j < CHUNK_HEIGHT * 31.0 / 100.0 * Math.random()) {
-								blocksez[i][j] = 0;
-								blockType = 0;
+
+							if (i <= 2) {
+								switch (biometype) {
+								case PLAIN:
+									if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0) {
+										blocksez[i][j] = empty;
+										blockType = empty;
+									} else {
+										blocksez[i][j] = 0;
+										blockType = 0;
+									}
+									break;
+								case DESERT:
+									if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0
+											&& blocksez[i + 2][j + 1] != 0
+											&& blocksez[i][j + 1] != 0) {
+										blocksez[i][j] = empty;
+										blockType = empty;
+									} else {
+										blocksez[i][j] = 0;
+										blockType = 0;
+									}
+									break;
+								case MOUNTAIN:
+									int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
+									int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
+									if (blocksez[i][j + mountaincheck] != 0
+											&& blocksez[i][j + mountaincheck2] != 0) {
+										blocksez[i][j] = empty;
+										blockType = empty;
+									} else {
+										blocksez[i][j] = 0;
+										blockType = 0;
+									}
+									break;
+								case OCEAN:
+									if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0
+											&& blocksez[i + 2][j + 1] != 0
+											&& blocksez[i][j + 1] != 0) {
+										blocksez[i][j] = empty;
+										blockType = empty;
+									} else {
+										blocksez[i][j] = 0;
+										blockType = 0;
+									}
+									break;
+								}
+								if (j < CHUNK_HEIGHT - CHUNK_BOUNDARY_HEIGHT) {
+									blocksez[i][j] = 0;
+									blockType = 0;
+								}
+							}
+							if (i >= CHUNK_SIZE - 2) {
+								switch (biometype) {
+								case PLAIN:
+									if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
+										blocksez[i][j] = empty;
+										blockType = empty;
+									} else {
+										blocksez[i][j] = 0;
+										blockType = 0;
+									}
+									break;
+								case DESERT:
+									if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
+											&& blocksez[i][j + 1] != 0
+											&& blocksez[i - 2][j + 1] != 0) {
+										blocksez[i][j] = empty;
+										blockType = empty;
+									} else {
+										blocksez[i][j] = 0;
+										blockType = 0;
+									}
+									break;
+								case MOUNTAIN:
+									int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
+									int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
+									if (blocksez[i][j + mountaincheck] != 0
+											&& blocksez[i - 1][j + mountaincheck2] != 0) {
+										blocksez[i][j] = empty;
+										blockType = empty;
+									} else {
+										blocksez[i][j] = 0;
+										blockType = 0;
+									}
+									break;
+								case OCEAN:
+									if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
+											&& blocksez[i][j + 1] != 0
+											&& blocksez[i - 2][j + 1] != 0) {
+										blocksez[i][j] = empty;
+										blockType = empty;
+									} else {
+										blocksez[i][j] = 0;
+										blockType = 0;
+									}
+									break;
+								}
+								if (j < CHUNK_HEIGHT - CHUNK_BOUNDARY_HEIGHT) {
+									blocksez[i][j] = 0;
+									blockType = 0;
+								}
 							}
 						}
+
 					}
 				}
 
@@ -247,6 +349,14 @@ public class World {
 							int lookx = (int) Math.round(Math.random() * 2 - 1);
 							if (blocksez[i + lookx][j + looky] == 4) {
 								type = blocksenum[i + lookx][j + looky];
+							}
+						}
+					} else {
+						if (i + 1 >= CHUNK_SIZE || i - 1 < 0) {
+							if (j < CHUNK_HEIGHT * 35.0 / 100.0 * Math.random()) {
+								blocksez[i][j] = 0;
+								blockType = 0;
+								type = BlockType.EMPTY;
 							}
 						}
 					}
