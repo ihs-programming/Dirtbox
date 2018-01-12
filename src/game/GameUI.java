@@ -11,6 +11,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.gui.AbstractComponent;
 import org.newdawn.slick.gui.ComponentListener;
+import org.newdawn.slick.gui.GUIContext;
 import org.newdawn.slick.gui.MouseOverArea;
 
 public class GameUI {
@@ -22,6 +23,25 @@ public class GameUI {
 		this.context = context;
 		components.add(generateStoneCoalButton(
 				new Vector2f(context.getWidth(), context.getHeight()).scale(.5f)));
+	}
+
+	class LabelButton extends MouseOverArea {
+		private final static float DEFAULT_TEXT_HEIGHT = 20;
+		private String text = "";
+
+		public LabelButton(GUIContext container, Image image, int x, int y) {
+			super(container, image, x, y);
+		}
+
+		public void setText(String text) {
+			this.text = text;
+		}
+
+		@Override
+		public void render(GUIContext c, Graphics g) {
+			super.render(c, g);
+			g.drawString(text, getX(), getY() - DEFAULT_TEXT_HEIGHT);
+		}
 	}
 
 	private MouseOverArea generateStoneCoalButton(Vector2f location) {
