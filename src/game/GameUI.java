@@ -19,13 +19,27 @@ public class GameUI {
 	private GameContainer context;
 	private List<AbstractComponent> components = new ArrayList<>();
 
-	public GameUI(GameContainer context) {
+	public GameUI(GameContainer context, ComponentListener returnCallback) {
 		this.context = context;
-		components.add(generateStoneCoalButton(
-				new Vector2f(context.getWidth(), context.getHeight()).scale(.5f)));
+
+		LabelButton exitButton = generateStoneCoalButton(
+				new Vector2f(context.getWidth(), context.getHeight()).scale(.5f));
+		exitButton.setText("Exit game");
+		exitButton.addListener(source -> {
+			context.exit();
+		});
+		components.add(exitButton);
+
+		LabelButton returnButton = generateStoneCoalButton(new Vector2f(100, 100));
+		returnButton.setText("Return to game");
+		returnButton.addListener(returnCallback);
+		components.add(returnButton);
 	}
 
-	class LabelButton extends MouseOverArea {
+	/**
+	 * Displays text with button
+	 */
+	private class LabelButton extends MouseOverArea {
 		private final static float DEFAULT_TEXT_HEIGHT = 20;
 		private String text = "";
 
@@ -44,17 +58,19 @@ public class GameUI {
 		}
 	}
 
-	private MouseOverArea generateStoneCoalButton(Vector2f location) {
-		MouseOverArea button = generateButton(location, getBlockImg(0, 0, DEFAULT_BLOCKBUTTON_SIZE),
+	private LabelButton generateStoneCoalButton(Vector2f location) {
+		LabelButton button = generateButton(location, getBlockImg(0, 0, DEFAULT_BLOCKBUTTON_SIZE),
 				null);
 		button.setMouseOverImage(getBlockImg(2, 2, DEFAULT_BLOCKBUTTON_SIZE));
 		return button;
 	}
 
-	private MouseOverArea generateButton(Vector2f center, Image img, ComponentListener listener) {
-		MouseOverArea button = new MouseOverArea(context, img,
-				(int) (center.x - img.getWidth() / 2), (int) (center.y - img.getWidth() / 2));
-		button.addListener(listener);
+	private LabelButton generateButton(Vector2f center, Image img, ComponentListener listener) {
+		LabelButton button = new LabelButton(context, img, (int) (center.x - img.getWidth() / 2),
+				(int) (center.y - img.getWidth() / 2));
+		if (listener != null) {
+			button.addListener(listener);
+		}
 		return button;
 	}
 
