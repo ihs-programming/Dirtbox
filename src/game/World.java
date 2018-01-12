@@ -40,14 +40,14 @@ public class World {
 
 	public void draw(Viewport vp) {
 		Shape view = vp.getGameViewShape();
-		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
-				view.getWidth(), view.getHeight());
+		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(), view.getWidth(),
+				view.getHeight());
 		generateRegion(viewRect);
 		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
 			Position start = new Position(i, (int) (viewRect.getMinY() - 1));
 			Position end = new Position(i, (int) (viewRect.getMaxY() + 1));
-			NavigableSet<Position> existingBlocks = blocks.navigableKeySet()
-					.subSet(start, true, end, true);
+			NavigableSet<Position> existingBlocks = blocks.navigableKeySet().subSet(start, true,
+					end, true);
 			for (Position p : existingBlocks) {
 				blocks.get(p).draw(vp);
 			}
@@ -92,14 +92,31 @@ public class World {
 	 * TODO Improve world generation algorithm to have biomes and stuff
 	 */
 	public Block[][] generateChunk(int x, int y) {
+
+		int biome = (int) Math.floor(Math.random() * 4);
+		BiomeType biometype = null;
+		switch (biome) {
+		case 0:
+			biometype = BiomeType.PLAIN;
+			break;
+		case 1:
+			biometype = BiomeType.DESERT;
+			break;
+		case 2:
+			biometype = BiomeType.MOUNTAIN;
+			break;
+		case 3:
+			biometype = BiomeType.OCEAN;
+			break;
+		}
+		System.out.println(biome + " " + biometype);
 		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		int blocksez[][];
 		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
 		blocksez = new int[CHUNK_SIZE][CHUNK_HEIGHT];
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			int depth = CHUNK_HEIGHT - 1;
-			blocks[i][depth] = new SolidBlock(BlockType.STONE,
-					(i + x) * Block.BLOCK_SPRITE_SIZE,
+			blocks[i][depth] = new SolidBlock(BlockType.STONE, (i + x) * Block.BLOCK_SPRITE_SIZE,
 					(depth + y) * Block.BLOCK_SPRITE_SIZE);
 			blocksez[i][depth] = 3;
 		}
@@ -115,13 +132,65 @@ public class World {
 						blockType = 4;
 						blocksez[i][j] = 4;
 					}
-					if (empty == 1 && !(i - 1 < 0) && !(i + 1 >= CHUNK_SIZE)) {
-						if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
-							blocksez[i][j] = empty;
-							blockType = empty;
-						} else {
+					if (empty == 1 && !(i - 2 < 0) && !(i + 2 >= CHUNK_SIZE)) {
+						switch (biometype) {
+						case PLAIN:
+							if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
+								blocksez[i][j] = empty;
+								blockType = empty;
+							} else {
+								blocksez[i][j] = 0;
+								blockType = 0;
+							}
+							break;
+						case DESERT:
+							if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
+									&& blocksez[i + 2][j + 1] != 0 && blocksez[i - 2][j + 1] != 0) {
+								blocksez[i][j] = empty;
+								blockType = empty;
+							} else {
+								blocksez[i][j] = 0;
+								blockType = 0;
+							}
+							break;
+						case MOUNTAIN:
+							int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
+							int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
+							if (blocksez[i + 1][j + mountaincheck] != 0
+									&& blocksez[i - 1][j + mountaincheck2] != 0) {
+								blocksez[i][j] = empty;
+								blockType = empty;
+							} else {
+								blocksez[i][j] = 0;
+								blockType = 0;
+							}
+							break;
+						case OCEAN:
+							if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
+									&& blocksez[i + 2][j + 1] != 0 && blocksez[i - 2][j + 1] != 0) {
+								blocksez[i][j] = empty;
+								blockType = empty;
+							} else {
+								blocksez[i][j] = 0;
+								blockType = 0;
+							}
+							break;
+						}
+					} else {
+						if (j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
 							blocksez[i][j] = 0;
 							blockType = 0;
+						}
+						if (i > 2 && i < CHUNK_SIZE - 2) {
+							if (j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
+								blocksez[i][j] = 0;
+								blockType = 0;
+							}
+						} else {
+							if (j < CHUNK_HEIGHT * 31.0 / 100.0 * Math.random()) {
+								blocksez[i][j] = 0;
+								blockType = 0;
+							}
 						}
 					}
 				}
@@ -130,8 +199,7 @@ public class World {
 					blocksez[i][j] = 0;
 					blockType = 0;
 				}
-				if (blocksez[i][j + 1] == 1 && blocksez[i][j + 2] != 5
-						&& blocksez[i][j + 1] != 0
+				if (blocksez[i][j + 1] == 1 && blocksez[i][j + 2] != 5 && blocksez[i][j + 1] != 0
 						&& j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
 					blocksez[i][j] = 5;
 					blockType = 5;
@@ -148,7 +216,21 @@ public class World {
 					type = BlockType.EMPTY;
 					break;
 				case 1:
-					type = BlockType.DIRT;
+					type = BlockType.UNDEFINED;
+					switch (biometype) {
+					case PLAIN:
+						type = BlockType.DIRT;
+						break;
+					case DESERT:
+						type = BlockType.SANDSTONE;
+						break;
+					case MOUNTAIN:
+						type = BlockType.STONE;
+						break;
+					case OCEAN:
+						type = BlockType.SANDSTONE;
+						break;
+					}
 					break;
 				case 2:
 					if (Math.random() * j < 0.05 * Math.random() * CHUNK_HEIGHT) {
@@ -159,8 +241,7 @@ public class World {
 					break;
 				case 3:
 					type = BlockType.STONE;
-					if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT
-							&& j - 1 >= 0) {
+					if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT && j - 1 >= 0) {
 						for (int blocksearch = 0; blocksearch < 8; blocksearch++) {
 							int looky = (int) Math.round(Math.random() * 2 - 1);
 							int lookx = (int) Math.round(Math.random() * 2 - 1);
@@ -173,8 +254,7 @@ public class World {
 					break;
 				case 4:
 					if (Math.random() <= 0.05) {
-						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0
-								&& Math.random() <= 0.3) {
+						if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
 							if (Math.random() < 0.2) {
 								type = BlockType.DIAMOND_ORE;
 							} else {
@@ -197,7 +277,21 @@ public class World {
 					}
 					break;
 				case 5:
-					type = BlockType.GRASS;
+					type = BlockType.UNDEFINED;
+					switch (biometype) {
+					case PLAIN:
+						type = BlockType.GRASS;
+						break;
+					case DESERT:
+						type = BlockType.SAND;
+						break;
+					case MOUNTAIN:
+						type = BlockType.GRAVEL;
+						break;
+					case OCEAN:
+						type = BlockType.SAND;
+						break;
+					}
 					break;
 				default:
 					type = BlockType.UNDEFINED;
