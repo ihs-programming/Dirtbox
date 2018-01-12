@@ -9,6 +9,12 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.utils.DefaultKeyListener;
 
+/**
+ * Handles all drawing in the game. Does not, and should not handle ui drawing
+ *
+ * Useful because it allows the position of the "camera" (viewport) to move
+ * around
+ */
 public class Viewport implements DefaultKeyListener {
 	private Graphics graphics;
 	private Vector2f center = new Vector2f(); // in game units
@@ -30,6 +36,8 @@ public class Viewport implements DefaultKeyListener {
 
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
+
+		// Check if the sprite needs to be drawn
 		Shape resultImageBox = s.getBoundingBox().transform(t);
 		if (getViewShape().contains(resultImageBox) || getViewShape().intersects(resultImageBox)
 				|| resultImageBox.contains(getViewShape())) {
@@ -42,6 +50,8 @@ public class Viewport implements DefaultKeyListener {
 
 	public void draw(Shape s) {
 		Shape resultShape = s.transform(getDrawTransform());
+
+		// Check if the sprite needs to be drawn
 		if (getViewShape().contains(resultShape)) {
 			graphics.draw(s.transform(getDrawTransform()));
 		}
@@ -75,7 +85,7 @@ public class Viewport implements DefaultKeyListener {
 	 * Note that this method implicitly depends on getInverseDrawTransform (if this
 	 * method is changed, likely so should getInverseDrawTransform).
 	 *
-	 * @return
+	 * @return transform mapping game position to screen position
 	 */
 	private Transform getDrawTransform() {
 		Transform t = new Transform();
@@ -93,19 +103,11 @@ public class Viewport implements DefaultKeyListener {
 		return t;
 	}
 
-	public void zoom(float factor) {
-		scaleFactor *= factor;
-	}
-
-	public void setZoom(float factor) {
-		scaleFactor = factor;
-	}
-
 	/**
 	 * Note that this method implicitly depends on getDrawTransform (if this method
 	 * is changed, likely so should getDrawTransform)
 	 *
-	 * @return
+	 * @return transform mapping screen position to game position
 	 */
 	private Transform getInverseDrawTransform() {
 		Transform t = new Transform();
@@ -121,6 +123,14 @@ public class Viewport implements DefaultKeyListener {
 			t.concatenate(trans[i]);
 		}
 		return t;
+	}
+
+	public void zoom(float factor) {
+		scaleFactor *= factor;
+	}
+
+	public void setZoom(float factor) {
+		scaleFactor = factor;
 	}
 
 	@Override

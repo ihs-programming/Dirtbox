@@ -20,7 +20,7 @@ public enum BlockType {
 	UNDEFINED(14, 1),
 	WOOD(4, 1);
 
-	// Position on spritesheet (from 0, 0)
+	// Position on spritesheet (from 0, 0 being the top left block)
 	int sx;
 	int sy;
 

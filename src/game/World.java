@@ -16,6 +16,11 @@ import game.blocks.BlockType;
 import game.blocks.SolidBlock;
 import game.entities.Entity;
 
+/**
+ * Contains all objects in the game
+ *
+ * e.g. Blocks, People, maybe in the future animals, etc.
+ */
 public class World {
 	private static final int CHUNK_HEIGHT = 255;
 	private static final int CHUNK_SIZE = 127;
