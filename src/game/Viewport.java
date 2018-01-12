@@ -31,7 +31,8 @@ public class Viewport implements DefaultKeyListener {
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
 		Shape resultImageBox = s.getBoundingBox().transform(t);
-		if (getViewShape().contains(resultImageBox) || getViewShape().intersects(resultImageBox)) {
+		if (getViewShape().contains(resultImageBox) || getViewShape().intersects(resultImageBox)
+				|| resultImageBox.contains(getViewShape())) {
 			Vector2f res = t.transform(s.loc.copy());
 			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
 			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
@@ -111,7 +112,8 @@ public class Viewport implements DefaultKeyListener {
 
 		// Inverted order and transformation of getDrawTransform
 		Transform[] trans = new Transform[] {
-				Transform.createTranslateTransform(-screenDimensions.x / 2, -screenDimensions.y / 2),
+				Transform.createTranslateTransform(-screenDimensions.x / 2,
+						-screenDimensions.y / 2),
 				Transform.createScaleTransform(1f / scaleFactor, 1f / scaleFactor),
 				Transform.createTranslateTransform(center.x, center.y) };
 
