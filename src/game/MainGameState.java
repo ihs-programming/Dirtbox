@@ -55,7 +55,7 @@ public class MainGameState implements DefaultGameState {
 	@Override
 	public void keyPressed(int keycode, char c) {
 		if (keycode == Input.KEY_ESCAPE) {
-			inGame = false;
+			inGame = !inGame;
 		}
 	}
 }
