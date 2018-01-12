@@ -357,7 +357,8 @@ public class World {
 						for (int blocksearch = 0; blocksearch < 8; blocksearch++) {
 							int looky = (int) Math.round(Math.random() * 2 - 1);
 							int lookx = (int) Math.round(Math.random() * 2 - 1);
-							if (blocksez[i + lookx][j + looky] == 4) {
+							if (blocksez[i + lookx][j + looky] == 4
+									|| blocksez[i + lookx][j + looky] == 2) {
 								type = blocksenum[i + lookx][j + looky];
 							}
 						}
