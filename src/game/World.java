@@ -93,7 +93,7 @@ public class World {
 	/**
 	 * TODO Improve world generation algorithm to have biomes and stuff
 	 */
-	public BiomeType randombiome() { // selects a random biome
+	private BiomeType randombiome() { // selects a random biome
 		int randombiome = (int) Math.floor(Math.random() * 4);
 		BiomeType biome = null;
 		switch (randombiome) {
@@ -113,7 +113,7 @@ public class World {
 		return biome;
 	}
 
-	public int blocktype(int blocksez[][], int i, int j, BiomeType biometype) {
+	private int blocktype(int blocksez[][], int i, int j, BiomeType biometype) {
 		int empty = (int) (Math.random() + j / (CHUNK_HEIGHT * 30.0 / 100.0));
 
 		if (blocksez[i][j + 1] != 0) {
@@ -268,107 +268,137 @@ public class World {
 		return blocksez[i][j];
 	}
 
-	public BlockType blockpicker(int blockType, BiomeType biometype, int i, int j, int blocksez[][],
-			BlockType blocksenum[][]) {
+	// The following determines the block depending on the biome
+
+	private BlockType airselector(BiomeType biometype, int j, BlockType type) {
+		if (biometype != BiomeType.OCEAN) {
+			type = BlockType.EMPTY;
+		} else {
+			if (j >= CHUNK_HEIGHT - (CHUNK_BOUNDARY_HEIGHT - 2)) {
+				type = BlockType.WATER;
+			}
+		}
+		return type;
+	}
+
+	private BlockType dirtselector(BiomeType biometype, BlockType type) {
+		type = BlockType.DIRT;
+		switch (biometype) {
+		case PLAIN:
+			type = BlockType.DIRT;
+			break;
+		case DESERT:
+			type = BlockType.SANDSTONE;
+			break;
+		case MOUNTAIN:
+			type = BlockType.STONE;
+			break;
+		case OCEAN:
+			type = BlockType.SANDSTONE;
+			break;
+		}
+		return type;
+	}
+
+	private BlockType gravelselector(int j, BlockType type) {
+		if (Math.random() * j < 0.05 * Math.random() * CHUNK_HEIGHT) {
+			type = BlockType.GRAVEL;
+		} else {
+			type = BlockType.STONE;
+		}
+		return type;
+	}
+
+	private BlockType stoneselector(int i, int j, int blocksez[][], BlockType blocksenum[][],
+			BiomeType biometype, BlockType type) {
+		type = BlockType.STONE;
+		if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT && j - 1 >= 0) {
+			for (int blocksearch = 0; blocksearch < 8; blocksearch++) {
+				int looky = (int) Math.round(Math.random() * 2 - 1);
+				int lookx = (int) Math.round(Math.random() * 2 - 1);
+				if (blocksez[i + lookx][j + looky] == 4 || blocksez[i + lookx][j + looky] == 2) {
+					type = blocksenum[i + lookx][j + looky];
+				}
+			}
+		} else {
+			if (i + 1 >= CHUNK_SIZE || i - 1 < 0) {
+				if (biometype != BiomeType.MOUNTAIN) {
+					if (j < CHUNK_HEIGHT * 35.0 / 100.0 * Math.random()) {
+						blocksez[i][j] = 0;
+						type = BlockType.EMPTY;
+					}
+				}
+			}
+		}
+		return type;
+	}
+
+	private BlockType oreselector(int j, BlockType type) {
+		if (Math.random() <= 0.05) {
+			if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
+				if (Math.random() < 0.2) {
+					type = BlockType.DIAMOND_ORE;
+				} else {
+					type = BlockType.REDSTONE_ORE;
+				}
+			} else {
+				double oreselection = Math.random();
+				if (oreselection < 0.1) {
+					type = BlockType.GOLD_ORE;
+				}
+				if (oreselection >= 0.1 && oreselection < 0.35) {
+					type = BlockType.IRON_ORE;
+				}
+				if (oreselection >= 0.35) {
+					type = BlockType.COAL_ORE;
+				}
+			}
+		} else {
+			type = BlockType.STONE;
+		}
+		return type;
+	}
+
+	private BlockType grassselector(BiomeType biometype, BlockType type) {
+		type = BlockType.UNDEFINED;
+		switch (biometype) {
+		case PLAIN:
+			type = BlockType.GRASS;
+			break;
+		case DESERT:
+			type = BlockType.SAND;
+			break;
+		case MOUNTAIN:
+			type = BlockType.GRAVEL;
+			break;
+		case OCEAN:
+			type = BlockType.SAND;
+			break;
+		}
+		return type;
+	}
+
+	private BlockType blockpicker(int blockType, BiomeType biometype, int i, int j,
+			int blocksez[][], BlockType blocksenum[][]) {
 		BlockType type = BlockType.EMPTY;
 		switch (blockType) {
 		case 0:
-			if (biometype != BiomeType.OCEAN) {
-				type = BlockType.EMPTY;
-			} else {
-				if (j >= CHUNK_HEIGHT - (CHUNK_BOUNDARY_HEIGHT - 2)) {
-					type = BlockType.WATER;
-				}
-			}
+			type = airselector(biometype, j, type);
 			break;
 		case 1:
-			type = BlockType.UNDEFINED;
-			switch (biometype) {
-			case PLAIN:
-				type = BlockType.DIRT;
-				break;
-			case DESERT:
-				type = BlockType.SANDSTONE;
-				break;
-			case MOUNTAIN:
-				type = BlockType.STONE;
-				break;
-			case OCEAN:
-				type = BlockType.SANDSTONE;
-				break;
-			}
+			type = dirtselector(biometype, type);
 			break;
 		case 2:
-			if (Math.random() * j < 0.05 * Math.random() * CHUNK_HEIGHT) {
-				type = BlockType.GRAVEL;
-			} else {
-				type = BlockType.STONE;
-			}
+			type = gravelselector(j, type);
 			break;
 		case 3:
-			type = BlockType.STONE;
-			if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT && j - 1 >= 0) {
-				for (int blocksearch = 0; blocksearch < 8; blocksearch++) {
-					int looky = (int) Math.round(Math.random() * 2 - 1);
-					int lookx = (int) Math.round(Math.random() * 2 - 1);
-					if (blocksez[i + lookx][j + looky] == 4
-							|| blocksez[i + lookx][j + looky] == 2) {
-						type = blocksenum[i + lookx][j + looky];
-					}
-				}
-			} else {
-				if (i + 1 >= CHUNK_SIZE || i - 1 < 0) {
-					if (biometype != BiomeType.MOUNTAIN) {
-						if (j < CHUNK_HEIGHT * 35.0 / 100.0 * Math.random()) {
-							blocksez[i][j] = 0;
-							blockType = 0;
-							type = BlockType.EMPTY;
-						}
-					}
-				}
-			}
-
+			type = stoneselector(i, j, blocksez, blocksenum, biometype, type);
 			break;
 		case 4:
-			if (Math.random() <= 0.05) {
-				if (CHUNK_HEIGHT - (j + 1) <= CHUNK_HEIGHT / 10.0 && Math.random() <= 0.3) {
-					if (Math.random() < 0.2) {
-						type = BlockType.DIAMOND_ORE;
-					} else {
-						type = BlockType.REDSTONE_ORE;
-					}
-				} else {
-					double oreselection = Math.random();
-					if (oreselection < 0.1) {
-						type = BlockType.GOLD_ORE;
-					}
-					if (oreselection >= 0.1 && oreselection < 0.35) {
-						type = BlockType.IRON_ORE;
-					}
-					if (oreselection >= 0.35) {
-						type = BlockType.COAL_ORE;
-					}
-				}
-			} else {
-				type = BlockType.STONE;
-			}
+			type = oreselector(j, type);
 			break;
 		case 5:
-			type = BlockType.UNDEFINED;
-			switch (biometype) {
-			case PLAIN:
-				type = BlockType.GRASS;
-				break;
-			case DESERT:
-				type = BlockType.SAND;
-				break;
-			case MOUNTAIN:
-				type = BlockType.GRAVEL;
-				break;
-			case OCEAN:
-				type = BlockType.SAND;
-				break;
-			}
+			type = grassselector(biometype, type);
 			break;
 		default:
 			type = BlockType.UNDEFINED;
@@ -376,7 +406,7 @@ public class World {
 		return type;
 	}
 
-	public Block[][] generateChunk(int x, int y) {
+	private Block[][] generateChunk(int x, int y) {
 
 		BiomeType biometype = randombiome(); // selects a random biome
 
