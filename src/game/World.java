@@ -452,16 +452,7 @@ public class World {
 			e.draw(vp);
 		}
 
-	}
-
-	
-
-
-	
-
-
-
-	
+	}	
 }
 
 class PositionComparator implements Comparator<Position> {
