@@ -77,7 +77,7 @@ class generateRegion extends Thread {
 					(depth + y) * Block.BLOCK_SPRITE_SIZE);
 			blocksez[i][depth] = 3;
 		}
-
+		boolean cavemap[][] = generateMap();
 		for (int j = CHUNK_HEIGHT - 2; j >= 0; j--) {
 			for (int i = 0; i < CHUNK_SIZE; i++) {
 
@@ -90,8 +90,13 @@ class generateRegion extends Thread {
 				type = blockpicker(blockType, biometype, i, j, blocksez, blocksenum);
 
 				blocksenum[i][j] = type;
-				blocks[i][j] = new SolidBlock(type, (i + x) * Block.BLOCK_SPRITE_SIZE,
-						(j + y) * Block.BLOCK_SPRITE_SIZE);
+				if (cavemap[i][j]) {
+					blocks[i][j] = new SolidBlock(type, (i + x) * Block.BLOCK_SPRITE_SIZE,
+							(j + y) * Block.BLOCK_SPRITE_SIZE);
+				} else {
+					blocks[i][j] = new SolidBlock(BlockType.EMPTY,
+							(i + x) * Block.BLOCK_SPRITE_SIZE, (j + y) * Block.BLOCK_SPRITE_SIZE);
+				}
 			}
 
 		}
@@ -409,6 +414,96 @@ class generateRegion extends Thread {
 			type = BlockType.UNDEFINED;
 		}
 		return type;
+	}
+
+	float chanceToStartAlive = 0.57f;
+
+	public boolean[][] generateMap() {
+		// Create a new map
+
+		boolean[][] cellmap = new boolean[CHUNK_SIZE][CHUNK_HEIGHT];
+		// Set up the map with random values
+		cellmap = initialiseMap(cellmap, CHUNK_SIZE, CHUNK_HEIGHT);
+		// And now run the simulation for a set number of steps
+		int numberOfSteps = 7;
+		int deathLimit = 3;
+		int birthLimit = 4;
+		for (int i = 0; i < numberOfSteps; i++) {
+			cellmap = doSimulationStep(cellmap, CHUNK_SIZE, CHUNK_HEIGHT, deathLimit, birthLimit);
+		}
+		return cellmap;
+	}
+
+	public boolean[][] doSimulationStep(boolean[][] oldMap, int width, int height, int deathLimit,
+			int birthLimit) {
+		boolean[][] newMap = new boolean[width][height];
+		// Loop over each row and column of the map
+		for (int x = 0; x < oldMap.length; x++) {
+			for (int y = 0; y < oldMap[0].length; y++) {
+				if (y > CHUNK_HEIGHT - 0.9 * CHUNK_BOUNDARY_HEIGHT) {
+					int nbs = countAliveNeighbours(oldMap, x, y);
+					// The new value is based on our simulation rules
+					// First, if a cell is alive but has too few neighbours, kill it.
+					if (oldMap[x][y]) {
+						if (nbs < deathLimit) {
+							newMap[x][y] = false;
+						} else {
+							newMap[x][y] = true;
+						}
+					} // Otherwise, if the cell is dead now, check if it has the right number of
+						// neighbours to be 'born'
+					else {
+						if (nbs > birthLimit) {
+							newMap[x][y] = true;
+						} else {
+							newMap[x][y] = false;
+						}
+					}
+				} else {
+					newMap[x][y] = true;
+				}
+			}
+		}
+		return newMap;
+	}
+
+	public int countAliveNeighbours(boolean[][] map, int x, int y) {
+		int count = 0;
+		for (int i = -1; i < 2; i++) {
+			for (int j = -1; j < 2; j++) {
+				int neighbour_x = x + i;
+				int neighbour_y = y + j;
+				// If we're looking at the middle point
+				if (i == 0 && j == 0) {
+					// Do nothing, we don't want to add ourselves in!
+				}
+				// In case the index we're looking at it off the edge of the map
+				else if (neighbour_x < 0 || neighbour_y < 0 || neighbour_x >= map.length
+						|| neighbour_y >= map[0].length) {
+					count = count + 1;
+				}
+				// Otherwise, a normal check of the neighbour
+				else if (map[neighbour_x][neighbour_y]) {
+					count = count + 1;
+				}
+			}
+		}
+		return count;
+	}
+
+	public boolean[][] initialiseMap(boolean[][] map, int width, int height) {
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				if (y > CHUNK_HEIGHT - 0.9 * CHUNK_BOUNDARY_HEIGHT) {
+					if (Math.random() < chanceToStartAlive) {
+						map[x][y] = true;
+					}
+				} else {
+					map[x][y] = true;
+				}
+			}
+		}
+		return map;
 	}
 
 	@Override
