@@ -26,6 +26,8 @@ public class Viewport implements DefaultKeyListener {
 	private static final float SCALE_INCREASE = 1.2f;
 	private static final float SCALE_DECREASE = 1.0f / 1.2f;
 
+	public static boolean DEBUG_MODE = false;
+
 	public Viewport() {
 
 	}
@@ -58,7 +60,13 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	private void printDebugInfo() {
-		System.out.println("debug button pressed");
+		if (DEBUG_MODE) {
+			System.out.println("Debug button pressed, debug mode OFF");
+			DEBUG_MODE = !DEBUG_MODE;
+		} else {
+			System.out.println("Debug button pressed, debug mode ON");
+			DEBUG_MODE = !DEBUG_MODE;
+		}
 	}
 
 	public void setGraphics(Graphics g) {

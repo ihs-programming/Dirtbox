@@ -61,7 +61,7 @@ class generateRegion extends Thread {
 	}
 
 	private Block[][] generateChunk(int x, int y) {
-
+		long chunkgenerationtime = System.nanoTime();
 		BiomeType biometype = randombiome(); // selects a random biome
 
 		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
@@ -99,6 +99,10 @@ class generateRegion extends Thread {
 				}
 			}
 
+		}
+		if (Viewport.DEBUG_MODE) {
+			System.out.println((System.nanoTime() - chunkgenerationtime) / 1000000.0
+					+ " ms to generate chunk of type " + biometype);
 		}
 		return blocks;
 	}
