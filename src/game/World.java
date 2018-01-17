@@ -123,6 +123,54 @@ class generateRegion extends Thread {
 		return biome;
 	}
 
+	private int caseplain(int blocksez[][], int i, int j, int empty) {
+		int block = 0;
+		if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
+			block = empty;
+		} else {
+			block = 0;
+		}
+		return block;
+	}
+
+	private int casedesert(int blocksez[][], int i, int j, int empty) {
+		int block = 0;
+		if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
+				&& blocksez[i + 2][j + 1] != 0 && blocksez[i - 2][j + 1] != 0) {
+			block = empty;
+		} else {
+			block = 0;
+		}
+		return block;
+	}
+
+	private int casemountain(int blocksez[][], int i, int j, int empty) {
+		int block = 0;
+		int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
+		int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
+		if (blocksez[i + 1][j + mountaincheck] != 0 && blocksez[i - 1][j + mountaincheck2] != 0) {
+			block = empty;
+		} else {
+			block = 0;
+		}
+		return block;
+	}
+
+	private int caseocean(int blocksez[][], int i, int j, int empty) {
+		int block = 0;
+		if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
+				&& blocksez[i + 2][j + 1] != 0 && blocksez[i - 2][j + 1] != 0) {
+			block = empty;
+		} else {
+			block = 0;
+		}
+		if (j < CHUNK_HEIGHT - (0.9 + (Math.pow((i - CHUNK_SIZE / 2.0) / (CHUNK_SIZE / 2.0), 2)
+				+ (Math.random() - 0.5) / 5) / 10) * CHUNK_BOUNDARY_HEIGHT) {
+			block = 0;
+		}
+		return block;
+	}
+
 	private int blocktype(int blocksez[][], int i, int j, BiomeType biometype) {
 		int empty = (int) (Math.random() + j / (CHUNK_HEIGHT * 30.0 / 100.0));
 
@@ -134,42 +182,16 @@ class generateRegion extends Thread {
 			if (empty == 1 && !(i < 2) && !(i >= CHUNK_SIZE - 2)) {
 				switch (biometype) {
 				case PLAIN:
-					if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
+					blocksez[i][j] = caseplain(blocksez, i, j, empty);
 					break;
 				case DESERT:
-					if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
-							&& blocksez[i + 2][j + 1] != 0 && blocksez[i - 2][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
+					blocksez[i][j] = casedesert(blocksez, i, j, empty);
 					break;
 				case MOUNTAIN:
-					int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
-					int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
-					if (blocksez[i + 1][j + mountaincheck] != 0
-							&& blocksez[i - 1][j + mountaincheck2] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
+					blocksez[i][j] = casemountain(blocksez, i, j, empty);
 					break;
 				case OCEAN:
-					if (blocksez[i + 1][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
-							&& blocksez[i + 2][j + 1] != 0 && blocksez[i - 2][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					if (j < CHUNK_HEIGHT
-							- (0.9 + (Math.pow((i - CHUNK_SIZE / 2.0) / (CHUNK_SIZE / 2.0), 2)
-									+ (Math.random() - 0.5) / 5) / 10) * CHUNK_BOUNDARY_HEIGHT) {
-						blocksez[i][j] = 0;
-					}
+					blocksez[i][j] = caseocean(blocksez, i, j, empty);
 					break;
 				}
 			} else {
@@ -190,6 +212,88 @@ class generateRegion extends Thread {
 		return blocksez[i][j];
 	}
 
+	private int leftedgecase(BiomeType biometype, int blocksez[][], int i, int j, int empty) {
+		switch (biometype) {
+		case PLAIN:
+			if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0) {
+				blocksez[i][j] = empty;
+			} else {
+				blocksez[i][j] = 0;
+			}
+			break;
+		case DESERT:
+			if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0
+					&& blocksez[i + 2][j + 1] != 0 && blocksez[i][j + 1] != 0) {
+				blocksez[i][j] = empty;
+			} else {
+				blocksez[i][j] = 0;
+			}
+			break;
+		case MOUNTAIN:
+			int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
+			int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
+			if (blocksez[i][j + mountaincheck] != 0 && blocksez[i][j + mountaincheck2] != 0) {
+				blocksez[i][j] = empty;
+			} else {
+				blocksez[i][j] = 0;
+			}
+			break;
+		case OCEAN:
+			if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0
+					&& blocksez[i + 2][j + 1] != 0 && blocksez[i][j + 1] != 0) {
+				blocksez[i][j] = empty;
+			} else {
+				blocksez[i][j] = 0;
+			}
+			break;
+		}
+		if (j < CHUNK_HEIGHT - CHUNK_BOUNDARY_HEIGHT) {
+			blocksez[i][j] = 0;
+		}
+		return blocksez[i][j];
+	}
+
+	private int rightedgecase(BiomeType biometype, int blocksez[][], int i, int j, int empty) {
+		switch (biometype) {
+		case PLAIN:
+			if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
+				blocksez[i][j] = empty;
+			} else {
+				blocksez[i][j] = 0;
+			}
+			break;
+		case DESERT:
+			if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0 && blocksez[i][j + 1] != 0
+					&& blocksez[i - 2][j + 1] != 0) {
+				blocksez[i][j] = empty;
+			} else {
+				blocksez[i][j] = 0;
+			}
+			break;
+		case MOUNTAIN:
+			int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
+			int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
+			if (blocksez[i][j + mountaincheck] != 0 && blocksez[i - 1][j + mountaincheck2] != 0) {
+				blocksez[i][j] = empty;
+			} else {
+				blocksez[i][j] = 0;
+			}
+			break;
+		case OCEAN:
+			if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0 && blocksez[i][j + 1] != 0
+					&& blocksez[i - 2][j + 1] != 0) {
+				blocksez[i][j] = empty;
+			} else {
+				blocksez[i][j] = 0;
+			}
+			break;
+		}
+		if (j < CHUNK_HEIGHT - CHUNK_BOUNDARY_HEIGHT) {
+			blocksez[i][j] = 0;
+		}
+		return blocksez[i][j];
+	}
+
 	private int[][] edgecase(BiomeType biometype, int blocksez[][], int empty, int i, int j) {
 		if (empty == 1) {
 			if (biometype != BiomeType.MOUNTAIN) {
@@ -199,88 +303,15 @@ class generateRegion extends Thread {
 			}
 
 			if (i <= 2) {
-				switch (biometype) {
-				case PLAIN:
-					if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					break;
-				case DESERT:
-					if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0
-							&& blocksez[i + 2][j + 1] != 0 && blocksez[i][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					break;
-				case MOUNTAIN:
-					int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
-					int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
-					if (blocksez[i][j + mountaincheck] != 0
-							&& blocksez[i][j + mountaincheck2] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					break;
-				case OCEAN:
-					if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0
-							&& blocksez[i + 2][j + 1] != 0 && blocksez[i][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					break;
-				}
-				if (j < CHUNK_HEIGHT - CHUNK_BOUNDARY_HEIGHT) {
-					blocksez[i][j] = 0;
-				}
+				blocksez[i][j] = leftedgecase(biometype, blocksez, i, j, empty);
 			}
 			if (i >= CHUNK_SIZE - 2) {
-				switch (biometype) {
-				case PLAIN:
-					if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					break;
-				case DESERT:
-					if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
-							&& blocksez[i][j + 1] != 0 && blocksez[i - 2][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					break;
-				case MOUNTAIN:
-					int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
-					int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
-					if (blocksez[i][j + mountaincheck] != 0
-							&& blocksez[i - 1][j + mountaincheck2] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					break;
-				case OCEAN:
-					if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
-							&& blocksez[i][j + 1] != 0 && blocksez[i - 2][j + 1] != 0) {
-						blocksez[i][j] = empty;
-					} else {
-						blocksez[i][j] = 0;
-					}
-					break;
-				}
-				if (j < CHUNK_HEIGHT - CHUNK_BOUNDARY_HEIGHT) {
-					blocksez[i][j] = 0;
-				}
+				blocksez[i][j] = rightedgecase(biometype, blocksez, i, j, empty);
 			}
 		}
 		return blocksez;
 	}
+
 	// The following determines the block depending on the biome
 
 	private BlockType airselector(BiomeType biometype, int j, BlockType type) {
@@ -338,6 +369,7 @@ class generateRegion extends Thread {
 				int lookx = (int) Math.round(Math.random() * 2 - 1);
 				if (blocksez[i + lookx][j + looky] == 4 || blocksez[i + lookx][j + looky] == 2) {
 					type = blocksenum[i + lookx][j + looky];
+					break;
 				}
 			}
 		} else {
