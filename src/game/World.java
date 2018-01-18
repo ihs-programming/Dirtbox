@@ -1,5 +1,6 @@
 package game;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.NavigableSet;
@@ -22,7 +23,7 @@ class generateRegion extends Thread {
 	private static final int BEDROCK_LAYER = 127;
 	private static final int CHUNK_BOUNDARY_HEIGHT = (int) (CHUNK_HEIGHT * 0.7);
 
-	public static TreeMap<Position, Block> blocks = new TreeMap<>(new PositionComparator());
+	public static TreeMap<Point, Block> blocks = new TreeMap<>(new PositionComparator());
 
 	generateRegion() {
 
@@ -38,7 +39,7 @@ class generateRegion extends Thread {
 	}
 
 	public void generateWorld(int x, int y) {
-		Position curpos = new Position(x, y);
+		Point curpos = new Point(x, y);
 		if (blocks.containsKey(curpos)) {
 			return;
 		}
@@ -52,7 +53,7 @@ class generateRegion extends Thread {
 			Block[][] chunk = generateChunk(chunkStart, 0);
 			for (int i = 0; i < chunk.length; i++) {
 				for (int j = 0; j < chunk[i].length; j++) {
-					blocks.put(new Position(i + chunkStart, j), chunk[i][j]);
+					blocks.put(new Point(i + chunkStart, j), chunk[i][j]);
 				}
 			}
 		} else {
@@ -73,7 +74,8 @@ class generateRegion extends Thread {
 
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			int depth = CHUNK_HEIGHT - 1;
-			blocks[i][depth] = new SolidBlock(BlockType.STONE, (i + x) * Block.BLOCK_SPRITE_SIZE,
+			blocks[i][depth] = new SolidBlock(BlockType.STONE,
+					(i + x) * Block.BLOCK_SPRITE_SIZE,
 					(depth + y) * Block.BLOCK_SPRITE_SIZE);
 			blocksez[i][depth] = 3;
 		}
@@ -95,7 +97,8 @@ class generateRegion extends Thread {
 							(j + y) * Block.BLOCK_SPRITE_SIZE);
 				} else {
 					blocks[i][j] = new SolidBlock(BlockType.EMPTY,
-							(i + x) * Block.BLOCK_SPRITE_SIZE, (j + y) * Block.BLOCK_SPRITE_SIZE);
+							(i + x) * Block.BLOCK_SPRITE_SIZE,
+							(j + y) * Block.BLOCK_SPRITE_SIZE);
 				}
 			}
 
@@ -152,7 +155,8 @@ class generateRegion extends Thread {
 		int block = 0;
 		int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
 		int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
-		if (blocksez[i + 1][j + mountaincheck] != 0 && blocksez[i - 1][j + mountaincheck2] != 0) {
+		if (blocksez[i + 1][j + mountaincheck] != 0
+				&& blocksez[i - 1][j + mountaincheck2] != 0) {
 			block = empty;
 		} else {
 			block = 0;
@@ -168,8 +172,9 @@ class generateRegion extends Thread {
 		} else {
 			block = 0;
 		}
-		if (j < CHUNK_HEIGHT - (0.9 + (Math.pow((i - CHUNK_SIZE / 2.0) / (CHUNK_SIZE / 2.0), 2)
-				+ (Math.random() - 0.5) / 5) / 10) * CHUNK_BOUNDARY_HEIGHT) {
+		if (j < CHUNK_HEIGHT
+				- (0.9 + (Math.pow((i - CHUNK_SIZE / 2.0) / (CHUNK_SIZE / 2.0), 2)
+						+ (Math.random() - 0.5) / 5) / 10) * CHUNK_BOUNDARY_HEIGHT) {
 			block = 0;
 		}
 		return block;
@@ -216,7 +221,8 @@ class generateRegion extends Thread {
 		return blocksez[i][j];
 	}
 
-	private int leftedgecase(BiomeType biometype, int blocksez[][], int i, int j, int empty) {
+	private int leftedgecase(BiomeType biometype, int blocksez[][], int i, int j,
+			int empty) {
 		switch (biometype) {
 		case PLAIN:
 			if (blocksez[i + 1][j + 1] != 0 && blocksez[i][j + 1] != 0) {
@@ -236,7 +242,8 @@ class generateRegion extends Thread {
 		case MOUNTAIN:
 			int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
 			int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
-			if (blocksez[i][j + mountaincheck] != 0 && blocksez[i][j + mountaincheck2] != 0) {
+			if (blocksez[i][j + mountaincheck] != 0
+					&& blocksez[i][j + mountaincheck2] != 0) {
 				blocksez[i][j] = empty;
 			} else {
 				blocksez[i][j] = 0;
@@ -257,7 +264,8 @@ class generateRegion extends Thread {
 		return blocksez[i][j];
 	}
 
-	private int rightedgecase(BiomeType biometype, int blocksez[][], int i, int j, int empty) {
+	private int rightedgecase(BiomeType biometype, int blocksez[][], int i, int j,
+			int empty) {
 		switch (biometype) {
 		case PLAIN:
 			if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0) {
@@ -267,7 +275,8 @@ class generateRegion extends Thread {
 			}
 			break;
 		case DESERT:
-			if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0 && blocksez[i][j + 1] != 0
+			if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
+					&& blocksez[i][j + 1] != 0
 					&& blocksez[i - 2][j + 1] != 0) {
 				blocksez[i][j] = empty;
 			} else {
@@ -277,14 +286,16 @@ class generateRegion extends Thread {
 		case MOUNTAIN:
 			int mountaincheck = (int) Math.floor(Math.random() * 2) + 1;
 			int mountaincheck2 = (int) Math.floor(Math.random() * 2) + 1;
-			if (blocksez[i][j + mountaincheck] != 0 && blocksez[i - 1][j + mountaincheck2] != 0) {
+			if (blocksez[i][j + mountaincheck] != 0
+					&& blocksez[i - 1][j + mountaincheck2] != 0) {
 				blocksez[i][j] = empty;
 			} else {
 				blocksez[i][j] = 0;
 			}
 			break;
 		case OCEAN:
-			if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0 && blocksez[i][j + 1] != 0
+			if (blocksez[i][j + 1] != 0 && blocksez[i - 1][j + 1] != 0
+					&& blocksez[i][j + 1] != 0
 					&& blocksez[i - 2][j + 1] != 0) {
 				blocksez[i][j] = empty;
 			} else {
@@ -298,7 +309,8 @@ class generateRegion extends Thread {
 		return blocksez[i][j];
 	}
 
-	private int[][] edgecase(BiomeType biometype, int blocksez[][], int empty, int i, int j) {
+	private int[][] edgecase(BiomeType biometype, int blocksez[][], int empty, int i,
+			int j) {
 		if (empty == 1) {
 			if (biometype != BiomeType.MOUNTAIN) {
 				if (j < CHUNK_HEIGHT * 30.0 / 100.0 * Math.random()) {
@@ -363,7 +375,8 @@ class generateRegion extends Thread {
 		return type;
 	}
 
-	private BlockType stoneselector(int i, int j, int blocksez[][], BlockType blocksenum[][],
+	private BlockType stoneselector(int i, int j, int blocksez[][],
+			BlockType blocksenum[][],
 			BiomeType biometype, BlockType type) {
 		type = BlockType.STONE;
 
@@ -371,7 +384,8 @@ class generateRegion extends Thread {
 			for (int blocksearch = 0; blocksearch < 8; blocksearch++) {
 				int looky = (int) Math.round(Math.random() * 2 - 1);
 				int lookx = (int) Math.round(Math.random() * 2 - 1);
-				if (blocksez[i + lookx][j + looky] == 4 || blocksez[i + lookx][j + looky] == 2) {
+				if (blocksez[i + lookx][j + looky] == 4
+						|| blocksez[i + lookx][j + looky] == 2) {
 					type = blocksenum[i + lookx][j + looky];
 					break;
 				}
@@ -475,12 +489,14 @@ class generateRegion extends Thread {
 		int deathLimit = 3;
 		int birthLimit = 4;
 		for (int i = 0; i < numberOfSteps; i++) {
-			cellmap = doSimulationStep(cellmap, CHUNK_SIZE, CHUNK_HEIGHT, deathLimit, birthLimit);
+			cellmap = doSimulationStep(cellmap, CHUNK_SIZE, CHUNK_HEIGHT, deathLimit,
+					birthLimit);
 		}
 		return cellmap;
 	}
 
-	public boolean[][] doSimulationStep(boolean[][] oldMap, int width, int height, int deathLimit,
+	public boolean[][] doSimulationStep(boolean[][] oldMap, int width, int height,
+			int deathLimit,
 			int birthLimit) {
 		boolean[][] newMap = new boolean[width][height];
 		// Loop over each row and column of the map
@@ -496,7 +512,8 @@ class generateRegion extends Thread {
 						} else {
 							newMap[x][y] = true;
 						}
-					} // Otherwise, if the cell is dead now, check if it has the right number of
+					} // Otherwise, if the cell is dead now, check if it has the right
+						// number of
 						// neighbours to be 'born'
 					else {
 						if (nbs > birthLimit) {
@@ -578,21 +595,22 @@ public class World {
 	public void draw(Viewport vp) {
 
 		Shape view = vp.getGameViewShape();
-		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(), view.getWidth(),
+		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
+				view.getWidth(),
 				view.getHeight());
 		Thread worldgenerationthread = new Thread(new generateRegion(viewRect));
 		worldgenerationthread.start();
 		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
-			Position start = new Position(i, (int) (viewRect.getMinY() - 1));
-			Position end = new Position(i, (int) (viewRect.getMaxY() + 1));
-			NavigableSet<Position> existingBlocks = generateRegion.blocks.navigableKeySet()
+			Point start = new Point(i, (int) (viewRect.getMinY() - 1));
+			Point end = new Point(i, (int) (viewRect.getMaxY() + 1));
+			NavigableSet<Point> existingBlocks = generateRegion.blocks.navigableKeySet()
 					.subSet(start, true, end, true);
 			/*
-			 * The following three lines somehow randomly cause up to 1000 ms of lag This is
-			 * a big issue, as the game otherwise runs quite smoothly. Please fix!
+			 * The following three lines somehow randomly cause up to 1000 ms of lag This
+			 * is a big issue, as the game otherwise runs quite smoothly. Please fix!
 			 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 			 */
-			for (Position p : existingBlocks) {
+			for (Point p : existingBlocks) {
 				generateRegion.blocks.get(p).draw(vp);
 			}
 
@@ -604,49 +622,12 @@ public class World {
 	}
 }
 
-class PositionComparator implements Comparator<Position> {
+class PositionComparator implements Comparator<Point> {
 	@Override
-	public int compare(Position p1, Position p2) {
+	public int compare(Point p1, Point p2) {
 		if (p1.x == p2.x) {
 			return p1.y - p2.y;
 		}
 		return p1.x - p2.x;
-	}
-}
-
-class Position {
-	public int x;
-	public int y;
-
-	Position(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o instanceof Position) {
-			Position p = (Position) o;
-			return p.x == x && p.y == y;
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		int px = mapToPositive(x);
-		int py = mapToPositive(y);
-
-		// Cantor pairing function
-		// See: https://en.wikipedia.org/wiki/Pairing_function
-		return (px + py) * (px + py + 1) / 2 + py;
-	}
-
-	private int mapToPositive(int v) {
-		if (v < 0) {
-			return 2 * -v + 1;
-		} else {
-			return 2 * v;
-		}
 	}
 }
