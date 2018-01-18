@@ -2,7 +2,6 @@ package game;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.NavigableSet;
 import java.util.TreeMap;
 
@@ -23,7 +22,12 @@ class generateRegion {
 	private static final int BEDROCK_LAYER = 127;
 	private static final int CHUNK_BOUNDARY_HEIGHT = (int) (CHUNK_HEIGHT * 0.7);
 
-	public static TreeMap<Point, Block> blocks = new TreeMap<>(new PositionComparator());
+	public static TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
+		if (p1.x == p2.x) {
+			return p1.y - p2.y;
+		}
+		return p1.x - p2.x;
+	});
 
 	generateRegion() {
 
@@ -612,15 +616,5 @@ public class World {
 			e.draw(vp);
 		}
 
-	}
-}
-
-class PositionComparator implements Comparator<Point> {
-	@Override
-	public int compare(Point p1, Point p2) {
-		if (p1.x == p2.x) {
-			return p1.y - p2.y;
-		}
-		return p1.x - p2.x;
 	}
 }
