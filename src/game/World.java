@@ -17,7 +17,7 @@ import game.blocks.BlockType;
 import game.blocks.SolidBlock;
 import game.entities.Entity;
 
-class generateRegion extends Thread {
+class generateRegion {
 	private static final int CHUNK_HEIGHT = 127;
 	private static final int CHUNK_SIZE = 63;
 	private static final int BEDROCK_LAYER = 127;
@@ -35,7 +35,6 @@ class generateRegion extends Thread {
 				generateWorld(i, j);
 			}
 		}
-		start();
 	}
 
 	public void generateWorld(int x, int y) {
@@ -568,11 +567,6 @@ class generateRegion extends Thread {
 		}
 		return map;
 	}
-
-	@Override
-	public void run() {
-
-	}
 }
 
 public class World {
@@ -598,8 +592,7 @@ public class World {
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
 				view.getWidth(),
 				view.getHeight());
-		Thread worldgenerationthread = new Thread(new generateRegion(viewRect));
-		worldgenerationthread.start();
+		generateRegion worldgenerationthread = new generateRegion(viewRect);
 		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
 			Point start = new Point(i, (int) (viewRect.getMinY() - 1));
 			Point end = new Point(i, (int) (viewRect.getMaxY() + 1));
