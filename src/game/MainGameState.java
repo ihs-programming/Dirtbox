@@ -14,7 +14,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import game.utils.DefaultGameState;
 
 public class MainGameState implements DefaultGameState {
-	private World world;
+	private World world = new World();
 	private Viewport vp = new Viewport();
 	private boolean inGame = true;
 	private GameUI ui;
@@ -40,10 +40,12 @@ public class MainGameState implements DefaultGameState {
 	}
 
 	@Override
-	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
+	public void render(GameContainer gc, StateBasedGame game, Graphics g)
+			throws SlickException {
 		if (inGame) {
 			vp.setGraphics(g);
 			world.draw(vp);
+
 		} else {
 			// Display ui
 			ui.draw(g);
@@ -51,7 +53,8 @@ public class MainGameState implements DefaultGameState {
 	}
 
 	@Override
-	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
+	public void update(GameContainer gc, StateBasedGame sbg, int delta)
+			throws SlickException {
 		vp.update(delta);
 	}
 
