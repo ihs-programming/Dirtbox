@@ -6,7 +6,7 @@ import org.newdawn.slick.geom.Shape;
 public class SolidBlock extends Block {
 	public Shape hitbox;
 
-	BlockType type;
+	public final BlockType type;
 
 	public SolidBlock(BlockType t, float xpos, float ypos) {
 		super(t.sx, t.sy, xpos, ypos);
