@@ -31,7 +31,7 @@ public class RegionGenerator {
 		biomes[0] = randombiome();
 		for (int i = 1; i < biomes.length; i++) {
 			// Switch biome type
-			if (Math.random() < 0.8) {
+			if (Math.random() < 0.5) {
 				BiomeType next = randombiome();
 				biomes[i] = BiomeType.BUFFER;
 
@@ -109,6 +109,7 @@ public class RegionGenerator {
 							RegionGenerator.seed, RegionGenerator.seed)
 					+ CHUNK_SIZE / 2);
 		}
+		// Generate the underlying blocks
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int z = 0; z < heightMap[i]; z++) {
 				blocks[i][z] = new SolidBlock(BlockType.EMPTY,
@@ -116,14 +117,31 @@ public class RegionGenerator {
 						(z + y) * Block.BLOCK_SPRITE_SIZE);
 			}
 			for (int z = heightMap[i]; z < CHUNK_HEIGHT; z++) {
-				BlockType type = getType(z - heightMap[i], biometype);
-				if (biometype == BiomeType.BUFFER) {
-					type = getType(z - heightMap[i],
-							biomes[chunkNumber + (Math.random() > 0.5 ? 1 : -1)]);
+				if (blocks[i][z] == null) {
+					BlockType type = getType(z - heightMap[i], biometype);
+					if (biometype == BiomeType.BUFFER) {
+						type = getType(z - heightMap[i],
+								biomes[chunkNumber + (Math.random() > 0.5 ? 1 : -1)]);
+					}
+
+					// TODO: Won't generate ores at edge
+					if (BlockType.isOre(type) && i < CHUNK_SIZE - 4
+							&& z < CHUNK_HEIGHT - 4) {
+						for (int a = 0; a < 4; a++) {
+							for (int b = 0; b < 4; b++) {
+								if (Math.random() < 0.3) {
+									blocks[i + a][z + b] = new SolidBlock(type,
+											(i + x + a) * Block.BLOCK_SPRITE_SIZE,
+											(z + y + b) * Block.BLOCK_SPRITE_SIZE);
+								}
+							}
+						}
+					}
+					blocks[i][z] = new SolidBlock(type,
+							(i + x) * Block.BLOCK_SPRITE_SIZE,
+							(z + y) * Block.BLOCK_SPRITE_SIZE);
+
 				}
-				blocks[i][z] = new SolidBlock(type,
-						(i + x) * Block.BLOCK_SPRITE_SIZE,
-						(z + y) * Block.BLOCK_SPRITE_SIZE);
 			}
 		}
 
@@ -168,6 +186,9 @@ public class RegionGenerator {
 				return BlockType.GRASS;
 			}
 			return BlockType.DIRT;
+		}
+		if (biome == BiomeType.DESERT && y < 15 + 4 * Math.random()) {
+			return BlockType.SANDSTONE;
 		}
 		if (Math.random() < 0.01) {
 			double val = Math.random();
