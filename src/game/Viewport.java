@@ -28,6 +28,9 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 	private static final float SCALE_INCREASE = 1.2f;
 	private static final float SCALE_DECREASE = 1.0f / 1.2f;
 
+	public static long globaltimer = 0;
+	static long timerupdate = 0;
+
 	public static boolean DEBUG_MODE = false;
 
 	public Viewport() {
@@ -77,14 +80,16 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 	}
 
 	public void update(int delta) {
+		globaltimer += System.currentTimeMillis() - timerupdate;
 		double darknessvalue = 0.6 + Math
-				.sin(2.0 * Math.PI * System.currentTimeMillis()
+				.sin(2.0 * Math.PI * globaltimer
 						/ World.DAY_NIGHT_DURATION)
 				* 0.4;
 		Color BackgroundColor = new Color((int) (darknessvalue * 0),
 				(int) (darknessvalue * 127), (int) (darknessvalue * 255));
 		graphics.setBackground(BackgroundColor);
 		center.add(movement.copy().scale(delta / scaleFactor));
+		timerupdate = System.currentTimeMillis();
 	}
 
 	public void setScreenCenter(Vector2f center) {

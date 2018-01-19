@@ -14,7 +14,7 @@ import game.entities.Entity;
 
 public class World {
 
-	static final double DAY_NIGHT_DURATION = 6000.0;
+	static final double DAY_NIGHT_DURATION = 1200000.0;
 
 	private ArrayList<Entity> characters;
 
@@ -43,11 +43,11 @@ public class World {
 	public void draw(Viewport vp) {
 
 		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f((float) -(Math
-				.cos(2.0 * Math.PI * System.currentTimeMillis()
+				.cos(2.0 * Math.PI * Viewport.globaltimer
 						/ World.DAY_NIGHT_DURATION)
 				* 15 - Viewport.center.x + sunsprite.getScaledCopy(4, 4).getWidth() / 2),
 				(float) -(Math
-						.sin(2.0 * Math.PI * System.currentTimeMillis()
+						.sin(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
 						* 15) + 30));
 		characters.set(0, suns);

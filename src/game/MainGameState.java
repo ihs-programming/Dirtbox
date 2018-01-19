@@ -47,6 +47,7 @@ public class MainGameState implements DefaultGameState {
 		}
 		if (!worldrendered) {
 			worldrendered = true;
+			Viewport.timerupdate = System.currentTimeMillis();
 		}
 	}
 
