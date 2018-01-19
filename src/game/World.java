@@ -575,28 +575,52 @@ class generateRegion {
 
 public class World {
 
+	static final double DAY_NIGHT_DURATION = 60000.0;
+
 	private ArrayList<Entity> characters;
+
+	private static Image sunsprite;
 
 	public World() {
 		characters = new ArrayList<>();
 		try {
+			sunsprite = new Image("data/characters/sunsprite.png");
+			sunsprite.setFilter(Image.FILTER_NEAREST);
+			sunsprite = sunsprite.getScaledCopy(8, 8);
+			Entity suns = new Entity(sunsprite, 1, 1, new Vector2f(0, 0));
+			characters.add(suns);
+
 			Image stalinsprite = new Image("data/characters/stalin.png");
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
 			Entity stalin = new Entity(stalinsprite, 1, 1, new Vector2f(0, 0));
 			characters.add(stalin);
 		} catch (SlickException e) {
-			e.printStackTrace();
+
 		}
+
 	}
 
 	public void draw(Viewport vp) {
+
+		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f((float) -(Math
+				.cos(2.0 * Math.PI * System.currentTimeMillis()
+						/ World.DAY_NIGHT_DURATION)
+				* 50 - Viewport.center.x),
+				(float) -(Math
+						.sin(2.0 * Math.PI * System.currentTimeMillis()
+								/ World.DAY_NIGHT_DURATION)
+						* 50) + 40));
+		characters.set(0, suns);
+		for (Entity e : this.characters) {
+			e.draw(vp);
+		}
 
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
 				view.getWidth(),
 				view.getHeight());
-		generateRegion worldgenerationthread = new generateRegion(viewRect);
+		new generateRegion(viewRect);
 		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
 			Point start = new Point(i, (int) (viewRect.getMinY() - 1));
 			Point end = new Point(i, (int) (viewRect.getMaxY() + 1));
@@ -611,9 +635,6 @@ public class World {
 				generateRegion.blocks.get(p).draw(vp);
 			}
 
-		}
-		for (Entity e : this.characters) {
-			e.draw(vp);
 		}
 
 	}
