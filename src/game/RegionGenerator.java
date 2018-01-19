@@ -11,11 +11,14 @@ import game.blocks.SolidBlock;
 import util.ImprovedNoise;
 
 public class RegionGenerator {
+	private static final double SEED_STEP = 0.5;
+
 	private static final int CHUNK_HEIGHT = 127;
 	private static final int CHUNK_SIZE = 63;
 	private static final int BEDROCK_LAYER = 127;
 	private static final int CHUNK_BOUNDARY_HEIGHT = (int) (CHUNK_HEIGHT * 0.7);
 
+	private double seed = 1000 * Math.random();
 	public static TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
 		if (p1.x == p2.x) {
 			return p1.y - p2.y;
@@ -36,10 +39,8 @@ public class RegionGenerator {
 	}
 
 	public void generateWorld(int x, int y) {
-		generateWorld(x, y, (int) (1000 * Math.random()));
-	}
+		double seed = SEED_STEP * x + this.seed;
 
-	public void generateWorld(int x, int y, int seed) {
 		Point curpos = new Point(x, y);
 		if (blocks.containsKey(curpos)) {
 			return;
@@ -51,7 +52,7 @@ public class RegionGenerator {
 			if (x < 0) {
 				chunkStart -= CHUNK_SIZE;
 			}
-			Block[][] chunk = generateChunk(chunkStart, 0, seed++);
+			Block[][] chunk = generateChunk(chunkStart, 0, seed);
 			for (int i = 0; i < chunk.length; i++) {
 				for (int j = 0; j < chunk[i].length; j++) {
 					blocks.put(new Point(i + chunkStart, j), chunk[i][j]);
@@ -62,7 +63,8 @@ public class RegionGenerator {
 		}
 	}
 
-	private Block[][] generateChunk(int x, int y, int seed) {
+	private Block[][] generateChunk(int x, int y, double seed) {
+		System.out.println(CHUNK_SIZE + " " + x + " " + seed);
 		long chunkgenerationtime = System.nanoTime();
 		BiomeType biometype = randombiome(); // selects a random biome
 
@@ -71,7 +73,7 @@ public class RegionGenerator {
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
 			heightMap[i] = (int) (20
-					* ImprovedNoise.noise(seed + 1.0 / CHUNK_SIZE * i, 1, 1)
+					* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE, 0.1, 1.1)
 					+ CHUNK_SIZE / 2);
 		}
 		for (int i = 0; i < CHUNK_SIZE; i++) {
