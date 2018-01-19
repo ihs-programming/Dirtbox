@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.NavigableSet;
 
 import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.entities.ControllableCharacter;
 import game.entities.Entity;
 
 public class World {
@@ -29,15 +31,37 @@ public class World {
 			Entity suns = new Entity(sunsprite, 1, 1, new Vector2f(0, 0));
 			characters.add(suns);
 
+			/*
+			 * Image stalinsprite = new Image("data/characters/stalin.png");
+			 * stalinsprite.setFilter(Image.FILTER_NEAREST); stalinsprite =
+			 * stalinsprite.getScaledCopy(1, 2); Entity stalin = new Entity(stalinsprite,
+			 * 1, 1, new Vector2f(0, 0)); characters.add(stalin);
+			 */
+		} catch (SlickException e) {
+		}
+	}
+
+	/**
+	 * Create a world that contains elements that change with user input
+	 *
+	 * @param inp
+	 */
+	public World(Input inp) {
+		this();
+		try {
 			Image stalinsprite = new Image("data/characters/stalin.png");
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
-			Entity stalin = new Entity(stalinsprite, 1, 1, new Vector2f(0, 0));
+			Entity stalin = new ControllableCharacter(stalinsprite, 1, 1,
+					new Vector2f(0, 0), inp);
 			characters.add(stalin);
 		} catch (SlickException e) {
-
+			e.printStackTrace();
 		}
+	}
 
+	public void addEntity(Entity e) {
+		characters.add(e);
 	}
 
 	public void draw(Viewport vp) {

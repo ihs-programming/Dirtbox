@@ -14,11 +14,12 @@ public class Entity {
 	private Shape hitbox;
 	private Sprite sprite;
 	private Vector2f pos;
-	private Vector2f vel;
+	protected Vector2f vel;
 	private Vector2f accel;
 	private float scale = 1f;
 
-	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth, float hitheight, Vector2f pos) {
+	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
+			float hitheight, Vector2f pos) {
 		this.pos = pos.copy();
 		setSpriteSheet(spritesheet, sheetwidth, sheetheight);
 		this.hitbox = new Rectangle(0, 0, hitwidth, hitheight);
@@ -47,7 +48,8 @@ public class Entity {
 	}
 
 	public void setSpriteSheet(Image sheet, int width, int height) {
-		this.spritesheet = new SpriteSheet(sheet, sheet.getWidth() / width, sheet.getHeight() / height);
+		this.spritesheet = new SpriteSheet(sheet, sheet.getWidth() / width,
+				sheet.getHeight() / height);
 		this.sprite = new Sprite(this.spritesheet.getSprite(0, 0));
 		this.sprite.loc = pos;
 	}
