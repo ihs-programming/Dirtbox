@@ -1,7 +1,9 @@
 package game;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
@@ -15,11 +17,11 @@ import game.utils.DefaultKeyListener;
  * Useful because it allows the position of the "camera" (viewport) to move
  * around
  */
-public class Viewport implements DefaultKeyListener {
+public class Viewport implements DefaultKeyListener, MouseListener {
 	private Graphics graphics;
-	private Vector2f center = new Vector2f(); // in game units
+	static Vector2f center = new Vector2f(); // in game units
 	private Vector2f screenDimensions = new Vector2f(); // in pixels
-	private float scaleFactor = 1f;
+	private float scaleFactor = 2.5f;
 	private Vector2f movement = new Vector2f();
 
 	private static final float MOVEMENT_FACTOR = 1f;
@@ -41,7 +43,8 @@ public class Viewport implements DefaultKeyListener {
 
 		// Check if the sprite needs to be drawn
 		Shape resultImageBox = s.getBoundingBox().transform(t);
-		if (getViewShape().contains(resultImageBox) || getViewShape().intersects(resultImageBox)
+		if (getViewShape().contains(resultImageBox)
+				|| getViewShape().intersects(resultImageBox)
 				|| resultImageBox.contains(getViewShape())) {
 			Vector2f res = t.transform(s.loc.copy());
 			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
@@ -74,6 +77,13 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	public void update(int delta) {
+		double darknessvalue = 0.6 + Math
+				.sin(2.0 * Math.PI * System.currentTimeMillis()
+						/ World.DAY_NIGHT_DURATION)
+				* 0.4;
+		Color BackgroundColor = new Color((int) (darknessvalue * 0),
+				(int) (darknessvalue * 127), (int) (darknessvalue * 255));
+		graphics.setBackground(BackgroundColor);
 		center.add(movement.copy().scale(delta / scaleFactor));
 	}
 
@@ -101,7 +111,8 @@ public class Viewport implements DefaultKeyListener {
 		// Note that the transforms are applied in reverse order
 		// e.g. the first concatenated transform is applied last
 		Transform[] trans = new Transform[] {
-				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2),
+				Transform.createTranslateTransform(screenDimensions.x / 2,
+						screenDimensions.y / 2),
 				Transform.createScaleTransform(scaleFactor, scaleFactor),
 				Transform.createTranslateTransform(-center.x, -center.y) };
 
@@ -157,10 +168,20 @@ public class Viewport implements DefaultKeyListener {
 			movement.x -= MOVEMENT_FACTOR;
 			break;
 		case Input.KEY_MINUS:
-			scaleFactor *= SCALE_DECREASE;
+			if (scaleFactor > 20) {
+				scaleFactor *= SCALE_DECREASE;
+			}
+			if (DEBUG_MODE) {
+				System.out.println("Scale factor of " + scaleFactor);
+			}
 			break;
 		case Input.KEY_EQUALS:
-			scaleFactor *= SCALE_INCREASE;
+			if (scaleFactor < 75) {
+				scaleFactor *= SCALE_INCREASE;
+			}
+			if (DEBUG_MODE) {
+				System.out.println("Scale factor of " + scaleFactor);
+			}
 			break;
 		case Input.KEY_P:
 			printDebugInfo();
@@ -188,5 +209,53 @@ public class Viewport implements DefaultKeyListener {
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public void mouseWheelMoved(int change) {
+		if (change < 0) {
+			if (scaleFactor > 20) {
+				scaleFactor *= SCALE_DECREASE;
+			}
+			if (DEBUG_MODE) {
+				System.out.println("Scale factor of " + scaleFactor);
+			}
+		} else {
+			if (scaleFactor < 75) {
+				scaleFactor *= SCALE_INCREASE;
+			}
+			if (DEBUG_MODE) {
+				System.out.println("Scale factor of " + scaleFactor);
+			}
+		}
+	}
+
+	@Override
+	public void mouseClicked(int button, int x, int y, int clickCount) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mousePressed(int button, int x, int y) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseReleased(int button, int x, int y) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+		// TODO Auto-generated method stub
+
 	}
 }
