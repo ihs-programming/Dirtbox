@@ -41,16 +41,22 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
 
-		// Check if the sprite needs to be drawn
-		Shape resultImageBox = s.getBoundingBox().transform(t);
-		if (getViewShape().contains(resultImageBox)
-				|| getViewShape().intersects(resultImageBox)
-				|| resultImageBox.contains(getViewShape())) {
-			Vector2f res = t.transform(s.loc.copy());
-			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
-			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
-			graphics.drawImage(s.img.getScaledCopy(nw, nh), (int) res.x, (int) res.y);
-		}
+		/*
+		 * Check if the sprite needs to be drawn.
+		 *
+		 * This check is really expensive and it runs on an inner loop.
+		 *
+		 * Shape resultImageBox = s.getBoundingBox().transform(t); if
+		 * (getViewShape().contains(resultImageBox) ||
+		 * getViewShape().intersects(resultImageBox) ||
+		 * resultImageBox.contains(getViewShape())) {
+		 */
+		Vector2f res = t.transform(s.loc.copy());
+		// Cheap hack? removes a Math.ceil
+		int nw = (int) (0.999999 + s.img.getWidth() * scaleFactor);
+		int nh = (int) (0.999999 + s.img.getHeight() * scaleFactor);
+		graphics.drawImage(s.getCachedImage(nw, nh), (int) res.x, (int) res.y);
+		// }
 	}
 
 	public void draw(Shape s) {
@@ -168,7 +174,7 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 			movement.x -= MOVEMENT_FACTOR;
 			break;
 		case Input.KEY_MINUS:
-			if (scaleFactor > 20) {
+			if (scaleFactor > 0) {
 				scaleFactor *= SCALE_DECREASE;
 			}
 			if (DEBUG_MODE) {
@@ -214,7 +220,7 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 	@Override
 	public void mouseWheelMoved(int change) {
 		if (change < 0) {
-			if (scaleFactor > 20) {
+			if (scaleFactor > 0) {
 				scaleFactor *= SCALE_DECREASE;
 			}
 			if (DEBUG_MODE) {
