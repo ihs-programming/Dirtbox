@@ -19,6 +19,7 @@ public class World {
 	static final double DAY_NIGHT_DURATION = 6000.0;
 
 	private ArrayList<Entity> characters;
+	private ControllableCharacter controlledCharacter;
 
 	private static Image sunsprite;
 
@@ -30,14 +31,8 @@ public class World {
 			sunsprite = sunsprite.getScaledCopy(4, 4);
 			Entity suns = new Entity(sunsprite, 1, 1, new Vector2f(0, 0));
 			characters.add(suns);
-
-			/*
-			 * Image stalinsprite = new Image("data/characters/stalin.png");
-			 * stalinsprite.setFilter(Image.FILTER_NEAREST); stalinsprite =
-			 * stalinsprite.getScaledCopy(1, 2); Entity stalin = new Entity(stalinsprite,
-			 * 1, 1, new Vector2f(0, 0)); characters.add(stalin);
-			 */
 		} catch (SlickException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -52,9 +47,10 @@ public class World {
 			Image stalinsprite = new Image("data/characters/stalin.png");
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
-			Entity stalin = new ControllableCharacter(stalinsprite, 1, 1,
+			ControllableCharacter stalin = new ControllableCharacter(stalinsprite, 1, 1,
 					new Vector2f(0, 0), inp);
 			characters.add(stalin);
+			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
@@ -68,7 +64,7 @@ public class World {
 		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f((float) -(Math
 				.cos(2.0 * Math.PI * System.currentTimeMillis()
 						/ World.DAY_NIGHT_DURATION)
-				* 15 - Viewport.center.x + sunsprite.getScaledCopy(4, 4).getWidth() / 2),
+				* 15 - vp.getCenter().x + sunsprite.getScaledCopy(4, 4).getWidth() / 2),
 				(float) -(Math
 						.sin(2.0 * Math.PI * System.currentTimeMillis()
 								/ World.DAY_NIGHT_DURATION)
@@ -97,6 +93,13 @@ public class World {
 				RegionGenerator.blocks.get(p).draw(vp);
 			}
 		}
+	}
+
+	public Vector2f getCharacterPosition() {
+		if (controlledCharacter != null) {
+			return controlledCharacter.getPosition();
+		}
+		return new Vector2f();
 	}
 
 	public void update(int delta) {

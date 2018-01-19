@@ -12,7 +12,8 @@ import game.utils.DefaultGameState;
 public class MainGameState implements DefaultGameState {
 	private World world;
 	private Viewport vp = new Viewport();
-	private boolean inGame = true;
+	private boolean inGame = true; // whether or not to display the escape menu
+	private boolean lockCharacter = true; // whether to follow the character
 	private GameUI ui;
 
 	@Override
@@ -41,6 +42,9 @@ public class MainGameState implements DefaultGameState {
 			throws SlickException {
 		if (inGame) {
 			vp.setGraphics(g);
+			if (lockCharacter) {
+				vp.setCenter(world.getCharacterPosition());
+			}
 			world.draw(vp);
 		} else {
 			// Display ui
@@ -63,7 +67,12 @@ public class MainGameState implements DefaultGameState {
 	@Override
 	public void keyPressed(int keycode, char c) {
 		if (keycode == Input.KEY_ESCAPE) {
+			// open exit menu
 			inGame = !inGame;
+		}
+		if (keycode == Input.KEY_L) {
+			// toggle whether viewport will center on character
+			lockCharacter = !lockCharacter;
 		}
 	}
 }

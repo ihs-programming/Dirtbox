@@ -43,4 +43,8 @@ public class ControllableCharacter extends Entity {
 		}
 		super.update(frameTime);
 	}
+
+	public Vector2f getPosition() {
+		return pos.copy();
+	}
 }
