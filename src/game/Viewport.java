@@ -3,6 +3,7 @@ package game;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
@@ -16,7 +17,7 @@ import game.utils.DefaultKeyListener;
  * Useful because it allows the position of the "camera" (viewport) to move
  * around
  */
-public class Viewport implements DefaultKeyListener {
+public class Viewport implements DefaultKeyListener, MouseListener {
 	private Graphics graphics;
 	static Vector2f center = new Vector2f(); // in game units
 	private Vector2f screenDimensions = new Vector2f(); // in pixels
@@ -198,5 +199,43 @@ public class Viewport implements DefaultKeyListener {
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public void mouseWheelMoved(int change) {
+		if (change < 0) {
+			scaleFactor *= SCALE_DECREASE;
+		} else {
+			scaleFactor *= SCALE_INCREASE;
+		}
+	}
+
+	@Override
+	public void mouseClicked(int button, int x, int y, int clickCount) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mousePressed(int button, int x, int y) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseReleased(int button, int x, int y) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+		// TODO Auto-generated method stub
+
 	}
 }
