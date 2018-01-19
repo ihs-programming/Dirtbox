@@ -13,9 +13,9 @@ public class Entity {
 	private SpriteSheet spritesheet;
 	private Shape hitbox;
 	private Sprite sprite;
-	private Vector2f pos;
-	protected Vector2f vel;
-	private Vector2f accel;
+	protected Vector2f pos = new Vector2f();
+	protected Vector2f vel = new Vector2f();
+	protected Vector2f accel = new Vector2f();
 	private float scale = 1f;
 
 	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
@@ -66,8 +66,8 @@ public class Entity {
 	}
 
 	public void update(float frametime) {
-		this.pos.add(this.vel.scale(frametime));
-		this.vel.add(this.accel.scale(frametime));
+		this.pos.add(this.vel.copy().scale(frametime));
+		this.vel.add(this.accel.copy().scale(frametime));
 		this.hitbox.setCenterX(this.pos.x);
 		this.hitbox.setCenterY(this.pos.y);
 	}

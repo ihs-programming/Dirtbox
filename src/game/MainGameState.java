@@ -52,6 +52,7 @@ public class MainGameState implements DefaultGameState {
 	public void update(GameContainer gc, StateBasedGame sbg, int delta)
 			throws SlickException {
 		vp.update(delta);
+		world.update(delta);
 	}
 
 	@Override

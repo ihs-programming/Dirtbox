@@ -7,18 +7,18 @@ import org.newdawn.slick.geom.Vector2f;
 import game.utils.DefaultKeyListener;
 
 public class ControllableCharacter extends Entity {
-	private int speed = 10;
-	private int jumpStrength = 10;
-	private int gravity = 1;
+	private float speed = 0.01f;
+	private float jumpStrength = 0.005f;
+	private float gravity = 0.00001f;
 
 	private Input userInput;
 
 	public ControllableCharacter(Image spritesheet, int sheetwidth, int sheetheight,
 			Vector2f pos, Input inp) {
 		super(spritesheet, sheetwidth, sheetheight, pos);
+		accel.y = gravity;
 		userInput = inp;
 		userInput.addKeyListener(new DefaultKeyListener() {
-
 			@Override
 			public void keyPressed(int key, char c) {
 				if (key == Input.KEY_W) {
@@ -34,11 +34,12 @@ public class ControllableCharacter extends Entity {
 
 	@Override
 	public void update(float frameTime) {
-		if (userInput.isKeyDown(Input.KEY_W)) {
-			vel.x = speed;
+		vel.x = 0;
+		if (userInput.isKeyDown(Input.KEY_A)) {
+			vel.x = -speed;
 		}
 		if (userInput.isKeyDown(Input.KEY_D)) {
-			vel.x = -speed;
+			vel.x = speed;
 		}
 		super.update(frameTime);
 	}

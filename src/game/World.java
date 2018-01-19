@@ -65,7 +65,6 @@ public class World {
 	}
 
 	public void draw(Viewport vp) {
-
 		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f((float) -(Math
 				.cos(2.0 * Math.PI * System.currentTimeMillis()
 						/ World.DAY_NIGHT_DURATION)
@@ -97,8 +96,12 @@ public class World {
 			for (Point p : existingBlocks) {
 				RegionGenerator.blocks.get(p).draw(vp);
 			}
-
 		}
+	}
 
+	public void update(int delta) {
+		for (Entity e : characters) {
+			e.update(delta);
+		}
 	}
 }
