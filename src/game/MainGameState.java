@@ -30,7 +30,9 @@ public class MainGameState implements DefaultGameState {
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		vp.setScreenCenter(new Vector2f(gc.getWidth() / 2, gc.getHeight() / 2));
 		vp.zoom(10f);
-		ui = new GameUI(gc);
+		ui = new GameUI(gc, source -> {
+			inGame = true;
+		});
 	}
 
 	@Override
@@ -61,7 +63,7 @@ public class MainGameState implements DefaultGameState {
 	@Override
 	public void keyPressed(int keycode, char c) {
 		if (keycode == Input.KEY_ESCAPE) {
-			inGame = false;
+			inGame = !inGame;
 		}
 	}
 
