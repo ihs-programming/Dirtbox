@@ -14,7 +14,7 @@ import game.entities.Entity;
 
 public class World {
 
-	static final double DAY_NIGHT_DURATION = 60000.0;
+	static final double DAY_NIGHT_DURATION = 6000.0;
 
 	private ArrayList<Entity> characters;
 
@@ -25,7 +25,7 @@ public class World {
 		try {
 			sunsprite = new Image("data/characters/sunsprite.png");
 			sunsprite.setFilter(Image.FILTER_NEAREST);
-			sunsprite = sunsprite.getScaledCopy(8, 8);
+			sunsprite = sunsprite.getScaledCopy(4, 4);
 			Entity suns = new Entity(sunsprite, 1, 1, new Vector2f(0, 0));
 			characters.add(suns);
 
@@ -45,11 +45,11 @@ public class World {
 		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f((float) -(Math
 				.cos(2.0 * Math.PI * System.currentTimeMillis()
 						/ World.DAY_NIGHT_DURATION)
-				* 50 - Viewport.center.x),
+				* 15 - Viewport.center.x + sunsprite.getScaledCopy(4, 4).getWidth() / 2),
 				(float) -(Math
 						.sin(2.0 * Math.PI * System.currentTimeMillis()
 								/ World.DAY_NIGHT_DURATION)
-						* 50) + 40));
+						* 15) + 30));
 		characters.set(0, suns);
 		for (Entity e : this.characters) {
 			e.draw(vp);
@@ -59,7 +59,7 @@ public class World {
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
 				view.getWidth(),
 				view.getHeight());
-		RegionGenerator worldgenerationthread = new RegionGenerator(viewRect);
+		new RegionGenerator(viewRect);
 		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
 			Point start = new Point(i, (int) (viewRect.getMinY() - 1));
 			Point end = new Point(i, (int) (viewRect.getMaxY() + 1));
