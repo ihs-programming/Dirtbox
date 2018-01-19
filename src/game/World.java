@@ -1,5 +1,6 @@
 package game;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.NavigableSet;
@@ -39,7 +40,7 @@ public class World {
 	}
 
 	// load a world
-	public World(String worldString) {
+	public World(File worldFile) {
 		String[] loadBlocks = worldString.split("\n");
 		for (String s : loadBlocks) {
 			String[] positsS = s.split(" ");

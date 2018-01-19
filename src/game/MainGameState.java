@@ -14,7 +14,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import game.utils.DefaultGameState;
 
 public class MainGameState implements DefaultGameState {
-	private World world = new World();
+	private World world;
 	private Viewport vp = new Viewport();
 	private boolean inGame = true;
 	private GameUI ui;
