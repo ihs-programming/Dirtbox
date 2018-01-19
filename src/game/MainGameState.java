@@ -18,6 +18,7 @@ public class MainGameState implements DefaultGameState {
 	@Override
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		gc.getInput().addKeyListener(vp);
+		gc.getInput().addMouseListener(vp);
 	}
 
 	@Override
