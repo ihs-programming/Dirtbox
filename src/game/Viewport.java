@@ -1,5 +1,6 @@
 package game;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Rectangle;
@@ -8,6 +9,7 @@ import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.utils.DefaultKeyListener;
+import game.utils.DefaultMouseListener;
 
 /**
  * Handles all drawing in the game. Does not, and should not handle ui drawing
@@ -15,16 +17,19 @@ import game.utils.DefaultKeyListener;
  * Useful because it allows the position of the "camera" (viewport) to move
  * around
  */
-public class Viewport implements DefaultKeyListener {
+public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	private Graphics graphics;
 	private Vector2f center = new Vector2f(); // in game units
 	private Vector2f screenDimensions = new Vector2f(); // in pixels
-	private float scaleFactor = 1f;
+	private float scaleFactor = 2.5f;
 	private Vector2f movement = new Vector2f();
 
 	private static final float MOVEMENT_FACTOR = 1f;
 	private static final float SCALE_INCREASE = 1.2f;
 	private static final float SCALE_DECREASE = 1.0f / 1.2f;
+
+	public static long globaltimer = 0;
+	static long timerupdate = 0;
 
 	public static boolean DEBUG_MODE = false;
 
@@ -41,7 +46,8 @@ public class Viewport implements DefaultKeyListener {
 
 		// Check if the sprite needs to be drawn
 		Shape resultImageBox = s.getBoundingBox().transform(t);
-		if (getViewShape().contains(resultImageBox) || getViewShape().intersects(resultImageBox)
+		if (getViewShape().contains(resultImageBox)
+				|| getViewShape().intersects(resultImageBox)
 				|| resultImageBox.contains(getViewShape())) {
 			Vector2f res = t.transform(s.loc.copy());
 			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
@@ -74,7 +80,16 @@ public class Viewport implements DefaultKeyListener {
 	}
 
 	public void update(int delta) {
+		globaltimer += System.currentTimeMillis() - timerupdate;
+		double darknessvalue = 0.6 + Math
+				.sin(2.0 * Math.PI * globaltimer
+						/ World.DAY_NIGHT_DURATION)
+				* 0.4;
+		Color BackgroundColor = new Color((int) (darknessvalue * 0),
+				(int) (darknessvalue * 127), (int) (darknessvalue * 255));
+		graphics.setBackground(BackgroundColor);
 		center.add(movement.copy().scale(delta / scaleFactor));
+		timerupdate = System.currentTimeMillis();
 	}
 
 	public void setScreenCenter(Vector2f center) {
@@ -101,7 +116,8 @@ public class Viewport implements DefaultKeyListener {
 		// Note that the transforms are applied in reverse order
 		// e.g. the first concatenated transform is applied last
 		Transform[] trans = new Transform[] {
-				Transform.createTranslateTransform(screenDimensions.x / 2, screenDimensions.y / 2),
+				Transform.createTranslateTransform(screenDimensions.x / 2,
+						screenDimensions.y / 2),
 				Transform.createScaleTransform(scaleFactor, scaleFactor),
 				Transform.createTranslateTransform(-center.x, -center.y) };
 
@@ -141,6 +157,14 @@ public class Viewport implements DefaultKeyListener {
 		scaleFactor = factor;
 	}
 
+	public void setCenter(Vector2f center) {
+		this.center.set(center);
+	}
+
+	public Vector2f getCenter() {
+		return center.copy();
+	}
+
 	@Override
 	public void keyPressed(int key, char c) {
 		switch (key) {
@@ -157,10 +181,20 @@ public class Viewport implements DefaultKeyListener {
 			movement.x -= MOVEMENT_FACTOR;
 			break;
 		case Input.KEY_MINUS:
-			scaleFactor *= SCALE_DECREASE;
+			if (scaleFactor > 20) {
+				scaleFactor *= SCALE_DECREASE;
+			}
+			if (DEBUG_MODE) {
+				System.out.println("Scale factor of " + scaleFactor);
+			}
 			break;
 		case Input.KEY_EQUALS:
-			scaleFactor *= SCALE_INCREASE;
+			if (scaleFactor < 75) {
+				scaleFactor *= SCALE_INCREASE;
+			}
+			if (DEBUG_MODE) {
+				System.out.println("Scale factor of " + scaleFactor);
+			}
 			break;
 		case Input.KEY_P:
 			printDebugInfo();
@@ -188,5 +222,41 @@ public class Viewport implements DefaultKeyListener {
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public void mouseWheelMoved(int change) {
+		if (change < 0) {
+			if (scaleFactor > 20) {
+				scaleFactor *= SCALE_DECREASE;
+			}
+			if (DEBUG_MODE) {
+				System.out.println("Scale factor of " + scaleFactor);
+			}
+		} else {
+			if (scaleFactor < 75) {
+				scaleFactor *= SCALE_INCREASE;
+			}
+			if (DEBUG_MODE) {
+				System.out.println("Scale factor of " + scaleFactor);
+			}
+		}
+	}
+
+	@Override
+	public void inputEnded() {
+	}
+
+	@Override
+	public boolean isAcceptingInput() {
+		return true;
+	}
+
+	@Override
+	public void inputStarted() {
+	}
+
+	@Override
+	public void setInput(Input input) {
 	}
 }

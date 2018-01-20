@@ -13,7 +13,7 @@ public class Dirtbox {
 	private static final int DEFAULT_WIDTH = (int) screenSize.getWidth() * 3 / 4;
 	private static final int DEFAULT_HEIGHT = (int) screenSize.getHeight() * 3 / 4;
 
-	private static final int DEFAULT_FRAME_RATE = 60;
+	static final int DEFAULT_FRAME_RATE = 60;
 	private static boolean DEFAULT_FULLSCREEN = false;
 
 	public static void main(String[] args) {
