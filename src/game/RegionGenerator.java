@@ -126,18 +126,19 @@ public class RegionGenerator {
 			}
 			for (int z = heightMap[i]; z < CHUNK_HEIGHT; z++) {
 				if (blocks[i][z] == null) {
-				  BlockType type = getType(i, z, biometype, heightMap);
+					BlockType type = getType(i, z, biometype, heightMap);
 					if (biometype == BiomeType.BUFFER) {
 						type = getType(i, z,
-								biomes[chunkNumber + (Math.random() > 0.5 ? 1 : -1)], heightMap);
+								biomes[chunkNumber + (Math.random() > 0.5 ? 1 : -1)],
+								heightMap);
 					}
 
 					// TODO: Won't generate ores at edge
 					if (BlockType.isOre(type) && i < CHUNK_SIZE - 4
 							&& z < CHUNK_HEIGHT - 4) {
-						for (int a = 0; a < 4; a++) {
-							for (int b = 0; b < 4; b++) {
-								if (Math.random() < 0.3) {
+						for (int a = 0; a < 3; a++) {
+							for (int b = 0; b < 3; b++) {
+								if (Math.random() < 0.5) {
 									blocks[i + a][z + b] = new SolidBlock(type,
 											(i + x + a) * Block.BLOCK_SPRITE_SIZE,
 											(z + y + b) * Block.BLOCK_SPRITE_SIZE);
@@ -188,7 +189,7 @@ public class RegionGenerator {
 		if (y < 5 + 2 * Math.random()) {
 			switch (biome) {
 			case DESERT:
-				type = BlockType.SANDSTONE;
+				type = BlockType.SAND;
 				break;
 			case MOUNTAIN:
 				type = BlockType.STONE;
@@ -211,19 +212,32 @@ public class RegionGenerator {
 					break;
 				}
 			}
-		}
-		if (biome == BiomeType.DESERT && y < 15 + 4 * Math.random()) {
-			return BlockType.SANDSTONE;
-		}
+			if (biome == BiomeType.DESERT && y < 15 + 4 * Math.random()) {
+				return BlockType.SANDSTONE;
+			}
 		} else {
-			if (y >= 10) {
+			if (y >= 8) {
 				if (Math.random() < 0.003) {
 					type = oreselector(x, z, heightMap);
 				} else {
 					type = BlockType.STONE;
 				}
 			} else {
-				type = BlockType.DIRT;
+				if (Math.random() < 0.5) {
+					switch (biome) {
+					case DESERT:
+						type = BlockType.SANDSTONE;
+						break;
+					case MOUNTAIN:
+						type = BlockType.STONE;
+						break;
+					default:
+						type = BlockType.DIRT;
+						break;
+					}
+				} else {
+					type = BlockType.STONE;
+				}
 			}
 
 		}
@@ -263,27 +277,6 @@ public class RegionGenerator {
 			return randombiome();
 		}
 		return ret;
-	}
-
-	private BlockType stoneselector(int i, int j,
-			BlockType blocksenum[][],
-			BiomeType biometype) {
-		BlockType type = BlockType.STONE;
-		if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT && j - 1 >= 0) {
-			for (int lookloop = 1; lookloop <= 2; lookloop++) {
-				int looky = (int) Math.round(Math.random() * 2 - 1);
-				int lookx = (int) Math.round(Math.random() * 2 - 1);
-				BlockType blocksaround = blocksenum[i + lookx][j + looky];
-				if (blocksaround == BlockType.COAL_ORE
-						|| blocksaround == BlockType.IRON_ORE
-						|| blocksaround == BlockType.REDSTONE_ORE
-						|| blocksaround == BlockType.GOLD_ORE
-						|| blocksaround == BlockType.DIAMOND_ORE) {
-					type = blocksaround;
-				}
-			}
-		}
-		return type;
 	}
 
 	float chanceToStartAlive = 0.57f;
