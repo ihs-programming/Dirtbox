@@ -11,11 +11,39 @@ import game.blocks.SolidBlock;
 import util.ImprovedNoise;
 
 public class RegionGenerator {
+	private static final double SEED_STEP = 1.5;
+
 	private static final int CHUNK_HEIGHT = 127;
 	private static final int CHUNK_SIZE = 63;
 	private static final int BEDROCK_LAYER = 127;
 	private static final int CHUNK_BOUNDARY_HEIGHT = (int) (CHUNK_HEIGHT * 0.7);
 
+	/**
+	 * The seed that region generators use. This is static because multiple
+	 * instances of RegionGenerator are created.
+	 */
+	private final static double seed = 1000 * Math.random();
+	/**
+	 * Limits generation to 10 thousand chunks for now.
+	 */
+	private final static BiomeType[] biomes = new BiomeType[10000];
+	static {
+		biomes[0] = randombiome();
+		for (int i = 1; i < biomes.length; i++) {
+			// Switch biome type
+			if (Math.random() < 0.5) {
+				BiomeType next = randombiome();
+				biomes[i] = BiomeType.BUFFER;
+
+				i++;
+				if (i < biomes.length) {
+					biomes[i] = next;
+				}
+			} else {
+				biomes[i] = biomes[i - 1];
+			}
+		}
+	}
 	public static TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
 		if (p1.x == p2.x) {
 			return p1.y - p2.y;
@@ -27,6 +55,12 @@ public class RegionGenerator {
 
 	}
 
+	/**
+	 * For some reason, multiple instances of this are created. This meant a lot of
+	 * hard to find bugs.
+	 *
+	 * @param s
+	 */
 	RegionGenerator(Rectangle s) {
 		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
 			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxY() + 1; j++) {
@@ -36,10 +70,7 @@ public class RegionGenerator {
 	}
 
 	public void generateWorld(int x, int y) {
-		generateWorld(x, y, (int) (1000 * Math.random()));
-	}
 
-	public void generateWorld(int x, int y, int seed) {
 		Point curpos = new Point(x, y);
 		if (blocks.containsKey(curpos)) {
 			return;
@@ -51,7 +82,7 @@ public class RegionGenerator {
 			if (x < 0) {
 				chunkStart -= CHUNK_SIZE;
 			}
-			Block[][] chunk = generateChunk(chunkStart, 0, seed++);
+			Block[][] chunk = generateChunk(chunkStart, 0, 0);
 			boolean cavemap[][] = generateMap();
 			for (int i = 0; i < chunk.length; i++) {
 				for (int j = 0; j < chunk[i].length; j++) {
@@ -68,9 +99,12 @@ public class RegionGenerator {
 		}
 	}
 
-	private Block[][] generateChunk(int x, int y, int seed) {
+	private Block[][] generateChunk(int x, int y, double seed) {
+		int chunkNumber = biomes.length / 2 + x / CHUNK_SIZE;
+		seed = SEED_STEP * chunkNumber + RegionGenerator.seed;
+
 		long chunkgenerationtime = System.nanoTime();
-		BiomeType biometype = randombiome(); // selects a random biome
+		BiomeType biometype = biomes[chunkNumber];
 
 		// The blocks
 		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
@@ -78,9 +112,11 @@ public class RegionGenerator {
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
 			heightMap[i] = (int) (20
-					* ImprovedNoise.noise(seed + 1.0 / CHUNK_SIZE * i, 1, 1)
+					* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
+							RegionGenerator.seed, RegionGenerator.seed)
 					+ CHUNK_SIZE / 2);
 		}
+		// Generate the underlying blocks
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int z = 0; z < heightMap[i]; z++) {
 				blocks[i][z] = new SolidBlock(BlockType.EMPTY,
@@ -89,14 +125,33 @@ public class RegionGenerator {
 				blocksenum[i][z] = BlockType.EMPTY;
 			}
 			for (int z = heightMap[i]; z < CHUNK_HEIGHT; z++) {
-				BlockType type = getType(i, z, biometype, heightMap);
-				if (type == BlockType.STONE) {
-					type = stoneselector(i, z, blocksenum, biometype);
+				if (blocks[i][z] == null) {
+					BlockType type = getType(i, z, biometype, heightMap);
+					if (biometype == BiomeType.BUFFER) {
+						type = getType(i, z,
+								biomes[chunkNumber + (Math.random() > 0.5 ? 1 : -1)],
+								heightMap);
+					}
+
+					// TODO: Won't generate ores at edge
+					if (BlockType.isOre(type) && i < CHUNK_SIZE - 4
+							&& z < CHUNK_HEIGHT - 4) {
+						for (int a = 0; a < 3; a++) {
+							for (int b = 0; b < 3; b++) {
+								if (Math.random() < 0.5) {
+									blocks[i + a][z + b] = new SolidBlock(type,
+											(i + x + a) * Block.BLOCK_SPRITE_SIZE,
+											(z + y + b) * Block.BLOCK_SPRITE_SIZE);
+								}
+							}
+						}
+					}
+					blocks[i][z] = new SolidBlock(type,
+							(i + x) * Block.BLOCK_SPRITE_SIZE,
+							(z + y) * Block.BLOCK_SPRITE_SIZE);
+
 				}
-				blocks[i][z] = new SolidBlock(type,
-						(i + x) * Block.BLOCK_SPRITE_SIZE,
-						(z + y) * Block.BLOCK_SPRITE_SIZE);
-				blocksenum[i][z] = type;
+
 			}
 		}
 
@@ -134,7 +189,7 @@ public class RegionGenerator {
 		if (y < 5 + 2 * Math.random()) {
 			switch (biome) {
 			case DESERT:
-				type = BlockType.SANDSTONE;
+				type = BlockType.SAND;
 				break;
 			case MOUNTAIN:
 				type = BlockType.STONE;
@@ -157,15 +212,32 @@ public class RegionGenerator {
 					break;
 				}
 			}
+			if (biome == BiomeType.DESERT && y < 15 + 4 * Math.random()) {
+				return BlockType.SANDSTONE;
+			}
 		} else {
-			if (y >= 10) {
+			if (y >= 8) {
 				if (Math.random() < 0.003) {
 					type = oreselector(x, z, heightMap);
 				} else {
 					type = BlockType.STONE;
 				}
 			} else {
-				type = BlockType.STONE;
+				if (Math.random() < 0.5) {
+					switch (biome) {
+					case DESERT:
+						type = BlockType.SANDSTONE;
+						break;
+					case MOUNTAIN:
+						type = BlockType.STONE;
+						break;
+					default:
+						type = BlockType.DIRT;
+						break;
+					}
+				} else {
+					type = BlockType.STONE;
+				}
 			}
 
 		}
@@ -197,29 +269,14 @@ public class RegionGenerator {
 		return type;
 	}
 
-	private BiomeType randombiome() { // selects a random biome
-		return BiomeType.values()[(int) (Math.random() * BiomeType.values().length)];
-	}
-
-	private BlockType stoneselector(int i, int j,
-			BlockType blocksenum[][],
-			BiomeType biometype) {
-		BlockType type = BlockType.STONE;
-		if (i + 1 < CHUNK_SIZE && i - 1 >= 0 && j + 1 < CHUNK_HEIGHT && j - 1 >= 0) {
-			for (int lookloop = 1; lookloop <= 2; lookloop++) {
-				int looky = (int) Math.round(Math.random() * 2 - 1);
-				int lookx = (int) Math.round(Math.random() * 2 - 1);
-				BlockType blocksaround = blocksenum[i + lookx][j + looky];
-				if (blocksaround == BlockType.COAL_ORE
-						|| blocksaround == BlockType.IRON_ORE
-						|| blocksaround == BlockType.REDSTONE_ORE
-						|| blocksaround == BlockType.GOLD_ORE
-						|| blocksaround == BlockType.DIAMOND_ORE) {
-					type = blocksaround;
-				}
-			}
+	private static BiomeType randombiome() { // selects a random biome
+		BiomeType ret = BiomeType
+				.values()[(int) (Math.random() * BiomeType.values().length)];
+		// We don't want to return a BUFFER biome
+		if (ret == BiomeType.BUFFER) {
+			return randombiome();
 		}
-		return type;
+		return ret;
 	}
 
 	float chanceToStartAlive = 0.57f;
