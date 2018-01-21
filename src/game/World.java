@@ -100,7 +100,6 @@ public class World {
 		 */
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
-			vp.draw(blocks.get(p).getHitbox(), Color.green);
 		}
 	}
 
