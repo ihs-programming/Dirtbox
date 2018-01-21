@@ -44,12 +44,22 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
 
-		if (shouldDraw(s.getBoundingBox())) {
-			Vector2f res = t.transform(s.loc.copy());
-			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
-			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
-			graphics.drawImage(s.img.getScaledCopy(nw, nh), (int) res.x, (int) res.y);
-		}
+		/*
+		 * Check if the sprite needs to be drawn.
+		 *
+		 * This check is really expensive and it runs on an inner loop.
+		 *
+		 * Shape resultImageBox = s.getBoundingBox().transform(t); if
+		 * (getViewShape().contains(resultImageBox) ||
+		 * getViewShape().intersects(resultImageBox) ||
+		 * resultImageBox.contains(getViewShape())) {
+		 */
+		Vector2f res = t.transform(s.loc.copy());
+		// Cheap hack? removes a Math.ceil
+		int nw = (int) (0.999999 + s.img.getWidth() * scaleFactor);
+		int nh = (int) (0.999999 + s.img.getHeight() * scaleFactor);
+		graphics.drawImage(s.getCachedImage(nw, nh), (int) res.x, (int) res.y);
+		// }
 	}
 
 	public void draw(Shape s, Color c) {
@@ -99,11 +109,15 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 				(int) (darknessvalue * 127), (int) (darknessvalue * 255));
 		graphics.setBackground(BackgroundColor);
 		center.add(movement.copy().scale(delta / scaleFactor));
+
+		resetTransformCache = true;
 		timerupdate = System.currentTimeMillis();
 	}
 
 	public void setScreenCenter(Vector2f center) {
 		screenDimensions.set(center.copy().scale(2f));
+
+		resetTransformCache = true;
 	}
 
 	public Shape getViewShape() {
@@ -114,6 +128,9 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		return getViewShape().transform(getInverseDrawTransform());
 	}
 
+	private boolean resetTransformCache = true;
+	private Transform cacheTransform;
+
 	/**
 	 * Note that this method implicitly depends on getInverseDrawTransform (if this
 	 * method is changed, likely so should getInverseDrawTransform).
@@ -121,20 +138,26 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	 * @return transform mapping game position to screen position
 	 */
 	private Transform getDrawTransform() {
-		Transform t = new Transform();
+		Transform ret = cacheTransform;
+		if (resetTransformCache) {
+			ret = new Transform();
 
-		// Note that the transforms are applied in reverse order
-		// e.g. the first concatenated transform is applied last
-		Transform[] trans = new Transform[] {
-				Transform.createTranslateTransform(screenDimensions.x / 2,
-						screenDimensions.y / 2),
-				Transform.createScaleTransform(scaleFactor, scaleFactor),
-				Transform.createTranslateTransform(-center.x, -center.y) };
+			// Note that the transforms are applied in reverse order
+			// e.g. the first concatenated transform is applied last
+			Transform[] trans = new Transform[] {
+					Transform.createTranslateTransform(screenDimensions.x / 2,
+							screenDimensions.y / 2),
+					Transform.createScaleTransform(scaleFactor, scaleFactor),
+					Transform.createTranslateTransform(-center.x, -center.y) };
 
-		for (Transform ts : trans) {
-			t.concatenate(ts);
+			for (Transform ts : trans) {
+				ret.concatenate(ts);
+			}
+
+			resetTransformCache = false;
+			cacheTransform = ret;
 		}
-		return t;
+		return ret;
 	}
 
 	/**
@@ -191,7 +214,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 			movement.x -= MOVEMENT_FACTOR;
 			break;
 		case Input.KEY_MINUS:
-			if (scaleFactor > 20) {
+			if (scaleFactor > 0) {
 				scaleFactor *= SCALE_DECREASE;
 			}
 			if (DEBUG_MODE) {
@@ -237,7 +260,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	@Override
 	public void mouseWheelMoved(int change) {
 		if (change < 0) {
-			if (scaleFactor > 20) {
+			if (scaleFactor > 0) {
 				scaleFactor *= SCALE_DECREASE;
 			}
 			if (DEBUG_MODE) {

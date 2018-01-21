@@ -85,6 +85,7 @@ public class World {
 			e.draw(vp);
 		}
 
+		long time = System.currentTimeMillis();
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
 				view.getWidth(),
