@@ -3,13 +3,13 @@ package game;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
-import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.utils.DefaultKeyListener;
+import game.utils.DefaultMouseListener;
 
 /**
  * Handles all drawing in the game. Does not, and should not handle ui drawing
@@ -17,9 +17,9 @@ import game.utils.DefaultKeyListener;
  * Useful because it allows the position of the "camera" (viewport) to move
  * around
  */
-public class Viewport implements DefaultKeyListener, MouseListener {
+public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	private Graphics graphics;
-	static Vector2f center = new Vector2f(); // in game units
+	private Vector2f center = new Vector2f(); // in game units
 	private Vector2f screenDimensions = new Vector2f(); // in pixels
 	private float scaleFactor = 2.5f;
 	private Vector2f movement = new Vector2f();
@@ -27,6 +27,9 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 	private static final float MOVEMENT_FACTOR = 1f;
 	private static final float SCALE_INCREASE = 1.2f;
 	private static final float SCALE_DECREASE = 1.0f / 1.2f;
+
+	public static long globaltimer = 0;
+	static long timerupdate = 0;
 
 	public static boolean DEBUG_MODE = false;
 
@@ -83,8 +86,9 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 	}
 
 	public void update(int delta) {
+		globaltimer += System.currentTimeMillis() - timerupdate;
 		double darknessvalue = 0.6 + Math
-				.sin(2.0 * Math.PI * System.currentTimeMillis()
+				.sin(2.0 * Math.PI * globaltimer
 						/ World.DAY_NIGHT_DURATION)
 				* 0.4;
 		Color BackgroundColor = new Color((int) (darknessvalue * 0),
@@ -93,6 +97,7 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 		center.add(movement.copy().scale(delta / scaleFactor));
 
 		resetTransformCache = true;
+		timerupdate = System.currentTimeMillis();
 	}
 
 	public void setScreenCenter(Vector2f center) {
@@ -169,6 +174,14 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 
 	public void setZoom(float factor) {
 		scaleFactor = factor;
+	}
+
+	public void setCenter(Vector2f center) {
+		this.center.set(center);
+	}
+
+	public Vector2f getCenter() {
+		return center.copy();
 	}
 
 	@Override
@@ -250,31 +263,19 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 	}
 
 	@Override
-	public void mouseClicked(int button, int x, int y, int clickCount) {
-		// TODO Auto-generated method stub
+	public void inputEnded() {
 	}
 
 	@Override
-	public void mousePressed(int button, int x, int y) {
-		// TODO Auto-generated method stub
-
+	public boolean isAcceptingInput() {
+		return true;
 	}
 
 	@Override
-	public void mouseReleased(int button, int x, int y) {
-		// TODO Auto-generated method stub
-
+	public void inputStarted() {
 	}
 
 	@Override
-	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
-		// TODO Auto-generated method stub
-
+	public void setInput(Input input) {
 	}
 }

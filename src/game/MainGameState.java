@@ -10,15 +10,19 @@ import org.newdawn.slick.state.StateBasedGame;
 import game.utils.DefaultGameState;
 
 public class MainGameState implements DefaultGameState {
-	private World world = new World();
+	private World world;
 	private Viewport vp = new Viewport();
-	private boolean inGame = true;
+	private boolean inGame = true; // whether or not to display the escape menu
+	private boolean lockCharacter = true; // whether to follow the character
 	private GameUI ui;
+	private boolean worldrendered = false;
 
 	@Override
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
-		gc.getInput().addKeyListener(vp);
-		gc.getInput().addMouseListener(vp);
+		Input gcInput = gc.getInput();
+		gcInput.addKeyListener(vp);
+		gcInput.addMouseListener(vp);
+		world = new World(gcInput);
 	}
 
 	@Override
@@ -35,19 +39,31 @@ public class MainGameState implements DefaultGameState {
 	}
 
 	@Override
-	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
+	public void render(GameContainer gc, StateBasedGame game, Graphics g)
+			throws SlickException {
 		if (inGame) {
 			vp.setGraphics(g);
+			if (lockCharacter) {
+				vp.setCenter(world.getCharacterPosition());
+			}
 			world.draw(vp);
 		} else {
 			// Display ui
 			ui.draw(g);
 		}
+		if (!worldrendered) {
+			worldrendered = true;
+			Viewport.timerupdate = System.currentTimeMillis();
+		}
 	}
 
 	@Override
-	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
-		vp.update(delta);
+	public void update(GameContainer gc, StateBasedGame sbg, int delta)
+			throws SlickException {
+		if (worldrendered) {
+			vp.update(delta);
+		}
+		world.update(delta);
 	}
 
 	@Override
@@ -58,7 +74,12 @@ public class MainGameState implements DefaultGameState {
 	@Override
 	public void keyPressed(int keycode, char c) {
 		if (keycode == Input.KEY_ESCAPE) {
+			// open exit menu
 			inGame = !inGame;
+		}
+		if (keycode == Input.KEY_L) {
+			// toggle whether viewport will center on character
+			lockCharacter = !lockCharacter;
 		}
 	}
 }

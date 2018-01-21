@@ -13,12 +13,13 @@ public class Entity {
 	private SpriteSheet spritesheet;
 	private Shape hitbox;
 	private Sprite sprite;
-	private Vector2f pos;
-	private Vector2f vel;
-	private Vector2f accel;
+	protected Vector2f pos = new Vector2f();
+	protected Vector2f vel = new Vector2f();
+	protected Vector2f accel = new Vector2f();
 	private float scale = 1f;
 
-	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth, float hitheight, Vector2f pos) {
+	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
+			float hitheight, Vector2f pos) {
 		this.pos = pos.copy();
 		setSpriteSheet(spritesheet, sheetwidth, sheetheight);
 		this.hitbox = new Rectangle(0, 0, hitwidth, hitheight);
@@ -47,7 +48,8 @@ public class Entity {
 	}
 
 	public void setSpriteSheet(Image sheet, int width, int height) {
-		this.spritesheet = new SpriteSheet(sheet, sheet.getWidth() / width, sheet.getHeight() / height);
+		this.spritesheet = new SpriteSheet(sheet, sheet.getWidth() / width,
+				sheet.getHeight() / height);
 		this.sprite = new Sprite(this.spritesheet.getSprite(0, 0));
 		this.sprite.loc = pos;
 	}
@@ -64,8 +66,8 @@ public class Entity {
 	}
 
 	public void update(float frametime) {
-		this.pos.add(this.vel.scale(frametime));
-		this.vel.add(this.accel.scale(frametime));
+		this.pos.add(this.vel.copy().scale(frametime));
+		this.vel.add(this.accel.copy().scale(frametime));
 		this.hitbox.setCenterX(this.pos.x);
 		this.hitbox.setCenterY(this.pos.y);
 	}
