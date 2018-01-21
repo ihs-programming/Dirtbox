@@ -91,10 +91,14 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 				(int) (darknessvalue * 127), (int) (darknessvalue * 255));
 		graphics.setBackground(BackgroundColor);
 		center.add(movement.copy().scale(delta / scaleFactor));
+
+		resetTransformCache = true;
 	}
 
 	public void setScreenCenter(Vector2f center) {
 		screenDimensions.set(center.copy().scale(2f));
+
+		resetTransformCache = true;
 	}
 
 	public Shape getViewShape() {
@@ -105,6 +109,9 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 		return getViewShape().transform(getInverseDrawTransform());
 	}
 
+	private boolean resetTransformCache = true;
+	private Transform cacheTransform;
+
 	/**
 	 * Note that this method implicitly depends on getInverseDrawTransform (if this
 	 * method is changed, likely so should getInverseDrawTransform).
@@ -112,20 +119,26 @@ public class Viewport implements DefaultKeyListener, MouseListener {
 	 * @return transform mapping game position to screen position
 	 */
 	private Transform getDrawTransform() {
-		Transform t = new Transform();
+		Transform ret = cacheTransform;
+		if (resetTransformCache) {
+			ret = new Transform();
 
-		// Note that the transforms are applied in reverse order
-		// e.g. the first concatenated transform is applied last
-		Transform[] trans = new Transform[] {
-				Transform.createTranslateTransform(screenDimensions.x / 2,
-						screenDimensions.y / 2),
-				Transform.createScaleTransform(scaleFactor, scaleFactor),
-				Transform.createTranslateTransform(-center.x, -center.y) };
+			// Note that the transforms are applied in reverse order
+			// e.g. the first concatenated transform is applied last
+			Transform[] trans = new Transform[] {
+					Transform.createTranslateTransform(screenDimensions.x / 2,
+							screenDimensions.y / 2),
+					Transform.createScaleTransform(scaleFactor, scaleFactor),
+					Transform.createTranslateTransform(-center.x, -center.y) };
 
-		for (Transform ts : trans) {
-			t.concatenate(ts);
+			for (Transform ts : trans) {
+				ret.concatenate(ts);
+			}
+
+			resetTransformCache = false;
+			cacheTransform = ret;
 		}
-		return t;
+		return ret;
 	}
 
 	/**
