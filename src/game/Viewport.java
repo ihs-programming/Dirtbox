@@ -44,11 +44,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
 
-		// Check if the sprite needs to be drawn
-		Shape resultImageBox = s.getBoundingBox().transform(t);
-		if (getViewShape().contains(resultImageBox)
-				|| getViewShape().intersects(resultImageBox)
-				|| resultImageBox.contains(getViewShape())) {
+		if (shouldDraw(s.getBoundingBox())) {
 			Vector2f res = t.transform(s.loc.copy());
 			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
 			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
@@ -56,13 +52,25 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		}
 	}
 
-	public void draw(Shape s) {
-		Shape resultShape = s.transform(getDrawTransform());
-
-		// Check if the sprite needs to be drawn
-		if (getViewShape().contains(resultShape)) {
+	public void draw(Shape s, Color c) {
+		if (shouldDraw(s)) {
 			graphics.draw(s.transform(getDrawTransform()));
 		}
+	}
+
+	public void fill(Shape s, Color c) {
+		// Check if the sprite needs to be drawn
+		if (shouldDraw(s)) {
+			graphics.fill(s.transform(getDrawTransform()));
+		}
+	}
+
+	private boolean shouldDraw(Shape s) {
+		Transform t = getDrawTransform();
+		s = s.transform(t);
+		return getViewShape().contains(s)
+				|| getViewShape().intersects(s)
+				|| s.contains(getViewShape());
 	}
 
 	private void printDebugInfo() {
