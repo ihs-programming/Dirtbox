@@ -30,7 +30,7 @@ public class Entity {
 	public Entity(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
 		this.pos = pos.copy();
 		this.setSpriteSheet(spritesheet, sheetwidth, sheetheight);
-		this.generateHitBox();
+		this.generateHitbox();
 		this.hitbox.setCenterX(this.pos.x);
 		this.hitbox.setCenterY(this.pos.y);
 	}
@@ -38,7 +38,7 @@ public class Entity {
 	public Entity(SpriteSheet sheet, Vector2f pos) {
 		this.pos = pos.copy();
 		this.setSpriteSheet(sheet);
-		this.generateHitBox();
+		this.generateHitbox();
 	}
 
 	public void setSpriteSheet(SpriteSheet sheet) {
@@ -54,10 +54,16 @@ public class Entity {
 		this.sprite.loc = pos;
 	}
 
-	public void generateHitBox() {
+	public Shape getHitbox() {
+		generateHitbox();
+		return this.hitbox;
+	}
+
+	private void generateHitbox() {
 		float width = this.spritesheet.getWidth() / this.spritesheet.getHorizontalCount();
 		float height = this.spritesheet.getHeight() / this.spritesheet.getVerticalCount();
-		this.hitbox = new Rectangle(-width / 2, -height / 2, width, height);
+		this.hitbox = new Rectangle(
+				-width / 2 + pos.x, -height / 2 + pos.y, width, height);
 	}
 
 	public void draw(Viewport vp) {

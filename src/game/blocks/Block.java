@@ -1,12 +1,14 @@
 package game.blocks;
 
+import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.SpriteSheetLoader;
 import game.Viewport;
 
-public abstract class Block {
+public class Block {
 	public static final int BLOCK_SPRITE_SIZE = 1;
 
 	private Sprite sprite;
@@ -24,5 +26,12 @@ public abstract class Block {
 
 	public Vector2f getPos() {
 		return pos;
+	}
+
+	public Shape getHitbox() {
+		Rectangle hitbox = sprite.getBoundingBox();
+		hitbox.setX(pos.x);
+		hitbox.setY(pos.y);
+		return hitbox;
 	}
 }

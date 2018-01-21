@@ -2,8 +2,11 @@ package game;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NavigableSet;
+import java.util.TreeMap;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
@@ -11,6 +14,7 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.blocks.Block;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
 
@@ -22,6 +26,13 @@ public class World {
 	private ControllableCharacter controlledCharacter;
 
 	private static Image sunsprite;
+
+	public TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
+		if (p1.x == p2.x) {
+			return p1.y - p2.y;
+		}
+		return p1.x - p2.x;
+	});
 
 	public World() {
 		characters = new ArrayList<>();
@@ -78,21 +89,35 @@ public class World {
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
 				view.getWidth(),
 				view.getHeight());
-		new RegionGenerator(viewRect);
-		for (int i = (int) (viewRect.getMinX() - 1); i <= viewRect.getMaxX(); i++) {
-			Point start = new Point(i, (int) (viewRect.getMinY() - 1));
-			Point end = new Point(i, (int) (viewRect.getMaxY() + 1));
-			NavigableSet<Point> existingBlocks = RegionGenerator.blocks.navigableKeySet()
+
+		new RegionGenerator(viewRect, blocks);
+
+		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
+		/*
+		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
+		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
+		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
+		 */
+		for (Point p : visibleBlocks) {
+			blocks.get(p).draw(vp);
+			vp.draw(blocks.get(p).getHitbox(), Color.green);
+		}
+
+		renderHitboxes(vp);
+	}
+
+	public List<Point> getVisibleBlockLocations(Rectangle view) {
+		ArrayList<Point> blockLocs = new ArrayList<>();
+		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
+			Point start = new Point(i, (int) (view.getMinY() - 1));
+			Point end = new Point(i, (int) (view.getMaxY() + 1));
+			NavigableSet<Point> existingBlocks = blocks.navigableKeySet()
 					.subSet(start, true, end, true);
-			/*
-			 * The following three lines somehow randomly cause up to 1000 ms of lag This
-			 * is a big issue, as the game otherwise runs quite smoothly. Please fix!
-			 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
-			 */
 			for (Point p : existingBlocks) {
-				RegionGenerator.blocks.get(p).draw(vp);
+				blockLocs.add(p);
 			}
 		}
+		return blockLocs;
 	}
 
 	public Vector2f getCharacterPosition() {
@@ -105,6 +130,28 @@ public class World {
 	public void update(int delta) {
 		for (Entity e : characters) {
 			e.update(delta);
+		}
+		Shape hitbox = controlledCharacter.getHitbox();
+		Rectangle boundingBox = new Rectangle(
+				hitbox.getMinX(), hitbox.getMinY(),
+				hitbox.getWidth(), hitbox.getHeight());
+		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
+		for (Point p : collidingBlocks) {
+			Block b = blocks.get(p);
+			controlledCharacter.collide(b.getHitbox());
+		}
+	}
+
+	private void renderHitboxes(Viewport vp) {
+		vp.draw(controlledCharacter.getHitbox(), Color.red);
+		Shape hitbox = controlledCharacter.getHitbox();
+		Rectangle boundingBox = new Rectangle(
+				hitbox.getMinX(), hitbox.getMinY(),
+				hitbox.getWidth(), hitbox.getHeight());
+		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
+		for (Point p : collidingBlocks) {
+			Block b = blocks.get(p);
+			vp.draw(b.getHitbox(), Color.white);
 		}
 	}
 }

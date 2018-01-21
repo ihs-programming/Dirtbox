@@ -27,6 +27,11 @@ public class RegionGenerator {
 	 * Limits generation to 10 thousand chunks for now.
 	 */
 	private final static BiomeType[] biomes = new BiomeType[10000];
+
+	/*
+	 * Block object that the regiongenerator will operate on
+	 */
+	private TreeMap<Point, Block> blocks;
 	static {
 		biomes[0] = randombiome();
 		for (int i = 1; i < biomes.length; i++) {
@@ -44,16 +49,6 @@ public class RegionGenerator {
 			}
 		}
 	}
-	public static TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
-		if (p1.x == p2.x) {
-			return p1.y - p2.y;
-		}
-		return p1.x - p2.x;
-	});
-
-	RegionGenerator() {
-
-	}
 
 	/**
 	 * For some reason, multiple instances of this are created. This meant a lot of
@@ -61,7 +56,8 @@ public class RegionGenerator {
 	 *
 	 * @param s
 	 */
-	RegionGenerator(Rectangle s) {
+	RegionGenerator(Rectangle s, TreeMap<Point, Block> blocks) {
+		this.blocks = blocks;
 		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
 			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxY() + 1; j++) {
 				generateWorld(i, j);
@@ -70,7 +66,6 @@ public class RegionGenerator {
 	}
 
 	public void generateWorld(int x, int y) {
-
 		Point curpos = new Point(x, y);
 		if (blocks.containsKey(curpos)) {
 			return;
