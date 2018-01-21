@@ -80,7 +80,7 @@ public class ControllableCharacter extends Entity {
 
 				if (greaterThanLine(blockBoxCenter, lowerRightCorner, pos) &&
 						greaterThanLine(blockBoxCenter, lowerLeftCorner, pos)) {
-					displacement.y = boundingBox.getMinY() - charHitbox.getMaxY();
+					displacement.y = boundingBox.getMaxY() - charHitbox.getMinY();
 				}
 				// rotate bounding box
 				Shape s = boundingBox.transform(rotateRight);

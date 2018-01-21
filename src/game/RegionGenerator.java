@@ -7,7 +7,7 @@ import org.newdawn.slick.geom.Rectangle;
 
 import game.blocks.Block;
 import game.blocks.BlockType;
-import game.blocks.SolidBlock;
+import game.blocks.EmptyBlock;
 import util.ImprovedNoise;
 
 public class RegionGenerator {
@@ -154,7 +154,7 @@ public class RegionGenerator {
 			int height = Math.max(heightMap[0], heightMap[heightMap.length - 1]) + 1;
 			for (int i = 0; i < heightMap.length; i++) {
 				for (int z = height; z < CHUNK_HEIGHT; z++) {
-					if (((SolidBlock) blocks[i][z]).type == BlockType.EMPTY) {
+					if (blocks[i][z] instanceof EmptyBlock) {
 						blocks[i][z] = Block.createBlock(BlockType.WATER,
 								(i + x) * Block.BLOCK_SPRITE_SIZE,
 								(z + y) * Block.BLOCK_SPRITE_SIZE);
