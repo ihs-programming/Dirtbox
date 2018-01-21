@@ -54,6 +54,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 
 	public void draw(Shape s, Color c) {
 		if (shouldDraw(s)) {
+			graphics.setColor(c);
 			graphics.draw(s.transform(getDrawTransform()));
 		}
 	}
@@ -61,6 +62,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public void fill(Shape s, Color c) {
 		// Check if the sprite needs to be drawn
 		if (shouldDraw(s)) {
+			graphics.setColor(c);
 			graphics.fill(s.transform(getDrawTransform()));
 		}
 	}
