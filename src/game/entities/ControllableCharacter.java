@@ -52,6 +52,12 @@ public class ControllableCharacter extends Entity {
 		return pos.copy();
 	}
 
+	/**
+	 * Note that both hitbox and the character's hitbox needs to be an axis aligned
+	 * rectangle.
+	 *
+	 * @param hitbox
+	 */
 	public void collide(Shape hitbox) {
 		Shape charHitbox = this.getHitbox();
 		// Check if hitboxes actually should interact
@@ -66,6 +72,8 @@ public class ControllableCharacter extends Entity {
 		} else if (hitbox instanceof Rectangle) {
 			Rectangle boundingBox = (Rectangle) hitbox;
 			Vector2f displacement = new Vector2f();
+			Vector2f relativePos = pos.copy();
+			Rectangle charBoundingBox = convertToRectangle(charHitbox);
 
 			Transform rotateRight = Transform.createRotateTransform((float) (Math.PI / 2),
 					boundingBox.getCenterX(), boundingBox.getCenterY());
@@ -78,24 +86,44 @@ public class ControllableCharacter extends Entity {
 				Vector2f lowerRightCorner = new Vector2f(
 						boundingBox.getMaxX(), boundingBox.getMaxY());
 
-				if (greaterThanLine(blockBoxCenter, lowerRightCorner, pos) &&
-						greaterThanLine(blockBoxCenter, lowerLeftCorner, pos)) {
-					displacement.y = boundingBox.getMaxY() - charHitbox.getMinY();
+				if (greaterThanLine(blockBoxCenter, lowerRightCorner, relativePos) &&
+						greaterThanLine(blockBoxCenter, lowerLeftCorner, relativePos)) {
+					displacement.y += boundingBox.getMaxY() - charBoundingBox.getMinY();
 				}
-				// rotate bounding box
-				Shape s = boundingBox.transform(rotateRight);
-				boundingBox = new Rectangle(
-						s.getMinX(), s.getMinY(), s.getWidth(), s.getHeight());
-				displacement = Transform.createRotateTransform((float) (Math.PI / 2))
-						.transform(displacement);
+				// rotate everything
+				boundingBox = rotateRectangle(1, boundingBox);
+				charBoundingBox = rotateRectangle(1, charBoundingBox);
+				displacement.add(90);
+				vel.add(90);
+				relativePos = rotateRight.transform(relativePos);
 			}
 			pos.add(displacement);
+			vel.scale(0f);
 			System.out.println(displacement);
 		} else {
 			throw new UnsupportedOperationException(
 					"Collision with non rectangles not implemented yet\n" +
 							"	will result in undefined behavior\n");
 		}
+	}
+
+	/**
+	 * Rotates rectangle right by 90 degrees n times
+	 *
+	 * @param n
+	 * @return
+	 */
+	private Rectangle rotateRectangle(int n, Rectangle r) {
+		Transform rotate = Transform.createRotateTransform((float) (Math.PI / 2));
+		for (int i = 0; i < n; i++) {
+			Shape ns = r.transform(rotate);
+			r = convertToRectangle(ns);
+		}
+		return r;
+	}
+
+	private Rectangle convertToRectangle(Shape s) {
+		return new Rectangle(s.getMinX(), s.getMinY(), s.getWidth(), s.getHeight());
 	}
 
 	/**

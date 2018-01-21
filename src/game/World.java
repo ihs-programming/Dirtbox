@@ -131,6 +131,8 @@ public class World {
 		for (Entity e : characters) {
 			e.update(delta);
 		}
+
+		// collision detection for main character
 		Shape hitbox = controlledCharacter.getHitbox();
 		Rectangle boundingBox = new Rectangle(
 				hitbox.getMinX(), hitbox.getMinY(),
@@ -142,6 +144,11 @@ public class World {
 		}
 	}
 
+	/**
+	 * May be useful for debugging hitbox locations
+	 *
+	 * @param vp
+	 */
 	private void renderHitboxes(Viewport vp) {
 		vp.draw(controlledCharacter.getHitbox(), Color.red);
 		Shape hitbox = controlledCharacter.getHitbox();
