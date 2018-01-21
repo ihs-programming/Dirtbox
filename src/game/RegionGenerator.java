@@ -71,7 +71,7 @@ public class RegionGenerator {
 			return;
 		}
 		if (y >= BEDROCK_LAYER) {
-			blocks.put(curpos, new SolidBlock(BlockType.BEDROCK, x, y));
+			blocks.put(curpos, Block.createBlock(BlockType.BEDROCK, x, y));
 		} else if (y >= 0) {
 			int chunkStart = x / CHUNK_SIZE * CHUNK_SIZE;
 			if (x < 0) {
@@ -85,7 +85,7 @@ public class RegionGenerator {
 						blocks.put(new Point(i + chunkStart, j), chunk[i][j]);
 					} else {
 						blocks.put(new Point(i + chunkStart, j),
-								new SolidBlock(BlockType.EMPTY, i, j));
+								Block.createBlock(BlockType.EMPTY, i, j));
 					}
 				}
 			}
@@ -114,7 +114,7 @@ public class RegionGenerator {
 		// Generate the underlying blocks
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int z = 0; z < heightMap[i]; z++) {
-				blocks[i][z] = new SolidBlock(BlockType.EMPTY,
+				blocks[i][z] = Block.createBlock(BlockType.EMPTY,
 						(i + x) * Block.BLOCK_SPRITE_SIZE,
 						(z + y) * Block.BLOCK_SPRITE_SIZE);
 				blocksenum[i][z] = BlockType.EMPTY;
@@ -134,14 +134,14 @@ public class RegionGenerator {
 						for (int a = 0; a < 3; a++) {
 							for (int b = 0; b < 3; b++) {
 								if (Math.random() < 0.5) {
-									blocks[i + a][z + b] = new SolidBlock(type,
+									blocks[i + a][z + b] = Block.createBlock(type,
 											(i + x + a) * Block.BLOCK_SPRITE_SIZE,
 											(z + y + b) * Block.BLOCK_SPRITE_SIZE);
 								}
 							}
 						}
 					}
-					blocks[i][z] = new SolidBlock(type,
+					blocks[i][z] = Block.createBlock(type,
 							(i + x) * Block.BLOCK_SPRITE_SIZE,
 							(z + y) * Block.BLOCK_SPRITE_SIZE);
 
@@ -155,7 +155,7 @@ public class RegionGenerator {
 			for (int i = 0; i < heightMap.length; i++) {
 				for (int z = height; z < CHUNK_HEIGHT; z++) {
 					if (((SolidBlock) blocks[i][z]).type == BlockType.EMPTY) {
-						blocks[i][z] = new SolidBlock(BlockType.WATER,
+						blocks[i][z] = Block.createBlock(BlockType.WATER,
 								(i + x) * Block.BLOCK_SPRITE_SIZE,
 								(z + y) * Block.BLOCK_SPRITE_SIZE);
 						blocksenum[i][z] = BlockType.WATER;

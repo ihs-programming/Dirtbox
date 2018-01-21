@@ -14,6 +14,13 @@ public class Block {
 	private Sprite sprite;
 	private Vector2f pos;
 
+	public static Block createBlock(BlockType type, float xpos, float ypos) {
+		if (type == BlockType.EMPTY) {
+			return new EmptyBlock(xpos, ypos);
+		}
+		return new SolidBlock(type, xpos, ypos);
+	}
+
 	protected Block(int sx, int sy, float xpos, float ypos) {
 		sprite = new Sprite(SpriteSheetLoader.getBlockImage(sx, sy));
 		pos = new Vector2f(xpos, ypos);
