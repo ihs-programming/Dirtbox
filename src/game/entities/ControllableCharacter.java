@@ -53,8 +53,7 @@ public class ControllableCharacter extends Entity {
 	}
 
 	/**
-	 * Note that both hitbox and the character's hitbox needs to be an axis aligned
-	 * rectangle.
+	 * Note that currently the character just moves above the colliding hitbox
 	 *
 	 * @param hitbox
 	 */
@@ -68,38 +67,16 @@ public class ControllableCharacter extends Entity {
 		}
 		if (hitbox instanceof Point) {
 			// Do nothing
-			// Point means that there is no hitbox
+			// (Point means that there is no hitbox)
 		} else if (hitbox instanceof Rectangle) {
 			Rectangle boundingBox = (Rectangle) hitbox;
 			Vector2f displacement = new Vector2f();
-			Vector2f relativePos = pos.copy();
-			Rectangle charBoundingBox = convertToRectangle(charHitbox);
-
-			Transform rotateRight = Transform.createRotateTransform((float) (Math.PI / 2),
-					boundingBox.getCenterX(), boundingBox.getCenterY());
-
-			Vector2f blockBoxCenter = new Vector2f(boundingBox.getCenter());
-			// Rotate rectangle and check if center point should be pushed down
-			for (int i = 0; i < 4; i++) {
-				Vector2f lowerLeftCorner = new Vector2f(
-						boundingBox.getMinX(), boundingBox.getMaxY());
-				Vector2f lowerRightCorner = new Vector2f(
-						boundingBox.getMaxX(), boundingBox.getMaxY());
-
-				if (greaterThanLine(blockBoxCenter, lowerRightCorner, relativePos) &&
-						greaterThanLine(blockBoxCenter, lowerLeftCorner, relativePos)) {
-					displacement.y += boundingBox.getMaxY() - charBoundingBox.getMinY();
-				}
-				// rotate everything
-				boundingBox = rotateRectangle(1, boundingBox);
-				charBoundingBox = rotateRectangle(1, charBoundingBox);
-				displacement.add(90);
-				vel.add(90);
-				relativePos = rotateRight.transform(relativePos);
+			// push player up
+			if (boundingBox.getMinY() < charHitbox.getMaxY()) {
+				displacement.y -= charHitbox.getMaxY() - boundingBox.getMinY();
+				vel.y = Math.min(vel.y, 0);
 			}
 			pos.add(displacement);
-			vel.scale(0f);
-			System.out.println(displacement);
 		} else {
 			throw new UnsupportedOperationException(
 					"Collision with non rectangles not implemented yet\n" +
