@@ -102,8 +102,6 @@ public class World {
 			blocks.get(p).draw(vp);
 			vp.draw(blocks.get(p).getHitbox(), Color.green);
 		}
-
-		renderHitboxes(vp);
 	}
 
 	public List<Point> getVisibleBlockLocations(Rectangle view) {
