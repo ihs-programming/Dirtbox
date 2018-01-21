@@ -65,7 +65,7 @@ public class ControllableCharacter extends Entity {
 			// Point means that there is no hitbox
 		} else if (hitbox instanceof Rectangle) {
 			Rectangle boundingBox = (Rectangle) hitbox;
-			Vector2f displacement = pos.copy();
+			Vector2f displacement = new Vector2f();
 
 			Transform rotateRight = Transform.createRotateTransform((float) (Math.PI / 2),
 					boundingBox.getCenterX(), boundingBox.getCenterY());
@@ -78,17 +78,19 @@ public class ControllableCharacter extends Entity {
 				Vector2f lowerRightCorner = new Vector2f(
 						boundingBox.getMaxX(), boundingBox.getMaxY());
 
-				if (greaterThanLine(blockBoxCenter, lowerRightCorner, displacement) &&
-						greaterThanLine(blockBoxCenter, lowerLeftCorner, displacement)) {
+				if (greaterThanLine(blockBoxCenter, lowerRightCorner, pos) &&
+						greaterThanLine(blockBoxCenter, lowerLeftCorner, pos)) {
 					displacement.y = boundingBox.getMinY() - charHitbox.getMaxY();
 				}
 				// rotate bounding box
 				Shape s = boundingBox.transform(rotateRight);
 				boundingBox = new Rectangle(
 						s.getMinX(), s.getMinY(), s.getWidth(), s.getHeight());
-				displacement = rotateRight.transform(displacement);
+				displacement = Transform.createRotateTransform((float) (Math.PI / 2))
+						.transform(displacement);
 			}
 			pos.add(displacement);
+			System.out.println(displacement);
 		} else {
 			throw new UnsupportedOperationException(
 					"Collision with non rectangles not implemented yet\n" +
@@ -106,6 +108,6 @@ public class ControllableCharacter extends Entity {
 	 * @return
 	 */
 	private boolean greaterThanLine(Vector2f l1, Vector2f l2, Vector2f p) {
-		return p.y < (l2.y - l1.y) / (l2.x - l1.x) * (p.x - l1.x);
+		return p.y > (l2.y - l1.y) / (l2.x - l1.x) * (p.x - l1.x);
 	}
 }
