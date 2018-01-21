@@ -2,6 +2,7 @@ package game.entities;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
@@ -52,12 +53,19 @@ public class ControllableCharacter extends Entity {
 	}
 
 	public void collide(Shape hitbox) {
-		if (hitbox instanceof Rectangle) {
+		Shape charHitbox = this.getHitbox();
+		// Check if hitboxes actually should interact
+		if (!(hitbox.contains(charHitbox) ||
+				charHitbox.contains(hitbox) ||
+				hitbox.intersects(charHitbox))) {
+			return;
+		}
+		if (hitbox instanceof Point) {
+			// Do nothing
+			// Point means that there is no hitbox
+		} else if (hitbox instanceof Rectangle) {
 			Rectangle boundingBox = (Rectangle) hitbox;
-			Vector2f center = pos.copy();
-			if (!boundingBox.contains(center.x, center.y)) {
-				return;
-			}
+			Vector2f displacement = pos.copy();
 
 			Transform rotateRight = Transform.createRotateTransform((float) (Math.PI / 2),
 					boundingBox.getCenterX(), boundingBox.getCenterY());
@@ -70,17 +78,17 @@ public class ControllableCharacter extends Entity {
 				Vector2f lowerRightCorner = new Vector2f(
 						boundingBox.getMaxX(), boundingBox.getMaxY());
 
-				if (greaterThanLine(blockBoxCenter, lowerRightCorner, center) &&
-						greaterThanLine(blockBoxCenter, lowerLeftCorner, center)) {
-					center.y = boundingBox.getMaxY();
+				if (greaterThanLine(blockBoxCenter, lowerRightCorner, displacement) &&
+						greaterThanLine(blockBoxCenter, lowerLeftCorner, displacement)) {
+					displacement.y = boundingBox.getMinY() - charHitbox.getMaxY();
 				}
 				// rotate bounding box
 				Shape s = boundingBox.transform(rotateRight);
 				boundingBox = new Rectangle(
 						s.getMinX(), s.getMinY(), s.getWidth(), s.getHeight());
-				center = rotateRight.transform(center);
+				displacement = rotateRight.transform(displacement);
 			}
-			pos.set(center);
+			pos.add(displacement);
 		} else {
 			throw new UnsupportedOperationException(
 					"Collision with non rectangles not implemented yet\n" +
