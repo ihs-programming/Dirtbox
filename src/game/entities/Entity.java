@@ -85,6 +85,6 @@ public class Entity {
 	public Vector2f getLocation() {
 		float width = spritesheet.getWidth();
 		float height = spritesheet.getWidth();
-		return pos.copy().sub(new Vector2f(width / 2, height / 2));
+		return pos.copy().add(new Vector2f(width / 2, height / 2));
 	}
 }

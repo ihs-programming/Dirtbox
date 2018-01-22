@@ -120,7 +120,7 @@ public class World {
 
 	public Vector2f getCharacterPosition() {
 		if (controlledCharacter != null) {
-			return controlledCharacter.getPosition();
+			return controlledCharacter.getLocation();
 		}
 		return new Vector2f();
 	}
