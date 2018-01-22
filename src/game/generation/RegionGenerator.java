@@ -1,10 +1,12 @@
-package game;
+package game.generation;
 
 import java.awt.Point;
 import java.util.TreeMap;
 
 import org.newdawn.slick.geom.Rectangle;
 
+import game.BiomeType;
+import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.EmptyBlock;
@@ -50,13 +52,7 @@ public class RegionGenerator {
 		}
 	}
 
-	/**
-	 * For some reason, multiple instances of this are created. This meant a lot of
-	 * hard to find bugs.
-	 *
-	 * @param s
-	 */
-	RegionGenerator(Rectangle s, TreeMap<Point, Block> blocks) {
+	public RegionGenerator(Rectangle s, TreeMap<Point, Block> blocks) {
 		this.blocks = blocks;
 		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
 			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxY() + 1; j++) {
@@ -264,7 +260,7 @@ public class RegionGenerator {
 				return BlockType.SANDSTONE;
 			}
 			if (Math.random() < 0.003) {
-				type = oreselector(x, z, heightMap);
+				type = oreselector(x, y, heightMap);
 			} else {
 				type = BlockType.STONE;
 			}
@@ -273,28 +269,27 @@ public class RegionGenerator {
 	}
 
 	private BlockType oreselector(int x, int j, int heightMap[]) {
-		BlockType type = BlockType.STONE;
-		if (Math.random() <= 1) {
-			if (j > CHUNK_HEIGHT * 0.9 && Math.random() <= 0.3) {
-				if (Math.random() < 0.2) {
-					type = BlockType.DIAMOND_ORE;
-				} else {
-					type = BlockType.REDSTONE_ORE;
-				}
-			} else {
-				double oreselection = Math.random();
-				if (oreselection < 0.1) {
-					type = BlockType.GOLD_ORE;
-				}
-				if (oreselection >= 0.1 && oreselection < 0.35) {
-					type = BlockType.IRON_ORE;
-				}
-				if (oreselection >= 0.35) {
-					type = BlockType.COAL_ORE;
-				}
-			}
+
+		BlockType[] ores = new BlockType[] { BlockType.COAL_ORE, BlockType.IRON_ORE,
+				BlockType.GOLD_ORE, BlockType.REDSTONE_ORE, BlockType.DIAMOND_ORE };
+		int[] weights = new int[ores.length];
+
+		int tot = 0;
+		for (int i = 0; i < weights.length; i++) {
+			weights[i] = OreProbability.getWeight(ores[i], j);
+			tot += weights[i];
 		}
-		return type;
+
+		int prob = (int) (tot * Math.random());
+
+		for (int i = 0; i < weights.length; i++) {
+			if (prob < weights[i]) {
+				return ores[i];
+			}
+			prob -= weights[i];
+		}
+
+		return BlockType.STONE;
 	}
 
 	private static BiomeType randombiome() { // selects a random biome
