@@ -192,6 +192,7 @@ public class RegionGenerator {
 		if (y < 5 + 2 * Math.random()) {
 			switch (biome) {
 			case DESERT:
+				type = BlockType.SANDSTONE;
 			case OCEAN:
 				type = BlockType.SAND;
 				break;
@@ -206,6 +207,7 @@ public class RegionGenerator {
 			if (y == 0) {
 				switch (biome) {
 				case OCEAN:
+					type = BlockType.SAND;
 				case DESERT:
 					type = BlockType.SAND;
 					break;
@@ -230,6 +232,8 @@ public class RegionGenerator {
 			} else {
 				if (Math.random() < 0.5) {
 					switch (biome) {
+					case OCEAN:
+						type = BlockType.SANDSTONE;
 					case DESERT:
 						type = BlockType.SANDSTONE;
 						break;
