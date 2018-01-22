@@ -51,8 +51,8 @@ public class RegionGenerator {
 	}
 
 	/**
-	 * For some reason, multiple instances of this are created. This meant a lot
-	 * of hard to find bugs.
+	 * For some reason, multiple instances of this are created. This meant a lot of
+	 * hard to find bugs.
 	 *
 	 * @param s
 	 */
@@ -124,7 +124,9 @@ public class RegionGenerator {
 					BlockType type = getType(i, z, biometype, heightMap);
 					if (biometype == BiomeType.BUFFER) {
 						type = getType(i, z,
-								biomes[chunkNumber + (Math.random() > 0.5 ? 1 : -1)],
+								biomes[chunkNumber
+										+ (2.0 * i * Math.random() >= CHUNK_SIZE / 2.0 ? 1
+												: -1)],
 								heightMap);
 					}
 
