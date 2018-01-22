@@ -51,8 +51,8 @@ public class RegionGenerator {
 	}
 
 	/**
-	 * For some reason, multiple instances of this are created. This meant a lot of
-	 * hard to find bugs.
+	 * For some reason, multiple instances of this are created. This meant a lot
+	 * of hard to find bugs.
 	 *
 	 * @param s
 	 */
@@ -207,10 +207,10 @@ public class RegionGenerator {
 					break;
 				}
 			}
+		} else {
 			if (biome == BiomeType.DESERT && y < 15 + 4 * Math.random()) {
 				return BlockType.SANDSTONE;
 			}
-		} else {
 			if (y >= 8) {
 				if (Math.random() < 0.003) {
 					type = oreselector(x, z, heightMap);
@@ -303,14 +303,16 @@ public class RegionGenerator {
 				if (y > CHUNK_HEIGHT - 0.9 * CHUNK_BOUNDARY_HEIGHT) {
 					int nbs = countAliveNeighbours(oldMap, x, y);
 					// The new value is based on our simulation rules
-					// First, if a cell is alive but has too few neighbours, kill it.
+					// First, if a cell is alive but has too few neighbours,
+					// kill it.
 					if (oldMap[x][y]) {
 						if (nbs < deathLimit) {
 							newMap[x][y] = false;
 						} else {
 							newMap[x][y] = true;
 						}
-					} // Otherwise, if the cell is dead now, check if it has the right
+					} // Otherwise, if the cell is dead now, check if it has the
+						// right
 						// number of
 						// neighbours to be 'born'
 					else {
