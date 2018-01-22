@@ -15,6 +15,7 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.blocks.Block;
+import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
 
@@ -138,7 +139,9 @@ public class World {
 		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 		for (Point p : collidingBlocks) {
 			Block b = blocks.get(p);
-			controlledCharacter.collide(b.getHitbox());
+			if (b instanceof SolidBlock) {
+				controlledCharacter.collide(b.getHitbox());
+			}
 		}
 	}
 
