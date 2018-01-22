@@ -15,6 +15,7 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.blocks.Block;
+import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
 import game.utils.Geometry;
@@ -87,7 +88,6 @@ public class World {
 		for (Entity e : this.characters) {
 			e.draw(vp);
 		}
-
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = Geometry.getBoundingBox(view);
 
@@ -107,6 +107,9 @@ public class World {
 		}
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
+		}
+		if (Viewport.DEBUG_MODE) {
+			renderHitboxes(vp);
 		}
 	}
 
@@ -142,7 +145,9 @@ public class World {
 		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 		for (Point p : collidingBlocks) {
 			Block b = blocks.get(p);
-			controlledCharacter.collide(b.getHitbox());
+			if (b instanceof SolidBlock) {
+				controlledCharacter.collide(b.getHitbox());
+			}
 		}
 	}
 

@@ -17,6 +17,8 @@ public class Block {
 	public static Block createBlock(BlockType type, float xpos, float ypos) {
 		if (type == BlockType.EMPTY) {
 			return new EmptyBlock(xpos, ypos);
+		} else if (type == BlockType.WATER) {
+			return new LiquidBlock(type, xpos, ypos);
 		}
 		return new SolidBlock(type, xpos, ypos);
 	}

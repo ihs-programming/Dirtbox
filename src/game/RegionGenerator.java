@@ -102,29 +102,70 @@ public class RegionGenerator {
 		BiomeType biometype = biomes[chunkNumber];
 
 		// The blocks
-		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
-		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
-			heightMap[i] = (int) (20
-					* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
-							RegionGenerator.seed, RegionGenerator.seed)
-					+ CHUNK_SIZE / 2);
+			if (biometype != BiomeType.BUFFER) {
+				heightMap[i] = (int) (getAmplitude(biometype)
+						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
+								RegionGenerator.seed, RegionGenerator.seed)
+						+ CHUNK_HEIGHT * 0.25);
+			} else {
+				heightMap[i] = (int) (getAmplitude(biomes, chunkNumber, i)
+						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
+								RegionGenerator.seed, RegionGenerator.seed)
+						+ CHUNK_HEIGHT * 0.25);
+			}
+		}
+		if (biometype == BiomeType.OCEAN) {
+			for (int i = 1; i < heightMap.length - 1; i++) {
+				heightMap[i] += Math
+						.sqrt(heightMap.length / 2 - Math.abs(heightMap.length / 2 - i));
+			}
 		}
 		// Generate the underlying blocks
+		Block[][] blocks = generateBlocks(
+				heightMap, biometype, chunkNumber, new Point(x, y));
+
+		if (biometype == BiomeType.OCEAN) {
+			int height = Math.max(heightMap[0], heightMap[heightMap.length - 1]) + 1;
+			for (int i = 0; i < heightMap.length; i++) {
+				for (int z = height; z < CHUNK_HEIGHT; z++) {
+					if (blocks[i][z] instanceof EmptyBlock) {
+						blocks[i][z] = Block.createBlock(BlockType.WATER,
+								(i + x) * Block.BLOCK_SPRITE_SIZE,
+								(z + y) * Block.BLOCK_SPRITE_SIZE);
+					}
+				}
+			}
+		}
+		if (Viewport.DEBUG_MODE) {
+			System.out.println((System.nanoTime() - chunkgenerationtime) / 1000000.0
+					+ " ms to generate chunk of type " + biometype);
+		}
+		return blocks;
+	}
+
+	private Block[][] generateBlocks(
+			int[] heightMap, BiomeType biometype, int chunkNumber, Point loc) {
+		int x = loc.x;
+		int y = loc.y;
+		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int z = 0; z < heightMap[i]; z++) {
 				blocks[i][z] = Block.createBlock(BlockType.EMPTY,
 						(i + x) * Block.BLOCK_SPRITE_SIZE,
 						(z + y) * Block.BLOCK_SPRITE_SIZE);
-				blocksenum[i][z] = BlockType.EMPTY;
 			}
 			for (int z = heightMap[i]; z < CHUNK_HEIGHT; z++) {
 				if (blocks[i][z] == null) {
 					BlockType type = getType(i, z, biometype, heightMap);
 					if (biometype == BiomeType.BUFFER) {
 						type = getType(i, z,
-								biomes[chunkNumber + (Math.random() > 0.5 ? 1 : -1)],
+								biomes[chunkNumber
+										+ (Math.random() * 0.9 + 0.05 > -(Math
+												.atan(0.5 * (i - CHUNK_SIZE / 2.0))
+												/ Math.PI) + 0.5 ? 1
+														: -1)],
 								heightMap);
 					}
 
@@ -149,25 +190,38 @@ public class RegionGenerator {
 
 			}
 		}
-
-		if (biometype == BiomeType.DESERT) {
-			int height = Math.max(heightMap[0], heightMap[heightMap.length - 1]) + 1;
-			for (int i = 0; i < heightMap.length; i++) {
-				for (int z = height; z < CHUNK_HEIGHT; z++) {
-					if (blocks[i][z] instanceof EmptyBlock) {
-						blocks[i][z] = Block.createBlock(BlockType.WATER,
-								(i + x) * Block.BLOCK_SPRITE_SIZE,
-								(z + y) * Block.BLOCK_SPRITE_SIZE);
-						blocksenum[i][z] = BlockType.WATER;
-					}
-				}
-			}
-		}
-		if (Viewport.DEBUG_MODE) {
-			System.out.println((System.nanoTime() - chunkgenerationtime) / 1000000.0
-					+ " ms to generate chunk of type " + biometype);
-		}
 		return blocks;
+	}
+
+	private int getAmplitude(BiomeType biometype) {
+		int amplitude = 0;
+		switch (biometype) {
+		case OCEAN:
+			amplitude = 10;
+			break;
+		case DESERT:
+			amplitude = 15;
+			break;
+		case PLAIN:
+			amplitude = 10;
+			break;
+		case HILLS:
+			amplitude = 25;
+		case MOUNTAIN:
+			amplitude = 30;
+			break;
+		default:
+			amplitude = 20;
+			break;
+		}
+		return amplitude;
+	}
+
+	private int getAmplitude(BiomeType biomes[], int chunknumber, int i) {
+		int rightamplitude = getAmplitude(biomes[chunknumber + 1]);
+		int leftamplitude = getAmplitude(biomes[chunknumber - 1]);
+		return (int) (i / (double) CHUNK_SIZE * rightamplitude
+				+ (1 - i / (double) CHUNK_SIZE) * leftamplitude);
 	}
 
 	/**
@@ -184,6 +238,8 @@ public class RegionGenerator {
 		if (y < 5 + 2 * Math.random()) {
 			switch (biome) {
 			case DESERT:
+				type = BlockType.SANDSTONE;
+			case OCEAN:
 				type = BlockType.SAND;
 				break;
 			case MOUNTAIN:
@@ -196,6 +252,8 @@ public class RegionGenerator {
 
 			if (y == 0) {
 				switch (biome) {
+				case OCEAN:
+					type = BlockType.SAND;
 				case DESERT:
 					type = BlockType.SAND;
 					break;
@@ -207,10 +265,10 @@ public class RegionGenerator {
 					break;
 				}
 			}
+		} else {
 			if (biome == BiomeType.DESERT && y < 15 + 4 * Math.random()) {
 				return BlockType.SANDSTONE;
 			}
-		} else {
 			if (y >= 8) {
 				if (Math.random() < 0.003) {
 					type = oreselector(x, z, heightMap);
@@ -220,6 +278,8 @@ public class RegionGenerator {
 			} else {
 				if (Math.random() < 0.5) {
 					switch (biome) {
+					case OCEAN:
+						type = BlockType.SANDSTONE;
 					case DESERT:
 						type = BlockType.SANDSTONE;
 						break;
@@ -303,14 +363,16 @@ public class RegionGenerator {
 				if (y > CHUNK_HEIGHT - 0.9 * CHUNK_BOUNDARY_HEIGHT) {
 					int nbs = countAliveNeighbours(oldMap, x, y);
 					// The new value is based on our simulation rules
-					// First, if a cell is alive but has too few neighbours, kill it.
+					// First, if a cell is alive but has too few neighbours,
+					// kill it.
 					if (oldMap[x][y]) {
 						if (nbs < deathLimit) {
 							newMap[x][y] = false;
 						} else {
 							newMap[x][y] = true;
 						}
-					} // Otherwise, if the cell is dead now, check if it has the right
+					} // Otherwise, if the cell is dead now, check if it has the
+						// right
 						// number of
 						// neighbours to be 'born'
 					else {
