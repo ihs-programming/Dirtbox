@@ -10,9 +10,12 @@ import org.newdawn.slick.geom.Vector2f;
 import game.utils.DefaultKeyListener;
 
 public class ControllableCharacter extends Entity {
-	private float speed = 0.01f;
-	private float jumpStrength = 0.005f;
-	private float gravity = 0.00001f;
+	private float speed = 0.0085f;
+	private float jumpStrength = 0.0085f;
+	private float gravity = 0.00002613f; // 1 block = 1 m^2, 1 block = 16 px, 1 m = 16 px,
+											// 1 frame = 1/60s, 1 frame = 16.7ms, 9.8m/s^2
+											// = 9.8*16px/60frames, gravity =
+											// -2.613px/frame
 
 	private Input userInput;
 
