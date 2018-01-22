@@ -85,8 +85,6 @@ public class World {
 		for (Entity e : this.characters) {
 			e.draw(vp);
 		}
-
-		long time = System.currentTimeMillis();
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
 				view.getWidth(),
@@ -102,6 +100,9 @@ public class World {
 		 */
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
+		}
+		if (Viewport.DEBUG_MODE) {
+			renderHitboxes(vp);
 		}
 	}
 
