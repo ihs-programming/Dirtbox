@@ -51,8 +51,8 @@ public class RegionGenerator {
 	}
 
 	/**
-	 * For some reason, multiple instances of this are created. This meant a lot
-	 * of hard to find bugs.
+	 * For some reason, multiple instances of this are created. This meant a lot of
+	 * hard to find bugs.
 	 *
 	 * @param s
 	 */
@@ -106,10 +106,16 @@ public class RegionGenerator {
 		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
-			heightMap[i] = (int) (20
+			heightMap[i] = (int) (30
 					* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
 							RegionGenerator.seed, RegionGenerator.seed)
 					+ CHUNK_SIZE / 2);
+		}
+		if (biometype == BiomeType.OCEAN) {
+			for (int i = 1; i < heightMap.length - 1; i++) {
+				heightMap[i] += Math
+						.sqrt(heightMap.length / 2 - Math.abs(heightMap.length / 2 - i));
+			}
 		}
 		// Generate the underlying blocks
 		for (int i = 0; i < CHUNK_SIZE; i++) {
@@ -124,7 +130,9 @@ public class RegionGenerator {
 					BlockType type = getType(i, z, biometype, heightMap);
 					if (biometype == BiomeType.BUFFER) {
 						type = getType(i, z,
-								biomes[chunkNumber + (Math.random() > 0.5 ? 1 : -1)],
+								biomes[chunkNumber
+										+ (Math.random() < 1.0 * i / CHUNK_SIZE ? 1
+												: -1)],
 								heightMap);
 					}
 
@@ -150,7 +158,7 @@ public class RegionGenerator {
 			}
 		}
 
-		if (biometype == BiomeType.DESERT) {
+		if (biometype == BiomeType.OCEAN) {
 			int height = Math.max(heightMap[0], heightMap[heightMap.length - 1]) + 1;
 			for (int i = 0; i < heightMap.length; i++) {
 				for (int z = height; z < CHUNK_HEIGHT; z++) {
@@ -184,6 +192,7 @@ public class RegionGenerator {
 		if (y < 5 + 2 * Math.random()) {
 			switch (biome) {
 			case DESERT:
+			case OCEAN:
 				type = BlockType.SAND;
 				break;
 			case MOUNTAIN:
@@ -196,6 +205,7 @@ public class RegionGenerator {
 
 			if (y == 0) {
 				switch (biome) {
+				case OCEAN:
 				case DESERT:
 					type = BlockType.SAND;
 					break;

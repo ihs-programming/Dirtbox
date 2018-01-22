@@ -10,7 +10,7 @@ import org.newdawn.slick.geom.Vector2f;
 import game.utils.DefaultKeyListener;
 
 public class ControllableCharacter extends Entity {
-	private float speed = 0.01f;
+	private float speed = 0.1f;
 	private float jumpStrength = 0.005f;
 	private float gravity = 0.00001f;
 
