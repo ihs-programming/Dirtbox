@@ -229,10 +229,25 @@ public class RegionGenerator {
 	private BlockType getType(int x, int z, BiomeType biome, int heightMap[]) {
 		BlockType type = BlockType.UNDEFINED;
 		int y = z - heightMap[x];
-		if (y < 5 + 2 * Math.random()) {
+		// Surface material
+		if (y == 0) {
+			switch (biome) {
+			case OCEAN:
+				type = BlockType.SAND;
+			case DESERT:
+				type = BlockType.SAND;
+				break;
+			case MOUNTAIN:
+				type = BlockType.STONE;
+				break;
+			default:
+				type = BlockType.GRASS;
+				break;
+			}
+			// Top layer
+		} else if (y < 5 + 2 * Math.random()) {
 			switch (biome) {
 			case DESERT:
-				type = BlockType.SANDSTONE;
 			case OCEAN:
 				type = BlockType.SAND;
 				break;
@@ -243,52 +258,16 @@ public class RegionGenerator {
 				type = BlockType.DIRT;
 				break;
 			}
-
-			if (y == 0) {
-				switch (biome) {
-				case OCEAN:
-					type = BlockType.SAND;
-				case DESERT:
-					type = BlockType.SAND;
-					break;
-				case MOUNTAIN:
-					type = BlockType.STONE;
-					break;
-				default:
-					type = BlockType.GRASS;
-					break;
-				}
-			}
+			// Stone layer
 		} else {
-			if (biome == BiomeType.DESERT && y < 15 + 4 * Math.random()) {
+			if (biome == BiomeType.DESERT && y < 10 + 2 * Math.random()) {
 				return BlockType.SANDSTONE;
 			}
-			if (y >= 8) {
-				if (Math.random() < 0.003) {
-					type = oreselector(x, z, heightMap);
-				} else {
-					type = BlockType.STONE;
-				}
+			if (Math.random() < 0.003) {
+				type = oreselector(x, z, heightMap);
 			} else {
-				if (Math.random() < 0.5) {
-					switch (biome) {
-					case OCEAN:
-						type = BlockType.SANDSTONE;
-					case DESERT:
-						type = BlockType.SANDSTONE;
-						break;
-					case MOUNTAIN:
-						type = BlockType.STONE;
-						break;
-					default:
-						type = BlockType.DIRT;
-						break;
-					}
-				} else {
-					type = BlockType.STONE;
-				}
+				type = BlockType.STONE;
 			}
-
 		}
 		return type;
 	}
