@@ -102,8 +102,6 @@ public class RegionGenerator {
 		BiomeType biometype = biomes[chunkNumber];
 
 		// The blocks
-		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
-		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
 			if (biometype != BiomeType.BUFFER) {
@@ -125,12 +123,38 @@ public class RegionGenerator {
 			}
 		}
 		// Generate the underlying blocks
+		Block[][] blocks = generateBlocks(
+				heightMap, biometype, chunkNumber, new Point(x, y));
+
+		if (biometype == BiomeType.OCEAN) {
+			int height = Math.max(heightMap[0], heightMap[heightMap.length - 1]) + 1;
+			for (int i = 0; i < heightMap.length; i++) {
+				for (int z = height; z < CHUNK_HEIGHT; z++) {
+					if (blocks[i][z] instanceof EmptyBlock) {
+						blocks[i][z] = Block.createBlock(BlockType.WATER,
+								(i + x) * Block.BLOCK_SPRITE_SIZE,
+								(z + y) * Block.BLOCK_SPRITE_SIZE);
+					}
+				}
+			}
+		}
+		if (Viewport.DEBUG_MODE) {
+			System.out.println((System.nanoTime() - chunkgenerationtime) / 1000000.0
+					+ " ms to generate chunk of type " + biometype);
+		}
+		return blocks;
+	}
+
+	private Block[][] generateBlocks(
+			int[] heightMap, BiomeType biometype, int chunkNumber, Point loc) {
+		int x = loc.x;
+		int y = loc.y;
+		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int z = 0; z < heightMap[i]; z++) {
 				blocks[i][z] = Block.createBlock(BlockType.EMPTY,
 						(i + x) * Block.BLOCK_SPRITE_SIZE,
 						(z + y) * Block.BLOCK_SPRITE_SIZE);
-				blocksenum[i][z] = BlockType.EMPTY;
 			}
 			for (int z = heightMap[i]; z < CHUNK_HEIGHT; z++) {
 				if (blocks[i][z] == null) {
@@ -165,24 +189,6 @@ public class RegionGenerator {
 				}
 
 			}
-		}
-
-		if (biometype == BiomeType.OCEAN) {
-			int height = Math.max(heightMap[0], heightMap[heightMap.length - 1]) + 1;
-			for (int i = 0; i < heightMap.length; i++) {
-				for (int z = height; z < CHUNK_HEIGHT; z++) {
-					if (blocks[i][z] instanceof EmptyBlock) {
-						blocks[i][z] = Block.createBlock(BlockType.WATER,
-								(i + x) * Block.BLOCK_SPRITE_SIZE,
-								(z + y) * Block.BLOCK_SPRITE_SIZE);
-						blocksenum[i][z] = BlockType.WATER;
-					}
-				}
-			}
-		}
-		if (Viewport.DEBUG_MODE) {
-			System.out.println((System.nanoTime() - chunkgenerationtime) / 1000000.0
-					+ " ms to generate chunk of type " + biometype);
 		}
 		return blocks;
 	}
