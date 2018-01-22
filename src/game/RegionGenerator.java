@@ -199,6 +199,8 @@ public class RegionGenerator {
 		case PLAIN:
 			amplitude = 10;
 			break;
+		case HILLS:
+			amplitude = 25;
 		case MOUNTAIN:
 			amplitude = 30;
 			break;
