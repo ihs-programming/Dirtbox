@@ -17,6 +17,7 @@ import org.newdawn.slick.geom.Vector2f;
 import game.blocks.Block;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
+import game.utils.Geometry;
 
 public class World {
 
@@ -26,6 +27,8 @@ public class World {
 	private ControllableCharacter controlledCharacter;
 
 	private static Image sunsprite;
+
+	private boolean enableFOV = true;
 
 	public TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
 		if (p1.x == p2.x) {
@@ -85,26 +88,29 @@ public class World {
 			e.draw(vp);
 		}
 
-		long time = System.currentTimeMillis();
 		Shape view = vp.getGameViewShape();
-		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
-				view.getWidth(),
-				view.getHeight());
+		Rectangle viewRect = Geometry.getBoundingBox(view);
 
 		new RegionGenerator(viewRect, blocks);
 
-		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		/*
 		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
 		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
 		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
+		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
+		if (enableFOV) {
+			List<Point> update = new ArrayList<>();
+			Rectangle r = Geometry.getBoundingBox(this.controlledCharacter.getHitbox());
+			while (!update.isEmpty()) {
+			}
+		}
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
 		}
 	}
 
-	public List<Point> getVisibleBlockLocations(Rectangle view) {
+	private List<Point> getVisibleBlockLocations(Rectangle view) {
 		ArrayList<Point> blockLocs = new ArrayList<>();
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
 			Point start = new Point(i, (int) (view.getMinY() - 1));
@@ -132,9 +138,7 @@ public class World {
 
 		// collision detection for main character
 		Shape hitbox = controlledCharacter.getHitbox();
-		Rectangle boundingBox = new Rectangle(
-				hitbox.getMinX(), hitbox.getMinY(),
-				hitbox.getWidth(), hitbox.getHeight());
+		Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
 		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 		for (Point p : collidingBlocks) {
 			Block b = blocks.get(p);
@@ -150,9 +154,7 @@ public class World {
 	private void renderHitboxes(Viewport vp) {
 		vp.draw(controlledCharacter.getHitbox(), Color.red);
 		Shape hitbox = controlledCharacter.getHitbox();
-		Rectangle boundingBox = new Rectangle(
-				hitbox.getMinX(), hitbox.getMinY(),
-				hitbox.getWidth(), hitbox.getHeight());
+		Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
 		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 		for (Point p : collidingBlocks) {
 			Block b = blocks.get(p);
