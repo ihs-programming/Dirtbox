@@ -1,9 +1,15 @@
 package game;
 
 import java.awt.Point;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Queue;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.newdawn.slick.Color;
@@ -99,11 +105,8 @@ public class World {
 		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
-		if (enableFOV) {
-			List<Point> update = new ArrayList<>();
-			Rectangle r = Geometry.getBoundingBox(this.controlledCharacter.getHitbox());
-			while (!update.isEmpty()) {
-			}
+		if (!enableFOV) {
+			visibleBlocks = calculateVisibleBlocks();
 		}
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
@@ -111,6 +114,67 @@ public class World {
 		if (Viewport.DEBUG_MODE) {
 			renderHitboxes(vp);
 		}
+	}
+
+	private List<Point> calculateVisibleBlocks() {
+		Rectangle hitbox = Geometry
+				.getBoundingBox(this.controlledCharacter.getHitbox());
+		Queue<Point> update = new ArrayDeque<>(getVisibleBlockLocations(hitbox));
+		Map<Point, Boolean> seen = new HashMap<>();
+		Set<Point> toDraw = new HashSet<>();
+		while (!update.isEmpty()) {
+			Point curPoint = update.poll();
+			if (seen.containsKey(curPoint)) {
+				continue;
+			}
+			toDraw.add(curPoint);
+			Rectangle blockOutline = new Rectangle(curPoint.x, curPoint.y, 1, 1);
+			Block curBlock = blocks.get(curPoint);
+			if (blockOutline.intersects(hitbox)
+					|| hitbox.contains(blockOutline)
+					|| blockOutline.contains(hitbox)) {
+				seen.put(curPoint, true);
+			} else {
+				Vector2f blockCenter = new Vector2f(blockOutline.getCenter());
+				double angle = blockCenter.negate()
+						.add(getCharacterPosition())
+						.getTheta();
+				// 0 is right, 1 is up, 2 is left, 3 is down
+				int dir = 0;
+
+				/* @formatter:off
+				 * adjBlocks is a list of list of 2d displacements that
+				 * calculate which blocks are adjacent to the current point
+				 *
+				 * Example:
+				 *   If the direction is 0 (right), then the blocks that
+				 *   should be checked for visibility are:
+				 *   0 0 x
+				 *   0 0 x
+				 *   0 0 x
+				 *
+				 *   If the direction is 1, the blocks checked should be:
+				 *   x x x
+				 *   0 0 0
+				 *   0 0 0
+				 *
+				 *   etc.
+				 @formatter:on
+				 */
+				int[][][] adjBlocks = {
+						{ { 1, -1 }, { 1, 0 }, { 1, 1 } },
+						{ { 1, -1 }, { 0, -1 }, { -1, -1 } },
+						{ { -1, -1 }, { -1, 0 }, { -1, 1 } },
+						{ { 1, 1 }, { 0, 1 }, { -1, 1 } },
+				};
+				for (angle -= 90; angle > 0; angle -= 90) {
+					dir++;
+				}
+				for (int i = 0; i < adjBlocks[dir].length; i++) {
+				}
+			}
+		}
+		return new ArrayList<>(toDraw);
 	}
 
 	private List<Point> getVisibleBlockLocations(Rectangle view) {
