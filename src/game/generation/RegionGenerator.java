@@ -55,7 +55,8 @@ public class RegionGenerator {
 	public RegionGenerator(Rectangle s, TreeMap<Point, Block> blocks) {
 		this.blocks = blocks;
 		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
-			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxY() + 1; j++) {
+			for (int j = Math.max(0, (int) (s.getMinY() - 1)); j <= s.getMaxY()
+					+ 1; j++) {
 				generateWorld(i, j);
 			}
 		}
