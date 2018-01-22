@@ -63,7 +63,7 @@ public class Entity {
 		float width = this.spritesheet.getWidth() / this.spritesheet.getHorizontalCount();
 		float height = this.spritesheet.getHeight() / this.spritesheet.getVerticalCount();
 		this.hitbox = new Rectangle(
-				-width / 2 + pos.x, -height / 2 + pos.y, width, height);
+				pos.x, pos.y, width, height);
 	}
 
 	public void draw(Viewport vp) {
@@ -80,5 +80,11 @@ public class Entity {
 
 	public void magnify(float factor) {
 		this.scale *= factor;
+	}
+
+	public Vector2f getLocation() {
+		float width = spritesheet.getWidth();
+		float height = spritesheet.getWidth();
+		return pos.copy().sub(new Vector2f(width / 2, height / 2));
 	}
 }

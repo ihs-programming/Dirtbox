@@ -5,7 +5,6 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
-import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.utils.DefaultKeyListener;
@@ -82,37 +81,5 @@ public class ControllableCharacter extends Entity {
 					"Collision with non rectangles not implemented yet\n" +
 							"	will result in undefined behavior\n");
 		}
-	}
-
-	/**
-	 * Rotates rectangle right by 90 degrees n times
-	 *
-	 * @param n
-	 * @return
-	 */
-	private Rectangle rotateRectangle(int n, Rectangle r) {
-		Transform rotate = Transform.createRotateTransform((float) (Math.PI / 2));
-		for (int i = 0; i < n; i++) {
-			Shape ns = r.transform(rotate);
-			r = convertToRectangle(ns);
-		}
-		return r;
-	}
-
-	private Rectangle convertToRectangle(Shape s) {
-		return new Rectangle(s.getMinX(), s.getMinY(), s.getWidth(), s.getHeight());
-	}
-
-	/**
-	 * Check if Point p is higher than (greater y coordinate) than the line defined
-	 * by l1 and l2.
-	 *
-	 * @param l1
-	 * @param l2
-	 * @param p
-	 * @return
-	 */
-	private boolean greaterThanLine(Vector2f l1, Vector2f l2, Vector2f p) {
-		return p.y > (l2.y - l1.y) / (l2.x - l1.x) * (p.x - l1.x);
 	}
 }
