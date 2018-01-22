@@ -106,10 +106,17 @@ public class RegionGenerator {
 		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
-			heightMap[i] = (int) (30
-					* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
-							RegionGenerator.seed, RegionGenerator.seed)
-					+ CHUNK_SIZE / 2);
+			if (biometype != BiomeType.BUFFER) {
+				heightMap[i] = (int) (getAmplitude(biometype)
+						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
+								RegionGenerator.seed, RegionGenerator.seed)
+						+ CHUNK_HEIGHT * 0.25);
+			} else {
+				heightMap[i] = (int) (getAmplitude(biomes, chunkNumber, i)
+						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
+								RegionGenerator.seed, RegionGenerator.seed)
+						+ CHUNK_HEIGHT * 0.25);
+			}
 		}
 		if (biometype == BiomeType.OCEAN) {
 			for (int i = 1; i < heightMap.length - 1; i++) {
@@ -131,8 +138,10 @@ public class RegionGenerator {
 					if (biometype == BiomeType.BUFFER) {
 						type = getType(i, z,
 								biomes[chunkNumber
-										+ (Math.random() < 1.0 * i / CHUNK_SIZE ? 1
-												: -1)],
+										+ (Math.random() * 0.9 + 0.05 > -(Math
+												.atan(0.5 * (i - CHUNK_SIZE / 2.0))
+												/ Math.PI) + 0.5 ? 1
+														: -1)],
 								heightMap);
 					}
 
@@ -176,6 +185,37 @@ public class RegionGenerator {
 					+ " ms to generate chunk of type " + biometype);
 		}
 		return blocks;
+	}
+
+	private int getAmplitude(BiomeType biometype) {
+		int amplitude = 0;
+		switch (biometype) {
+		case OCEAN:
+			amplitude = 10;
+			break;
+		case DESERT:
+			amplitude = 15;
+			break;
+		case PLAIN:
+			amplitude = 10;
+			break;
+		case HILLS:
+			amplitude = 25;
+		case MOUNTAIN:
+			amplitude = 30;
+			break;
+		default:
+			amplitude = 20;
+			break;
+		}
+		return amplitude;
+	}
+
+	private int getAmplitude(BiomeType biomes[], int chunknumber, int i) {
+		int rightamplitude = getAmplitude(biomes[chunknumber + 1]);
+		int leftamplitude = getAmplitude(biomes[chunknumber - 1]);
+		return (int) (i / (double) CHUNK_SIZE * rightamplitude
+				+ (1 - i / (double) CHUNK_SIZE) * leftamplitude);
 	}
 
 	/**
