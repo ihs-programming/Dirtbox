@@ -11,6 +11,7 @@ import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.EmptyBlock;
+import game.generation.TreeMaker.TreeType;
 import util.ImprovedNoise;
 
 public class RegionGenerator {
@@ -173,7 +174,28 @@ public class RegionGenerator {
 						blocks[i][z] = Block.createBlock(BlockType.WATER,
 								(i + x) * Block.BLOCK_SPRITE_SIZE,
 								(z + y) * Block.BLOCK_SPRITE_SIZE);
-						blocksenum[i][z] = BlockType.WATER;
+					}
+				}
+			}
+		} else if (biometype == BiomeType.PLAIN || biometype == BiomeType.HILLS) {
+			for (int i = 0; i < blocks.length - 5; i += 5) {
+				BlockType[][] tree = TreeMaker.makeTree(5, 5, TreeType.OAK);
+				int trunkHeight = heightMap[i + 2] - 1;
+
+				if (Math.random() < 0.8) {
+					continue;
+				}
+
+				for (int a = 0; a < tree.length; a++) {
+					for (int b = 0; b < tree[a].length; b++) {
+						if (tree[tree.length - 1 - a][b] != BlockType.EMPTY) {
+							if (blocks[i + a][trunkHeight - b].type == BlockType.EMPTY) {
+								blocks[i + a][trunkHeight - b] = Block.createBlock(
+										tree[tree.length - 1 - a][b],
+										(i + a + x) * Block.BLOCK_SPRITE_SIZE,
+										(trunkHeight - b + y) * Block.BLOCK_SPRITE_SIZE);
+							}
+						}
 					}
 				}
 			}
