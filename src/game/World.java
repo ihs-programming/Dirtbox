@@ -1,11 +1,14 @@
 package game;
 
 import java.awt.Point;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -102,8 +105,8 @@ public class World {
 		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
-		if (!enableFOV) {
-			visibleBlocks = calculateVisibleBlocks();
+		if (enableFOV) {
+			visibleBlocks = calculateVisibleBlocks(visibleBlocks);
 		}
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
@@ -113,8 +116,30 @@ public class World {
 		}
 	}
 
-	private List<Point> calculateVisibleBlocks() {
-		return null;
+	private List<Point> calculateVisibleBlocks(List<Point> visiblePoints) {
+		Queue<Point> pq = new ArrayDeque<>(visiblePoints);
+		HashMap<Point, Boolean> visible = new HashMap<>();
+		while (!pq.isEmpty()) {
+			Point p = pq.poll();
+			if (visible.containsKey(p)) {
+				continue;
+			}
+			Rectangle blockRect = new Rectangle(
+					p.x, p.y, Block.BLOCK_SPRITE_SIZE, Block.BLOCK_SPRITE_SIZE);
+			for (int i = 0; i < blockRect.getPointCount(); i++) {
+				Vector2f blockCorner = new Vector2f(blockRect.getPoint(i));
+				List<Point> ray = rayTrace(getCharacterPosition(), blockCorner);
+				boolean blockIsVisible = true;
+				for (Point rp : ray) {
+					if (blocks.get(rp) instanceof SolidBlock) {
+						blockIsVisible = false;
+						break;
+					}
+				}
+				visible.put(p, blockIsVisible);
+			}
+		}
+		return new ArrayList<>(pq);
 	}
 
 	/**
