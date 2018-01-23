@@ -25,6 +25,7 @@ public class World {
 	static final double DAY_NIGHT_DURATION = 1200000.0;
 
 	private ArrayList<Entity> characters;
+	private ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
 	private static Image sunsprite;
@@ -38,12 +39,13 @@ public class World {
 
 	public World() {
 		characters = new ArrayList<>();
+		backgroundsprites = new ArrayList<>();
 		try {
 			sunsprite = new Image("data/characters/sunsprite.png");
 			sunsprite.setFilter(Image.FILTER_NEAREST);
 			sunsprite = sunsprite.getScaledCopy(4, 4);
 			Entity suns = new Entity(sunsprite, 1, 1, new Vector2f(0, 0));
-			characters.add(suns);
+			backgroundsprites.add(suns);
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
@@ -71,6 +73,7 @@ public class World {
 
 	public void addEntity(Entity e) {
 		characters.add(e);
+		backgroundsprites.add(e);
 	}
 
 	public void draw(Viewport vp) {
@@ -82,8 +85,8 @@ public class World {
 						.sin(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
 						* 15) + 30));
-		characters.set(0, suns);
-		for (Entity e : this.characters) {
+		backgroundsprites.set(0, suns);
+		for (Entity e : this.backgroundsprites) {
 			e.draw(vp);
 		}
 
@@ -103,6 +106,9 @@ public class World {
 		 */
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
+		}
+		for (Entity e : this.characters) {
+			e.draw(vp);
 		}
 	}
 

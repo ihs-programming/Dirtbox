@@ -9,8 +9,8 @@ public class TreeMaker {
 		OAK
 	}
 
-	public static BlockType[][] makeTree(int w, int h, TreeType tree) {
-		BlockType[][] ret = new BlockType[w][h];
+	public static BlockType[][] makeTree(int w, int h, int radius, TreeType tree) {
+		BlockType[][] ret = new BlockType[w][h + 1 + radius];
 		int trunk = w / 2;
 		for (BlockType[] element : ret) {
 			Arrays.fill(element, BlockType.EMPTY);
@@ -18,15 +18,15 @@ public class TreeMaker {
 		for (int i = 0; i < h; i++) {
 			ret[trunk][i] = BlockType.WOOD;
 		}
-		ret[trunk][h - 1] = BlockType.WATER;
-		int leafOffset = 0;
-		for (int i = 2; i < h; i += 1) {
-			for (int z = leafOffset; z < w - leafOffset; z++) {
-				if (ret[z][i] == BlockType.EMPTY) {
-					ret[z][i] = BlockType.WATER;
+		ret[trunk][h - 1] = BlockType.LEAVES;
+		for (int i = 0; i < w; i++) {
+			for (int z = 0; z <= h + 1 + radius; z++) {
+				if (Math.sqrt(
+						Math.pow(z - h + 1, 2) + Math.pow(i - trunk, 2)) <= radius
+								* (0.75 + Math.random() / 2)) {
+					ret[i][z] = BlockType.LEAVES;
 				}
 			}
-			leafOffset++;
 		}
 		return ret;
 	}

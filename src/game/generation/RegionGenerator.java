@@ -179,7 +179,7 @@ public class RegionGenerator {
 			}
 		} else if (biometype == BiomeType.PLAIN || biometype == BiomeType.HILLS) {
 			for (int i = 0; i < blocks.length - 5; i += 5) {
-				BlockType[][] tree = TreeMaker.makeTree(5, 5, TreeType.OAK);
+				BlockType[][] tree = TreeMaker.makeTree(5, 5, 2, TreeType.OAK);
 				int trunkHeight = heightMap[i + 2] - 1;
 
 				if (Math.random() < 0.8) {

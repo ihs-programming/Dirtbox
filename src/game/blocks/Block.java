@@ -21,6 +21,8 @@ public class Block {
 			return new EmptyBlock(xpos, ypos);
 		} else if (type == BlockType.WATER) {
 			return new LiquidBlock(type, xpos, ypos);
+		} else if (type == BlockType.WOOD || type == BlockType.LEAVES) {
+			return new BackgroundBlock(type, xpos, ypos);
 		}
 		return new SolidBlock(type, xpos, ypos);
 	}
