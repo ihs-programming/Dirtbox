@@ -17,6 +17,7 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.blocks.Block;
+import game.blocks.LiquidBlock;
 import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
@@ -136,7 +137,7 @@ public class World {
 
 			for (Point p : allBlocks) {
 				Block b = blocks.get(p);
-				if (b instanceof SolidBlock) {
+				if (b instanceof SolidBlock || b instanceof LiquidBlock) {
 					break;
 				}
 				b.setLighting(strength);
@@ -166,6 +167,9 @@ public class World {
 					if (next.x >= xStart && next.x <= xEnd) {
 
 						int str = blocks.get(curr).getLighting() - 1;
+						if (blocks.get(curr) instanceof LiquidBlock) {
+							str -= 10;
+						}
 						if (blocks.get(curr) instanceof SolidBlock) {
 							str -= 10;
 						}
