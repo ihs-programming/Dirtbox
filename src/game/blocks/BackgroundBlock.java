@@ -9,10 +9,10 @@ import org.newdawn.slick.geom.Shape;
  * @author s-weia
  *
  */
-public class LiquidBlock extends Block {
+public class BackgroundBlock extends Block {
 	private Shape hitbox;
 
-	public LiquidBlock(BlockType t, float xpos, float ypos) {
+	public BackgroundBlock(BlockType t, float xpos, float ypos) {
 		super(t, t.sx, t.sy, xpos, ypos);
 
 		// change size later
