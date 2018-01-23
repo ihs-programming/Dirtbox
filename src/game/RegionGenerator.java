@@ -118,7 +118,7 @@ public class RegionGenerator {
 		}
 		if (biometype == BiomeType.OCEAN) {
 			for (int i = 1; i < heightMap.length - 1; i++) {
-				heightMap[i] += Math
+				heightMap[i] += 2 * Math
 						.sqrt(heightMap.length / 2 - Math.abs(heightMap.length / 2 - i));
 			}
 		}

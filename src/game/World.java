@@ -96,6 +96,8 @@ public class World {
 
 		doSunLighting((int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
+				(int) viewRect.getY() - 10,
+				(int) (viewRect.getY() + view.getHeight()) + 10,
 				63);
 
 		new RegionGenerator(viewRect, blocks);
@@ -124,13 +126,13 @@ public class World {
 	 * @param strength
 	 *            Strength of the light
 	 */
-	private void doSunLighting(int xStart, int xEnd, int strength) {
+	private void doSunLighting(int xStart, int xEnd, int yStart, int yEnd, int strength) {
 		PriorityQueue<Point> sources = new PriorityQueue<>(
 				(a, b) -> blocks.get(b).getLighting() - blocks.get(a).getLighting());
 
 		for (int i = xStart; i <= xEnd; i++) {
 			Point start = new Point(i, 0);
-			Point end = new Point(i, 1 << 30);
+			Point end = new Point(i, yEnd);
 
 			NavigableSet<Point> allBlocks = blocks.navigableKeySet()
 					.subSet(start, true, end, true);
@@ -146,11 +148,11 @@ public class World {
 			}
 		}
 
-		propagateLighting(sources, xStart, xEnd);
+		propagateLighting(sources, xStart, xEnd, yStart, yEnd);
 	}
 
 	private void propagateLighting(PriorityQueue<Point> lightSources, int xStart,
-			int xEnd) {
+			int xEnd, int yStart, int yEnd) {
 		HashSet<Point> visited = new HashSet<>();
 		visited.addAll(lightSources);
 
@@ -164,11 +166,12 @@ public class World {
 			for (int[] dir : cardinalDirections) {
 				Point next = new Point(curr.x + dir[0], curr.y + dir[1]);
 				if (!visited.contains(next) && blocks.containsKey(next)) {
-					if (next.x >= xStart && next.x <= xEnd) {
+					if (next.x >= xStart && next.x <= xEnd && next.y >= yStart
+							&& next.y <= yEnd) {
 
-						int str = blocks.get(curr).getLighting() - 1;
+						int str = blocks.get(curr).getLighting() - 4;
 						if (blocks.get(curr) instanceof LiquidBlock) {
-							str -= 10;
+							str -= 2;
 						}
 						if (blocks.get(curr) instanceof SolidBlock) {
 							str -= 10;
