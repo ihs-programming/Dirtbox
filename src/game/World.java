@@ -34,6 +34,7 @@ public class World {
 	private static Image sunsprite;
 
 	private boolean enableFOV = true;
+	private Input userInp = null; // used only for debugging purposes currently
 
 	public TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
 		if (p1.x == p2.x) {
@@ -62,6 +63,7 @@ public class World {
 	 */
 	public World(Input inp) {
 		this();
+		userInp = inp;
 		try {
 			Image stalinsprite = new Image("data/characters/stalin.png");
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
@@ -111,6 +113,21 @@ public class World {
 		}
 		if (Viewport.DEBUG_MODE) {
 			renderHitboxes(vp);
+			renderMouseRaytrace(vp);
+			vp.draw(Geometry.createCircle(getCharacterPosition(), .2f), Color.cyan);
+		}
+	}
+
+	private void renderMouseRaytrace(Viewport vp) {
+		if (userInp == null) {
+			System.out.println("Unable to render raytracing");
+			return;
+		}
+		Vector2f mousePos = new Vector2f(userInp.getMouseX(), userInp.getMouseY());
+		mousePos = vp.getInverseDrawTransform().transform(mousePos);
+		List<Point> points = rayTrace(getCharacterPosition(), mousePos);
+		for (Point p : points) {
+			vp.draw(new Rectangle(p.x, p.y, 1, 1), Color.red);
 		}
 	}
 
@@ -157,7 +174,7 @@ public class World {
 		for (int x = (int) end.x; insideRange(x, start.x,
 				end.x); x += end.x < start.x ? 1 : -1) {
 			// calculates y value based off point slope formula
-			float actualY = (end.y - start.y) * (end.x - start.x) * (x - start.x)
+			float actualY = (end.y - start.y) / (end.x - start.x) * (x - start.x)
 					+ start.y;
 			int y = (int) actualY;
 			points.add(new Point(x, y));
@@ -177,6 +194,9 @@ public class World {
 	}
 
 	private boolean insideRange(float x, float l, float r) {
+		if (Math.abs(l - r) < 1) {
+			return false;
+		}
 		if (l < r) {
 			return x > l;
 		} else {

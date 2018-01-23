@@ -31,7 +31,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public static long globaltimer = 0;
 	static long timerupdate = 0;
 
-	public static boolean DEBUG_MODE = false;
+	public static boolean DEBUG_MODE = true;
 
 	public Viewport() {
 
@@ -137,7 +137,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	 *
 	 * @return transform mapping game position to screen position
 	 */
-	private Transform getDrawTransform() {
+	public Transform getDrawTransform() {
 		Transform ret = cacheTransform;
 		if (resetTransformCache) {
 			ret = new Transform();
@@ -166,7 +166,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	 *
 	 * @return transform mapping screen position to game position
 	 */
-	private Transform getInverseDrawTransform() {
+	public Transform getInverseDrawTransform() {
 		Transform t = new Transform();
 
 		// Inverted order and transformation of getDrawTransform
