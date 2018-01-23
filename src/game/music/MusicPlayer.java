@@ -37,14 +37,14 @@ public class MusicPlayer extends Thread {
 	}
 
 	// Sound Files
-	File soundFile = new File("data/music/bossintro.wav");
-	File pauseMusic = new File("data/music/pausemusic.wav");
+	File daymusic = new File("data/music/daymusic.wav");
+	File pausemusic = new File("data/music/pausemusic.wav");
 
 	public void pauseMusic() throws InterruptedException {
 		try {
-			Clip audioclip = MusicPlayer.PlayFile(pauseMusic);
+			Clip audioclip = MusicPlayer.PlayFile(pausemusic);
 			audioclip.start();
-			for (int i = 0; i < MusicPlayer.SongLength(pauseMusic)
+			for (int i = 0; i < MusicPlayer.SongLength(pausemusic)
 					* 1000.0; i += 1000.0 / Dirtbox.DEFAULT_FRAME_RATE) {
 				if (MainGameState.inGame) {
 					audioclip.stop();

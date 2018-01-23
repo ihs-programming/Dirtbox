@@ -15,7 +15,8 @@ public class AmbiancePlayer extends Thread {
 	AmbiancePlayer() {
 	}
 
-	File daymusic = new File("data/music/bossintro.wav");
+	File daymusic = new File("data/music/daymusic.wav");
+	File nightmusic = new File("data/music/nightmusic.wav");
 
 	public void playsound(File soundFile) {
 		try {
@@ -44,6 +45,11 @@ public class AmbiancePlayer extends Thread {
 		while (true) {
 			if (Viewport.day) {
 				playsound(daymusic);
+				if (!MainGameState.inGame) {
+					break;
+				}
+			} else {
+				playsound(nightmusic);
 				if (!MainGameState.inGame) {
 					break;
 				}
