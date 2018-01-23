@@ -45,13 +45,14 @@ public class MusicPlayer extends Thread {
 			Clip audioclip = MusicPlayer.PlayFile(pauseMusic);
 			audioclip.start();
 			for (int i = 0; i < MusicPlayer.SongLength(pauseMusic)
-					* 1000000000.0; i += 1000000000.0 / Dirtbox.DEFAULT_FRAME_RATE) {
+					* 1000.0; i += 1000.0 / Dirtbox.DEFAULT_FRAME_RATE) {
 				if (MainGameState.inGame) {
 					audioclip.stop();
 					break;
 				}
 				Thread.sleep((long) (1000.0 / Dirtbox.DEFAULT_FRAME_RATE));
 			}
+			audioclip.stop();
 		} catch (InterruptedException | UnsupportedAudioFileException
 				| IOException | LineUnavailableException e) {
 			// TODO Auto-generated catch block
