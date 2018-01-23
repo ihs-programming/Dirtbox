@@ -114,7 +114,6 @@ public class World {
 		if (Viewport.DEBUG_MODE) {
 			renderHitboxes(vp);
 			renderMouseRaytrace(vp);
-			vp.draw(Geometry.createCircle(getCharacterPosition(), .2f), Color.cyan);
 		}
 	}
 
@@ -126,6 +125,8 @@ public class World {
 		Vector2f mousePos = new Vector2f(userInp.getMouseX(), userInp.getMouseY());
 		mousePos = vp.getInverseDrawTransform().transform(mousePos);
 		List<Point> points = rayTrace(getCharacterPosition(), mousePos);
+		vp.draw(Geometry.createCircle(getCharacterPosition(), .2f), Color.cyan);
+		vp.draw(Geometry.createCircle(mousePos, .2f), Color.cyan);
 		for (Point p : points) {
 			vp.draw(new Rectangle(p.x, p.y, 1, 1), Color.red);
 		}
