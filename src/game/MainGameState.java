@@ -12,7 +12,7 @@ import game.utils.DefaultGameState;
 public class MainGameState implements DefaultGameState {
 	private World world;
 	private Viewport vp = new Viewport();
-	private boolean inGame = true; // whether or not to display the escape menu
+	public static boolean inGame = true; // whether or not to display the escape menu
 	private boolean lockCharacter = true; // whether to follow the character
 	private GameUI ui;
 	private boolean worldrendered = false;

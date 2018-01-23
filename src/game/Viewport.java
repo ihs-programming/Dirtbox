@@ -31,7 +31,8 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public static long globaltimer = 0;
 	static long timerupdate = 0;
 
-	public static boolean DEBUG_MODE = true;
+	public static boolean day = true;
+	public static boolean DEBUG_MODE = false;
 
 	public Viewport() {
 
@@ -109,7 +110,13 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 				(int) (darknessvalue * 127), (int) (darknessvalue * 255));
 		graphics.setBackground(BackgroundColor);
 		center.add(movement.copy().scale(delta / scaleFactor));
-
+		if (day && globaltimer % World.DAY_NIGHT_DURATION > World.DAY_NIGHT_DURATION
+				/ 2) {
+			day = false;
+		} else if (!day
+				&& !(globaltimer % World.DAY_NIGHT_DURATION > World.DAY_NIGHT_DURATION)) {
+			day = true;
+		}
 		resetTransformCache = true;
 		timerupdate = System.currentTimeMillis();
 	}
