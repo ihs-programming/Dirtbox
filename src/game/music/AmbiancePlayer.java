@@ -15,31 +15,35 @@ public class AmbiancePlayer extends Thread {
 	AmbiancePlayer() {
 	}
 
-	File soundFile = new File("data/music/bossintro.wav");
+	File daymusic = new File("data/music/bossintro.wav");
+
+	public void playsound(File soundFile) {
+		try {
+			Clip audioclip = MusicPlayer.PlayFile(soundFile);
+			audioclip.start();
+			for (int i = 0; i < MusicPlayer.SongLength(soundFile)
+					* 1000.0; i += 1000.0
+							/ Dirtbox.DEFAULT_FRAME_RATE) {
+				if (!MainGameState.inGame) {
+					audioclip.stop();
+					break;
+				}
+				Thread.sleep(
+						(long) (1000.0 / Dirtbox.DEFAULT_FRAME_RATE));
+			}
+			audioclip.stop();
+		} catch (InterruptedException | UnsupportedAudioFileException
+				| IOException | LineUnavailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void run() {
 		while (true) {
 			if (Viewport.day) {
-				try {
-					Clip audioclip = MusicPlayer.PlayFile(soundFile);
-					audioclip.start();
-					for (int i = 0; i < MusicPlayer.SongLength(soundFile)
-							* 1000.0; i += 1000.0
-									/ Dirtbox.DEFAULT_FRAME_RATE) {
-						if (!MainGameState.inGame) {
-							audioclip.stop();
-							break;
-						}
-						Thread.sleep(
-								(long) (1000.0 / Dirtbox.DEFAULT_FRAME_RATE));
-					}
-					audioclip.stop();
-				} catch (InterruptedException | UnsupportedAudioFileException
-						| IOException | LineUnavailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				playsound(daymusic);
 				if (!MainGameState.inGame) {
 					break;
 				}
