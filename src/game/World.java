@@ -1,14 +1,11 @@
 package game;
 
 import java.awt.Point;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableSet;
-import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -117,64 +114,43 @@ public class World {
 	}
 
 	private List<Point> calculateVisibleBlocks() {
-		Rectangle hitbox = Geometry
-				.getBoundingBox(this.controlledCharacter.getHitbox());
-		Queue<Point> update = new ArrayDeque<>(getVisibleBlockLocations(hitbox));
-		Map<Point, Boolean> seen = new HashMap<>();
-		Set<Point> toDraw = new HashSet<>();
-		while (!update.isEmpty()) {
-			Point curPoint = update.poll();
-			if (seen.containsKey(curPoint)) {
-				continue;
-			}
-			toDraw.add(curPoint);
-			Rectangle blockOutline = new Rectangle(curPoint.x, curPoint.y, 1, 1);
-			Block curBlock = blocks.get(curPoint);
-			if (blockOutline.intersects(hitbox)
-					|| hitbox.contains(blockOutline)
-					|| blockOutline.contains(hitbox)) {
-				seen.put(curPoint, true);
-			} else {
-				Vector2f blockCenter = new Vector2f(blockOutline.getCenter());
-				double angle = blockCenter.negate()
-						.add(getCharacterPosition())
-						.getTheta();
-				// 0 is right, 1 is up, 2 is left, 3 is down
-				int dir = 0;
+		return null;
+	}
 
-				/* @formatter:off
-				 * adjBlocks is a list of list of 2d displacements that
-				 * calculate which blocks are adjacent to the current point
-				 *
-				 * Example:
-				 *   If the direction is 0 (right), then the blocks that
-				 *   should be checked for visibility are:
-				 *   0 0 x
-				 *   0 0 x
-				 *   0 0 x
-				 *
-				 *   If the direction is 1, the blocks checked should be:
-				 *   x x x
-				 *   0 0 0
-				 *   0 0 0
-				 *
-				 *   etc.
-				 @formatter:on
-				 */
-				int[][][] adjBlocks = {
-						{ { 1, -1 }, { 1, 0 }, { 1, 1 } },
-						{ { 1, -1 }, { 0, -1 }, { -1, -1 } },
-						{ { -1, -1 }, { -1, 0 }, { -1, 1 } },
-						{ { 1, 1 }, { 0, 1 }, { -1, 1 } },
-				};
-				for (angle -= 90; angle > 0; angle -= 90) {
-					dir++;
-				}
-				for (int i = 0; i < adjBlocks[dir].length; i++) {
-				}
-			}
+	/**
+	 * Return list of block locations that would be hit on the route of the line
+	 * going from start and past end
+	 *
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	private List<Point> rayTrace(Vector2f start, Vector2f end) {
+		Set<Point> points = new HashSet<>();
+		for (int x = (int) end.x; insideRange(x, start.x,
+				end.x); x += end.x < start.x ? 1 : -1) {
+			// calculates y value based off point slope formula
+			float actualY = (end.y - start.y) * (end.x - start.x) * (x - start.x)
+					+ start.y;
+			int y = (int) actualY;
+			points.add(new Point(x, y));
 		}
-		return new ArrayList<>(toDraw);
+		for (int y = (int) end.y; insideRange(y, start.y,
+				end.y); y += end.y < start.y ? 1 : -1) {
+			// calculates x value based off point slope formula
+			float actualX = (y - start.y) * (end.x - start.x) / (end.y - start.y)
+					+ start.x;
+			int x = (int) actualX;
+			points.add(new Point(x, y));
+		}
+		ArrayList<Point> pointList = new ArrayList<>(points);
+		Collections.sort(pointList, (o1, o2) -> (int) Math
+				.signum(o2.distance(start.x, start.y) - o1.distance(start.x, start.y)));
+		return pointList;
+	}
+
+	private boolean insideRange(float x, float l, float r) {
+		return (x - l) * (x - r) < 0;
 	}
 
 	private List<Point> getVisibleBlockLocations(Rectangle view) {
@@ -228,6 +204,7 @@ public class World {
 		for (Point p : collidingBlocks) {
 			Block b = blocks.get(p);
 			vp.draw(b.getHitbox(), Color.white);
+			vp.draw(Geometry.createCircle(b.getPos(), .2f), Color.green);
 		}
 	}
 }
