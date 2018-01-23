@@ -29,6 +29,8 @@ public class OreProbability {
 		case DIAMOND_ORE:
 			ret = y * y / 1400;
 			break;
+		default:
+			break;
 		}
 		return ret;
 	}
