@@ -18,6 +18,7 @@ import game.blocks.Block;
 import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
+import game.generation.RegionGenerator;
 
 public class World {
 
