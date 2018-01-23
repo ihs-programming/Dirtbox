@@ -76,7 +76,11 @@ public class World {
 		backgroundsprites.add(e);
 	}
 
-	public void draw(Viewport vp) {
+	public void updateEntities(Viewport vp) {
+		updateSun(vp);
+	}
+
+	private void updateSun(Viewport vp) {
 		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f((float) -(Math
 				.cos(2.0 * Math.PI * Viewport.globaltimer
 						/ World.DAY_NIGHT_DURATION)
@@ -86,11 +90,16 @@ public class World {
 								/ World.DAY_NIGHT_DURATION)
 						* 15) + 30));
 		backgroundsprites.set(0, suns);
+	}
+
+	public void draw(Viewport vp) {
+
+		updateEntities(vp);
+
 		for (Entity e : this.backgroundsprites) {
 			e.draw(vp);
 		}
 
-		long time = System.currentTimeMillis();
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
 				view.getWidth(),
