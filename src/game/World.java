@@ -4,12 +4,10 @@ import java.awt.Point;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Queue;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.newdawn.slick.Color;
@@ -118,12 +116,9 @@ public class World {
 
 	private List<Point> calculateVisibleBlocks(List<Point> visiblePoints) {
 		Queue<Point> pq = new ArrayDeque<>(visiblePoints);
-		HashMap<Point, Boolean> visible = new HashMap<>();
+		ArrayList<Point> visibleBlocks = new ArrayList<>();
 		while (!pq.isEmpty()) {
 			Point p = pq.poll();
-			if (visible.containsKey(p)) {
-				continue;
-			}
 			Rectangle blockRect = new Rectangle(
 					p.x, p.y, Block.BLOCK_SPRITE_SIZE, Block.BLOCK_SPRITE_SIZE);
 			for (int i = 0; i < blockRect.getPointCount(); i++) {
@@ -136,10 +131,12 @@ public class World {
 						break;
 					}
 				}
-				visible.put(p, blockIsVisible);
+				if (blockIsVisible) {
+					visibleBlocks.add(p);
+				}
 			}
 		}
-		return new ArrayList<>(pq);
+		return visibleBlocks;
 	}
 
 	/**
@@ -151,7 +148,7 @@ public class World {
 	 * @return
 	 */
 	private List<Point> rayTrace(Vector2f start, Vector2f end) {
-		Set<Point> points = new HashSet<>();
+		HashSet<Point> points = new HashSet<>();
 		for (int x = (int) end.x; insideRange(x, start.x,
 				end.x); x += end.x < start.x ? 1 : -1) {
 			// calculates y value based off point slope formula
@@ -175,7 +172,11 @@ public class World {
 	}
 
 	private boolean insideRange(float x, float l, float r) {
-		return (x - l) * (x - r) < 0;
+		if (l < r) {
+			return x > l;
+		} else {
+			return x < l;
+		}
 	}
 
 	private List<Point> getVisibleBlockLocations(Rectangle view) {
