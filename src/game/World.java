@@ -121,19 +121,24 @@ public class World {
 			Point p = pq.poll();
 			Rectangle blockRect = new Rectangle(
 					p.x, p.y, Block.BLOCK_SPRITE_SIZE, Block.BLOCK_SPRITE_SIZE);
+			boolean visible = false;
 			for (int i = 0; i < blockRect.getPointCount(); i++) {
 				Vector2f blockCorner = new Vector2f(blockRect.getPoint(i));
 				List<Point> ray = rayTrace(getCharacterPosition(), blockCorner);
 				boolean blockIsVisible = true;
 				for (Point rp : ray) {
-					if (blocks.get(rp) instanceof SolidBlock) {
+					if (!rp.equals(p) && blocks.get(rp) instanceof SolidBlock) {
 						blockIsVisible = false;
 						break;
 					}
 				}
 				if (blockIsVisible) {
-					visibleBlocks.add(p);
+					visible = true;
+					break;
 				}
+			}
+			if (visible) {
+				visibleBlocks.add(p);
 			}
 		}
 		return visibleBlocks;
