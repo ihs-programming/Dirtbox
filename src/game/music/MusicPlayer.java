@@ -27,6 +27,14 @@ public class MusicPlayer extends Thread {
 		return audioclip;
 	}
 
+	static void PlayDirect(File file)
+			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
+		Clip audioclip = AudioSystem.getClip();
+		audioclip.open(audioIn);
+		audioclip.start();
+	}
+
 	static double SongLength(File file)
 			throws UnsupportedAudioFileException, IOException {
 		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
@@ -37,21 +45,22 @@ public class MusicPlayer extends Thread {
 	}
 
 	// Sound Files
-	File soundFile = new File("data/music/bossintro.wav");
-	File pauseMusic = new File("data/music/pausemusic.wav");
+	File daymusic = new File("data/music/daymusic.wav");
+	File pausemusic = new File("data/music/pausemusic.wav");
 
 	public void pauseMusic() throws InterruptedException {
 		try {
-			Clip audioclip = MusicPlayer.PlayFile(pauseMusic);
+			Clip audioclip = MusicPlayer.PlayFile(pausemusic);
 			audioclip.start();
-			for (int i = 0; i < MusicPlayer.SongLength(pauseMusic)
-					* 1000000000.0; i += 1000000000.0 / Dirtbox.DEFAULT_FRAME_RATE) {
+			for (int i = 0; i < MusicPlayer.SongLength(pausemusic)
+					* 1000.0; i += 1000.0 / Dirtbox.DEFAULT_FRAME_RATE) {
 				if (MainGameState.inGame) {
 					audioclip.stop();
 					break;
 				}
 				Thread.sleep((long) (1000.0 / Dirtbox.DEFAULT_FRAME_RATE));
 			}
+			audioclip.stop();
 		} catch (InterruptedException | UnsupportedAudioFileException
 				| IOException | LineUnavailableException e) {
 			// TODO Auto-generated catch block

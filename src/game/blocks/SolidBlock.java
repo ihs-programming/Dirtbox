@@ -18,7 +18,7 @@ public class SolidBlock extends Block {
 	 * @param ypos
 	 */
 	public SolidBlock(BlockType t, float xpos, float ypos) {
-		super(t.sx, t.sy, xpos, ypos);
+		super(t, t.sx, t.sy, xpos, ypos);
 
 		type = t;
 

@@ -12,12 +12,8 @@ import org.newdawn.slick.geom.Shape;
 public class LiquidBlock extends Block {
 	private Shape hitbox;
 
-	public final BlockType type;
-
 	public LiquidBlock(BlockType t, float xpos, float ypos) {
-		super(t.sx, t.sy, xpos, ypos);
-
-		type = t;
+		super(t, t.sx, t.sy, xpos, ypos);
 
 		// change size later
 		hitbox = new Rectangle(super.getPos().x, super.getPos().y, 1, 1);

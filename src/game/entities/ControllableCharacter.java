@@ -11,7 +11,7 @@ import game.utils.DefaultKeyListener;
 
 public class ControllableCharacter extends Entity {
 	private static final float SPEED = 0.0085f;
-	private static final float JUMP = 0.0085f;
+	private static final float JUMP = 0.012f;
 	private static final float GRAVITY = 0.00002613f; // 1 block = 1 m^2, 1 block = 16 px,
 														// 1 m =
 	// 16 px,

@@ -16,7 +16,7 @@ public class Platform extends Block {
 	Type blockType;
 
 	public Platform(int sx, int sy, float xpos, float ypos) {
-		super(sx, sy, xpos, ypos);
+		super(null, sx, sy, xpos, ypos);
 		// TODO Auto-generated constructor stub
 	}
 }

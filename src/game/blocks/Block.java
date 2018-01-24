@@ -14,18 +14,24 @@ public class Block {
 	private Sprite sprite;
 	private Vector2f pos;
 
+	public final BlockType type;
+
 	public static Block createBlock(BlockType type, float xpos, float ypos) {
 		if (type == BlockType.EMPTY) {
 			return new EmptyBlock(xpos, ypos);
 		} else if (type == BlockType.WATER) {
 			return new LiquidBlock(type, xpos, ypos);
+		} else if (type == BlockType.WOOD || type == BlockType.LEAVES) {
+			return new BackgroundBlock(type, xpos, ypos);
 		}
 		return new SolidBlock(type, xpos, ypos);
 	}
 
-	protected Block(int sx, int sy, float xpos, float ypos) {
+	protected Block(BlockType type, int sx, int sy, float xpos, float ypos) {
 		sprite = new Sprite(SpriteSheetLoader.getBlockImage(sx, sy));
 		pos = new Vector2f(xpos, ypos);
+
+		this.type = type;
 	}
 
 	public void draw(Viewport vp) {
