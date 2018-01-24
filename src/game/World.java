@@ -2,6 +2,7 @@ package game;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
@@ -26,6 +27,12 @@ import game.generation.RegionGenerator;
 public class World {
 
 	static final double DAY_NIGHT_DURATION = 1200000.0;
+	private static final Comparator<Point> pointComparer = (p1, p2) -> {
+		if (p1.x == p2.x) {
+			return p1.y - p2.y;
+		}
+		return p1.x - p2.x;
+	};
 
 	private ArrayList<Entity> characters;
 	private ArrayList<Entity> backgroundsprites;
@@ -33,12 +40,7 @@ public class World {
 
 	private static Image sunsprite;
 
-	public TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
-		if (p1.x == p2.x) {
-			return p1.y - p2.y;
-		}
-		return p1.x - p2.x;
-	});
+	public TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
 
 	public World() {
 		characters = new ArrayList<>();
@@ -154,6 +156,11 @@ public class World {
 			Point start = new Point(i, 0);
 			Point end = new Point(i, yEnd);
 
+			if (pointComparer.compare(start, end) > 0) {
+				// apparently navigableKeySet().subset() crashes if start is
+				// after end
+				continue;
+			}
 			NavigableSet<Point> allBlocks = blocks.navigableKeySet()
 					.subSet(start, true, end, true);
 
