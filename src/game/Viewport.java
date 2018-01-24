@@ -28,6 +28,10 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	private static final float SCALE_INCREASE = 1.2f;
 	private static final float SCALE_DECREASE = 1.0f / 1.2f;
 
+	/**
+	 * Expected range: 0.0 - 1.0
+	 */
+	public static float gamma = 0.0f;
 	public static long globaltimer = 0;
 	static long timerupdate = 0;
 

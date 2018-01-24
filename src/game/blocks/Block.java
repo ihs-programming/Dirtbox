@@ -40,7 +40,8 @@ public class Block {
 			vp.draw(sprite);
 		}
 		vp.fill(sprite.getBoundingBox(),
-				new Color(0, 0, 0, 255 - (int) (255 * lighting / 64.0)));
+				new Color(0, 0, 0,
+						255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 64.0)));
 	}
 
 	public Vector2f getPos() {
