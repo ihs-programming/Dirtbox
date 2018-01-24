@@ -32,4 +32,13 @@ public enum BlockType {
 			return false;
 		}
 	}
+	public static boolean isSeeThrough(BlockType type) {
+		switch(type) {
+		case EMPTY:
+		case WATER:
+			return true;
+		default:
+			return false;
+		}
+	}
 }

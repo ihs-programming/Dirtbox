@@ -22,9 +22,9 @@ public class Sprite {
 	}
 
 	public Image getCachedImage(int nw, int nh) {
-		if (cache.containsKey(new Point(nw, nh))) {
-			return cache.get(new Point(nw, nh));
-		}
+		// if (cache.containsKey(new Point(nw, nh))) {
+		// return cache.get(new Point(nw, nh));
+		// }
 		Image ret = img.getScaledCopy(nw, nh);
 		cache.put(new Point(nw, nh), ret);
 

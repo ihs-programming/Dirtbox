@@ -1,5 +1,6 @@
 package game.blocks;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
@@ -14,6 +15,7 @@ public class Block {
 	private Sprite sprite;
 	private Vector2f pos;
 
+	private int lighting;
 	public final BlockType type;
 
 	public static Block createBlock(BlockType type, float xpos, float ypos) {
@@ -36,7 +38,15 @@ public class Block {
 
 	public void draw(Viewport vp) {
 		sprite.loc.set(pos.x, pos.y);
-		vp.draw(sprite);
+		if (lighting > 0) {
+			vp.draw(sprite);
+		}
+	}
+
+	public void drawShading(Viewport vp) {
+		vp.fill(sprite.getBoundingBox(),
+				new Color(0, 0, 0,
+						255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 64.0)));
 	}
 
 	public Vector2f getPos() {
@@ -48,5 +58,13 @@ public class Block {
 		hitbox.setX(pos.x);
 		hitbox.setY(pos.y);
 		return hitbox;
+	}
+
+	public int getLighting() {
+		return lighting;
+	}
+
+	public void setLighting(int lighting) {
+		this.lighting = lighting;
 	}
 }
