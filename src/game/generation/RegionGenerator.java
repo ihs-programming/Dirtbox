@@ -84,7 +84,7 @@ public class RegionGenerator {
 						blocks.put(new Point(i + chunkStart, j), chunk[i][j]);
 					} else {
 						blocks.put(new Point(i + chunkStart, j),
-								Block.createBlock(BlockType.EMPTY, i, j));
+								Block.createBlock(BlockType.EMPTY, i + chunkStart, j));
 					}
 				}
 			}
@@ -92,6 +92,9 @@ public class RegionGenerator {
 			// Do not generate blocks in the air
 		}
 	}
+
+	private static final int SEALEVEL = (int) (CHUNK_HEIGHT * 0.25)
+			+ getAmplitude(BiomeType.OCEAN) + 1;
 
 	private Block[][] generateChunk(int x, int y, double seed) {
 		int chunkNumber = biomes.length / 2 + x / CHUNK_SIZE;
@@ -118,9 +121,36 @@ public class RegionGenerator {
 			}
 		}
 		if (biometype == BiomeType.OCEAN) {
-			for (int i = 1; i < heightMap.length - 1; i++) {
-				heightMap[i] += Math
-						.sqrt(heightMap.length / 2 - Math.abs(heightMap.length / 2 - i));
+			boolean oceanLeft = biomes[chunkNumber - 1] == BiomeType.OCEAN;
+			boolean oceanRight = biomes[chunkNumber + 1] == BiomeType.OCEAN;
+
+			// Kinda like another biome?
+			boolean deepOcean = oceanLeft && oceanRight;
+
+			if (deepOcean) {
+				for (int i = 0; i < heightMap.length; i++) {
+					heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
+					heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
+							- Math.abs(heightMap.length / 2 - i));
+				}
+			} else {
+				for (int i = 0; i < heightMap.length / 2; i++) {
+					if (oceanLeft) {
+						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
+					} else {
+						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
+								- Math.abs(heightMap.length / 2 - i));
+					}
+				}
+				for (int i = heightMap.length / 2; i < heightMap.length; i++) {
+					if (oceanRight) {
+						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
+						System.out.println(heightMap[i]);
+					} else {
+						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
+								- Math.abs(heightMap.length / 2 - i));
+					}
+				}
 			}
 		}
 		// Generate the underlying blocks
@@ -167,7 +197,7 @@ public class RegionGenerator {
 		}
 
 		if (biometype == BiomeType.OCEAN) {
-			int height = Math.max(heightMap[0], heightMap[heightMap.length - 1]) + 1;
+			int height = SEALEVEL;
 			for (int i = 0; i < heightMap.length; i++) {
 				for (int z = height; z < CHUNK_HEIGHT; z++) {
 					if (blocks[i][z] instanceof EmptyBlock) {
@@ -207,11 +237,11 @@ public class RegionGenerator {
 		return blocks;
 	}
 
-	private int getAmplitude(BiomeType biometype) {
+	private static int getAmplitude(BiomeType biometype) {
 		int amplitude = 0;
 		switch (biometype) {
 		case OCEAN:
-			amplitude = 10;
+			amplitude = 3;
 			break;
 		case DESERT:
 			amplitude = 15;

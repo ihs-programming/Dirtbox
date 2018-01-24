@@ -28,6 +28,10 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	private static final float SCALE_INCREASE = 1.2f;
 	private static final float SCALE_DECREASE = 1.0f / 1.2f;
 
+	/**
+	 * Expected range: 0.0 - 1.0
+	 */
+	public static float gamma = 0.0f;
 	public static long globaltimer = 0;
 	static long timerupdate = 0;
 
@@ -64,26 +68,13 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	}
 
 	public void draw(Shape s, Color c) {
-		if (shouldDraw(s)) {
-			graphics.setColor(c);
-			graphics.draw(s.transform(getDrawTransform()));
-		}
+		graphics.setColor(c);
+		graphics.draw(s.transform(getDrawTransform()));
 	}
 
 	public void fill(Shape s, Color c) {
-		// Check if the sprite needs to be drawn
-		if (shouldDraw(s)) {
-			graphics.setColor(c);
-			graphics.fill(s.transform(getDrawTransform()));
-		}
-	}
-
-	private boolean shouldDraw(Shape s) {
-		Transform t = getDrawTransform();
-		s = s.transform(t);
-		return getViewShape().contains(s)
-				|| getViewShape().intersects(s)
-				|| s.contains(getViewShape());
+		graphics.setColor(c);
+		graphics.fill(s.transform(getDrawTransform()));
 	}
 
 	private void printDebugInfo() {
