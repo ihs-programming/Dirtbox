@@ -39,6 +39,9 @@ public class Block {
 		if (lighting > 0) {
 			vp.draw(sprite);
 		}
+	}
+
+	public void drawShading(Viewport vp) {
 		vp.fill(sprite.getBoundingBox(),
 				new Color(0, 0, 0,
 						255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 64.0)));

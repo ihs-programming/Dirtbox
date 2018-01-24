@@ -111,6 +111,9 @@ public class World {
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
 		}
+		for (Point p : visibleBlocks) {
+			blocks.get(p).drawShading(vp);
+		}
 		if (Viewport.DEBUG_MODE) {
 			renderHitboxes(vp);
 		}
