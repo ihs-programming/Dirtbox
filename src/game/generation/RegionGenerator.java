@@ -1,13 +1,17 @@
-package game;
+package game.generation;
 
 import java.awt.Point;
+import java.util.Arrays;
 import java.util.TreeMap;
 
 import org.newdawn.slick.geom.Rectangle;
 
+import game.BiomeType;
+import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.EmptyBlock;
+import game.generation.TreeMaker.TreeType;
 import util.ImprovedNoise;
 
 public class RegionGenerator {
@@ -50,16 +54,11 @@ public class RegionGenerator {
 		}
 	}
 
-	/**
-	 * For some reason, multiple instances of this are created. This meant a lot of
-	 * hard to find bugs.
-	 *
-	 * @param s
-	 */
-	RegionGenerator(Rectangle s, TreeMap<Point, Block> blocks) {
+	public RegionGenerator(Rectangle s, TreeMap<Point, Block> blocks) {
 		this.blocks = blocks;
 		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
-			for (int j = (int) (s.getMinY() - 1); j <= s.getMaxY() + 1; j++) {
+			for (int j = Math.max(0, (int) (s.getMinY() - 1)); j <= s.getMaxY()
+					+ 1; j++) {
 				generateWorld(i, j);
 			}
 		}
@@ -78,7 +77,7 @@ public class RegionGenerator {
 				chunkStart -= CHUNK_SIZE;
 			}
 			Block[][] chunk = generateChunk(chunkStart, 0, 0);
-			boolean cavemap[][] = generateMap();
+			boolean cavemap[][] = generateMap(chunkStart);
 			for (int i = 0; i < chunk.length; i++) {
 				for (int j = 0; j < chunk[i].length; j++) {
 					if (cavemap[i][j]) {
@@ -105,6 +104,8 @@ public class RegionGenerator {
 		BiomeType biometype = biomes[chunkNumber];
 
 		// The blocks
+		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
+		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
 			if (biometype != BiomeType.BUFFER) {
@@ -152,42 +153,15 @@ public class RegionGenerator {
 				}
 			}
 		}
-
 		// Generate the underlying blocks
-		Block[][] blocks = generateBlocks(
-				heightMap, biometype, chunkNumber, new Point(x, y));
-
-		if (biometype == BiomeType.OCEAN) {
-			int height = SEALEVEL;
-			for (int i = 0; i < heightMap.length; i++) {
-				for (int z = height; z < CHUNK_HEIGHT; z++) {
-					if (blocks[i][z] instanceof EmptyBlock) {
-						blocks[i][z] = Block.createBlock(BlockType.WATER,
-								(i + x) * Block.BLOCK_SPRITE_SIZE,
-								(z + y) * Block.BLOCK_SPRITE_SIZE);
-					}
-				}
-			}
-		}
-		if (Viewport.DEBUG_MODE) {
-			System.out.println((System.nanoTime() - chunkgenerationtime) / 1000000.0
-					+ " ms to generate chunk of type " + biometype);
-		}
-		return blocks;
-	}
-
-	private Block[][] generateBlocks(
-			int[] heightMap, BiomeType biometype, int chunkNumber, Point loc) {
-		int x = loc.x;
-		int y = loc.y;
-		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int z = 0; z < heightMap[i]; z++) {
 				blocks[i][z] = Block.createBlock(BlockType.EMPTY,
 						(i + x) * Block.BLOCK_SPRITE_SIZE,
 						(z + y) * Block.BLOCK_SPRITE_SIZE);
+				blocksenum[i][z] = BlockType.EMPTY;
 			}
-			for (int z = heightMap[i]; z < CHUNK_HEIGHT; z++) {
+			for (int z = Math.max(0, heightMap[i]); z < CHUNK_HEIGHT; z++) {
 				if (blocks[i][z] == null) {
 					BlockType type = getType(i, z, biometype, heightMap);
 					if (biometype == BiomeType.BUFFER) {
@@ -220,6 +194,45 @@ public class RegionGenerator {
 				}
 
 			}
+		}
+
+		if (biometype == BiomeType.OCEAN) {
+			int height = SEALEVEL;
+			for (int i = 0; i < heightMap.length; i++) {
+				for (int z = height; z < CHUNK_HEIGHT; z++) {
+					if (blocks[i][z] instanceof EmptyBlock) {
+						blocks[i][z] = Block.createBlock(BlockType.WATER,
+								(i + x) * Block.BLOCK_SPRITE_SIZE,
+								(z + y) * Block.BLOCK_SPRITE_SIZE);
+					}
+				}
+			}
+		} else if (biometype == BiomeType.PLAIN || biometype == BiomeType.HILLS) {
+			for (int i = 0; i < blocks.length - 5; i += 5) {
+				BlockType[][] tree = TreeMaker.makeTree(5, 5, 2, TreeType.OAK);
+				int trunkHeight = heightMap[i + 2] - 1;
+
+				if (Math.random() < 0.8) {
+					continue;
+				}
+
+				for (int a = 0; a < tree.length; a++) {
+					for (int b = 0; b < tree[a].length; b++) {
+						if (tree[tree.length - 1 - a][b] != BlockType.EMPTY) {
+							if (blocks[i + a][trunkHeight - b].type == BlockType.EMPTY) {
+								blocks[i + a][trunkHeight - b] = Block.createBlock(
+										tree[tree.length - 1 - a][b],
+										(i + a + x) * Block.BLOCK_SPRITE_SIZE,
+										(trunkHeight - b + y) * Block.BLOCK_SPRITE_SIZE);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (Viewport.DEBUG_MODE) {
+			System.out.println((System.nanoTime() - chunkgenerationtime) / 1000000.0
+					+ " ms to generate chunk of type " + biometype);
 		}
 		return blocks;
 	}
@@ -266,10 +279,25 @@ public class RegionGenerator {
 	private BlockType getType(int x, int z, BiomeType biome, int heightMap[]) {
 		BlockType type = BlockType.UNDEFINED;
 		int y = z - heightMap[x];
-		if (y < 5 + 2 * Math.random()) {
+		// Surface material
+		if (y == 0) {
+			switch (biome) {
+			case OCEAN:
+				type = BlockType.SAND;
+			case DESERT:
+				type = BlockType.SAND;
+				break;
+			case MOUNTAIN:
+				type = BlockType.STONE;
+				break;
+			default:
+				type = BlockType.GRASS;
+				break;
+			}
+			// Top layer
+		} else if (y < 5 + 2 * Math.random()) {
 			switch (biome) {
 			case DESERT:
-				type = BlockType.SANDSTONE;
 			case OCEAN:
 				type = BlockType.SAND;
 				break;
@@ -280,79 +308,42 @@ public class RegionGenerator {
 				type = BlockType.DIRT;
 				break;
 			}
-
-			if (y == 0) {
-				switch (biome) {
-				case OCEAN:
-					type = BlockType.SAND;
-				case DESERT:
-					type = BlockType.SAND;
-					break;
-				case MOUNTAIN:
-					type = BlockType.STONE;
-					break;
-				default:
-					type = BlockType.GRASS;
-					break;
-				}
-			}
+			// Stone layer
 		} else {
-			if (biome == BiomeType.DESERT && y < 15 + 4 * Math.random()) {
+			if (biome == BiomeType.DESERT && y < 10 + 2 * Math.random()) {
 				return BlockType.SANDSTONE;
 			}
-			if (y >= 8) {
-				if (Math.random() < 0.003) {
-					type = oreselector(x, z, heightMap);
-				} else {
-					type = BlockType.STONE;
-				}
+			if (Math.random() < 0.003) {
+				type = oreselector(x, y, heightMap);
 			} else {
-				if (Math.random() < 0.5) {
-					switch (biome) {
-					case OCEAN:
-						type = BlockType.SANDSTONE;
-					case DESERT:
-						type = BlockType.SANDSTONE;
-						break;
-					case MOUNTAIN:
-						type = BlockType.STONE;
-						break;
-					default:
-						type = BlockType.DIRT;
-						break;
-					}
-				} else {
-					type = BlockType.STONE;
-				}
+				type = BlockType.STONE;
 			}
-
 		}
 		return type;
 	}
 
 	private BlockType oreselector(int x, int j, int heightMap[]) {
-		BlockType type = BlockType.STONE;
-		if (Math.random() <= 1) {
-			if (j > CHUNK_HEIGHT * 0.9 && Math.random() <= 0.3) {
-				if (Math.random() < 0.2) {
-					type = BlockType.DIAMOND_ORE;
-				} else {
-					type = BlockType.REDSTONE_ORE;
-				}
-			} else {
-				double oreselection = Math.random();
-				if (oreselection < 0.1) {
-					type = BlockType.GOLD_ORE;
-				}
-				if (oreselection >= 0.1 && oreselection < 0.35) {
-					type = BlockType.IRON_ORE;
-				}
-				if (oreselection >= 0.35) {
-					type = BlockType.COAL_ORE;
-				}
-			}
+
+		BlockType[] ores = new BlockType[] { BlockType.COAL_ORE, BlockType.IRON_ORE,
+				BlockType.GOLD_ORE, BlockType.REDSTONE_ORE, BlockType.DIAMOND_ORE };
+		int[] weights = new int[ores.length];
+
+		int tot = 0;
+		for (int i = 0; i < weights.length; i++) {
+			weights[i] = OreProbability.getWeight(ores[i], j);
+			tot += weights[i];
 		}
-		return type;
+
+		int prob = (int) (tot * Math.random());
+
+		for (int i = 0; i < weights.length; i++) {
+			if (prob < weights[i]) {
+				return ores[i];
+			}
+			prob -= weights[i];
+		}
+
+		return BlockType.STONE;
 	}
 
 	private static BiomeType randombiome() { // selects a random biome
@@ -365,99 +356,15 @@ public class RegionGenerator {
 		return ret;
 	}
 
-	float chanceToStartAlive = 0.57f;
-
-	public boolean[][] generateMap() {
-		// Create a new map
-
+	public boolean[][] generateMap(int xLeft) {
 		boolean[][] cellmap = new boolean[CHUNK_SIZE][CHUNK_HEIGHT];
-		// Set up the map with random values
-		cellmap = initialiseMap(cellmap, CHUNK_SIZE, CHUNK_HEIGHT);
-		// And now run the simulation for a set number of steps
-		int numberOfSteps = 7;
-		int deathLimit = 3;
-		int birthLimit = 4;
-		for (int i = 0; i < numberOfSteps; i++) {
-			cellmap = doSimulationStep(cellmap, CHUNK_SIZE, CHUNK_HEIGHT, deathLimit,
-					birthLimit);
+		for (int i = 0; i < cellmap.length; i++) {
+			Arrays.fill(cellmap[i], true);
+			for (int z = 60; z < cellmap[i].length; z++) {
+				cellmap[i][z] = ImprovedNoise.noise((seed + i + xLeft) / 20.0, z / 20.0,
+						1) < 0.45;
+			}
 		}
 		return cellmap;
 	}
-
-	public boolean[][] doSimulationStep(boolean[][] oldMap, int width, int height,
-			int deathLimit,
-			int birthLimit) {
-		boolean[][] newMap = new boolean[width][height];
-		// Loop over each row and column of the map
-		for (int x = 0; x < oldMap.length; x++) {
-			for (int y = 0; y < oldMap[0].length; y++) {
-				if (y > CHUNK_HEIGHT - 0.9 * CHUNK_BOUNDARY_HEIGHT) {
-					int nbs = countAliveNeighbours(oldMap, x, y);
-					// The new value is based on our simulation rules
-					// First, if a cell is alive but has too few neighbours,
-					// kill it.
-					if (oldMap[x][y]) {
-						if (nbs < deathLimit) {
-							newMap[x][y] = false;
-						} else {
-							newMap[x][y] = true;
-						}
-					} // Otherwise, if the cell is dead now, check if it has the
-						// right
-						// number of
-						// neighbours to be 'born'
-					else {
-						if (nbs > birthLimit) {
-							newMap[x][y] = true;
-						} else {
-							newMap[x][y] = false;
-						}
-					}
-				} else {
-					newMap[x][y] = true;
-				}
-			}
-		}
-		return newMap;
-	}
-
-	public int countAliveNeighbours(boolean[][] map, int x, int y) {
-		int count = 0;
-		for (int i = -1; i < 2; i++) {
-			for (int j = -1; j < 2; j++) {
-				int neighbour_x = x + i;
-				int neighbour_y = y + j;
-				// If we're looking at the middle point
-				if (i == 0 && j == 0) {
-					// Do nothing, we don't want to add ourselves in!
-				}
-				// In case the index we're looking at it off the edge of the map
-				else if (neighbour_x < 0 || neighbour_y < 0 || neighbour_x >= map.length
-						|| neighbour_y >= map[0].length) {
-					count = count + 1;
-				}
-				// Otherwise, a normal check of the neighbour
-				else if (map[neighbour_x][neighbour_y]) {
-					count = count + 1;
-				}
-			}
-		}
-		return count;
-	}
-
-	public boolean[][] initialiseMap(boolean[][] map, int width, int height) {
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				if (y > CHUNK_HEIGHT - 0.9 * CHUNK_BOUNDARY_HEIGHT) {
-					if (Math.random() < chanceToStartAlive) {
-						map[x][y] = true;
-					}
-				} else {
-					map[x][y] = true;
-				}
-			}
-		}
-		return map;
-	}
-
 }

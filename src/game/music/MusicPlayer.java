@@ -27,6 +27,14 @@ public class MusicPlayer extends Thread {
 		return audioclip;
 	}
 
+	static void PlayDirect(File file)
+			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
+		Clip audioclip = AudioSystem.getClip();
+		audioclip.open(audioIn);
+		audioclip.start();
+	}
+
 	static double SongLength(File file)
 			throws UnsupportedAudioFileException, IOException {
 		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);

@@ -8,7 +8,7 @@ public class EmptyBlock extends Block {
 	private final static int EMPTY_SPRITE_Y = 11;
 
 	protected EmptyBlock(float xpos, float ypos) {
-		super(EMPTY_SPRITE_X, EMPTY_SPRITE_Y, xpos, ypos);
+		super(BlockType.EMPTY, EMPTY_SPRITE_X, EMPTY_SPRITE_Y, xpos, ypos);
 	}
 
 	@Override
