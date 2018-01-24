@@ -145,7 +145,6 @@ public class RegionGenerator {
 				for (int i = heightMap.length / 2; i < heightMap.length; i++) {
 					if (oceanRight) {
 						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
-						System.out.println(heightMap[i]);
 					} else {
 						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
 								- Math.abs(heightMap.length / 2 - i));
