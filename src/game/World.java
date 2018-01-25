@@ -2,6 +2,7 @@ package game;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
@@ -26,6 +27,12 @@ import game.generation.RegionGenerator;
 public class World {
 
 	static final double DAY_NIGHT_DURATION = 1200000.0;
+	private static final Comparator<Point> pointComparer = (p1, p2) -> {
+		if (p1.x == p2.x) {
+			return p1.y - p2.y;
+		}
+		return p1.x - p2.x;
+	};
 
 	private ArrayList<Entity> characters;
 	private ArrayList<Entity> backgroundsprites;
@@ -33,12 +40,7 @@ public class World {
 
 	private static Image sunsprite;
 
-	public TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
-		if (p1.x == p2.x) {
-			return p1.y - p2.y;
-		}
-		return p1.x - p2.x;
-	});
+	public TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
 
 	public World() {
 		characters = new ArrayList<>();
@@ -84,13 +86,14 @@ public class World {
 	}
 
 	private void updateSun(Viewport vp) {
-		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f((float) -(Math
-				.cos(2.0 * Math.PI * Viewport.globaltimer
-						/ World.DAY_NIGHT_DURATION)
-				* 15 - vp.getCenter().x + sunsprite.getScaledCopy(4, 4).getWidth() / 2),
+		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f(
 				(float) -(Math
-						.sin(2.0 * Math.PI * Viewport.globaltimer
+						.cos(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
+						* 15 - vp.getCenter().x
+						+ sunsprite.getScaledCopy(4, 4).getWidth() / 2),
+				(float) -(Math.sin(
+						2.0 * Math.PI * Viewport.globaltimer / World.DAY_NIGHT_DURATION)
 						* 15) + 30));
 		backgroundsprites.set(0, suns);
 	}
@@ -105,30 +108,36 @@ public class World {
 
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = new Rectangle(view.getMinX(), view.getMinY(),
-				view.getWidth(),
-				view.getHeight());
+				view.getWidth(), view.getHeight());
 
 		doSunLighting((int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
 				(int) viewRect.getY() - 10,
-				(int) (viewRect.getY() + view.getHeight()) + 10,
-				63);
+				(int) (viewRect.getY() + view.getHeight()) + 10, 63);
 
 		new RegionGenerator(viewRect, blocks);
 
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		/*
-		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
-		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
-		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
+		 * The following three lines somehow randomly cause up to 1000 ms of lag
+		 * This is a big issue, as the game otherwise runs quite smoothly.
+		 * Please fix! "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
+		long time = System.currentTimeMillis();
+		Block.count = 0;
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
 		}
+		if (Viewport.DEBUG_MODE) {
+			System.out.printf("%d ms for visible | %d out of %d blocks rendered.\n",
+					System.currentTimeMillis() - time, Block.count, visibleBlocks.size());
+		}
+		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
 			blocks.get(p).drawShading(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
+			System.out.printf("%d ms for shading\n", System.currentTimeMillis() - time);
 			renderHitboxes(vp);
 		}
 		for (Entity e : this.characters) {
@@ -153,7 +162,11 @@ public class World {
 		for (int i = xStart; i <= xEnd; i++) {
 			Point start = new Point(i, 0);
 			Point end = new Point(i, yEnd);
-
+			if (pointComparer.compare(start, end) > 0) {
+				// apparently navigableKeySet().subset() crashes if start is
+				// after end
+				continue;
+			}
 			NavigableSet<Point> allBlocks = blocks.navigableKeySet()
 					.subSet(start, true, end, true);
 
@@ -215,8 +228,8 @@ public class World {
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
 			Point start = new Point(i, (int) (view.getMinY() - 1));
 			Point end = new Point(i, (int) (view.getMaxY() + 1));
-			NavigableSet<Point> existingBlocks = blocks.navigableKeySet()
-					.subSet(start, true, end, true);
+			NavigableSet<Point> existingBlocks = blocks.navigableKeySet().subSet(start,
+					true, end, true);
 			for (Point p : existingBlocks) {
 				blockLocs.add(p);
 			}
@@ -238,8 +251,7 @@ public class World {
 
 		// collision detection for main character
 		Shape hitbox = controlledCharacter.getHitbox();
-		Rectangle boundingBox = new Rectangle(
-				hitbox.getMinX(), hitbox.getMinY(),
+		Rectangle boundingBox = new Rectangle(hitbox.getMinX(), hitbox.getMinY(),
 				hitbox.getWidth(), hitbox.getHeight());
 		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 		for (Point p : collidingBlocks) {
@@ -258,8 +270,7 @@ public class World {
 	private void renderHitboxes(Viewport vp) {
 		vp.draw(controlledCharacter.getHitbox(), Color.red);
 		Shape hitbox = controlledCharacter.getHitbox();
-		Rectangle boundingBox = new Rectangle(
-				hitbox.getMinX(), hitbox.getMinY(),
+		Rectangle boundingBox = new Rectangle(hitbox.getMinX(), hitbox.getMinY(),
 				hitbox.getWidth(), hitbox.getHeight());
 		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 		for (Point p : collidingBlocks) {

@@ -36,10 +36,17 @@ public class Block {
 		this.type = type;
 	}
 
+	public static int count = 0;
+
 	public void draw(Viewport vp) {
 		sprite.loc.set(pos.x, pos.y);
+		if (this instanceof EmptyBlock) {
+			return;
+		}
+
 		if (lighting > 0) {
 			vp.draw(sprite);
+			count++;
 		}
 	}
 
