@@ -53,7 +53,7 @@ public class Block {
 	public void drawShading(Viewport vp) {
 		vp.fill(sprite.getBoundingBox(),
 				new Color(0, 0, 0,
-						255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 64.0)));
+						255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 63.0)));
 	}
 
 	public Vector2f getPos() {
