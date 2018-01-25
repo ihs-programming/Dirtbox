@@ -178,13 +178,16 @@ public class World {
 			float actualY = (end.y - start.y) / (end.x - start.x) * (x - start.x)
 					+ start.y;
 
-			// Too lazy to figure out actual logic, so I'll just guess and check
-			// the block above and below the point as well
-			for (int dy = -1; dy <= 1; dy++) {
-				int ny = (int) actualY + dy;
-				Rectangle blockRect = new Rectangle(x, ny, 1, 1);
-				if (blockRect.intersects(viewLine)) {
-					points.add(new Point(x, ny));
+			// Too lazy to figure out actual logic, so I'll just guess and check around
+			// the block to avoid edge cases
+			for (int dx = -1; dx <= 1; dx++) {
+				for (int dy = -1; dy <= 1; dy++) {
+					int nx = x + dx;
+					int ny = (int) actualY + dy;
+					Rectangle blockRect = new Rectangle(nx, ny, 1, 1);
+					if (blockRect.intersects(viewLine)) {
+						points.add(new Point(nx, ny));
+					}
 				}
 			}
 		}
@@ -198,39 +201,26 @@ public class World {
 			// Too lazy to figure out actual logic, so I'll just guess and check
 			// the block above and below the point as well
 			for (int dx = -1; dx <= 1; dx++) {
-				int nx = (int) actualX + dx;
-				Rectangle blockRect = new Rectangle(nx, y, 1, 1);
-				if (blockRect.intersects(viewLine)) {
-					points.add(new Point(nx, y));
+				for (int dy = -1; dy <= 1; dy++) {
+					int nx = (int) actualX + dx;
+					int ny = y + dy;
+					Rectangle blockRect = new Rectangle(nx, ny, 1, 1);
+					if (blockRect.intersects(viewLine)) {
+						points.add(new Point(nx, ny));
+					}
 				}
 			}
 		}
 		points.add(new Point(floor(start.x), floor(start.y)));
 		points.add(new Point(floor(end.x), floor(end.y)));
-		/*
-		@formatter:off
-		for (int x = (int) end.x; insideRange(x, start.x,
-				end.x); x += end.x < start.x ? 1 : -1) {
-			// calculates y value based off point slope formula
-			float actualY = (end.y - start.y) / (end.x - start.x) * (x - start.x)
-					+ start.y;
-			int y = (int) actualY;
-			points.add(new Point(x, y));
-		}
-		for (int y = (int) end.y; insideRange(y, start.y,
-				end.y); y += end.y < start.y ? 1 : -1) {
-			// calculates x value based off point slope formula
-			float actualX = (y - start.y) * (end.x - start.x) / (end.y - start.y)
-					+ start.x;
-			int x = (int) actualX;
-			points.add(new Point(x, y));
-		}
-		@formatter:on
-		*/
 		ArrayList<Point> pointList = new ArrayList<>(points);
 		Collections.sort(pointList, (o1, o2) -> (int) Math
-				.signum(o2.distance(start.x, start.y) - o1.distance(start.x, start.y)));
+				.signum(getMiddle(o2).distance(start) - getMiddle(o1).distance(start)));
 		return pointList;
+	}
+
+	private Vector2f getMiddle(Point p) {
+		return new Vector2f(p.x + .5f, p.y + .5f);
 	}
 
 	/**
@@ -375,5 +365,24 @@ public class World {
 			vp.draw(b.getHitbox(), Color.white);
 			vp.draw(Geometry.createCircle(b.getPos(), .2f), Color.green);
 		}
+	}
+
+	/**
+	 * Gets the first block that could be mined by the player
+	 *
+	 * Returns null if no block is found
+	 *
+	 * @param gameMouseLocation
+	 * @return
+	 */
+	public Block getMinedBlock(Vector2f gameMouseLocation) {
+		List<Point> clickLine = rayTrace(getCharacterPosition(), gameMouseLocation);
+		for (Point p : clickLine) {
+			Block b = blocks.get(p);
+			if (b instanceof SolidBlock) {
+				return b;
+			}
+		}
+		return null;
 	}
 }
