@@ -1,5 +1,6 @@
 package game.entities;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -8,6 +9,7 @@ import game.World;
 import game.blocks.Block;
 import game.utils.DefaultKeyListener;
 import game.utils.DefaultMouseListener;
+import game.utils.Geometry;
 
 public class PlayerController implements DefaultMouseListener {
 	private ControllableCharacter character;
@@ -43,6 +45,14 @@ public class PlayerController implements DefaultMouseListener {
 		this.vp = vp;
 	}
 
+	public void draw(Viewport vp) {
+		if (Viewport.DEBUG_MODE) {
+			if (currentBlock != null) {
+				vp.fill(Geometry.getBoundingBox(currentBlock.getHitbox()), Color.red);
+			}
+		}
+	}
+
 	public void update(int delta) {
 		character.stopMoving();
 		if (userInput.isKeyDown(Input.KEY_A)) {
@@ -55,6 +65,7 @@ public class PlayerController implements DefaultMouseListener {
 		mineTime += delta;
 		if (currentBlock != null && mineTime > ControllableCharacter.BLOCK_MINE_TIME) {
 			world.removeBlock(currentBlock);
+			System.out.println("Mining");
 		}
 	}
 

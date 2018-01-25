@@ -388,7 +388,6 @@ public class World {
 	public void removeBlock(Block b) {
 		Vector2f bpos = b.getPos();
 		Point blockLoc = new Point(round(bpos.x), round(bpos.y));
-		blocks.remove(blockLoc);
 		blocks.put(blockLoc, Block.createBlock(BlockType.EMPTY, bpos.x, bpos.y));
 	}
 

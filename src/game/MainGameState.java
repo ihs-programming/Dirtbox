@@ -51,6 +51,7 @@ public class MainGameState implements DefaultGameState {
 			if (lockCharacter) {
 				vp.setCenter(world.getCharacterPosition());
 			}
+			playerController.draw(vp);
 			world.draw(vp);
 		} else {
 			// Display ui
