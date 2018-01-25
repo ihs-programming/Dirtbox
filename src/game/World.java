@@ -1,7 +1,6 @@
 package game;
 
 import java.awt.Point;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,13 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.TreeMap;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
@@ -130,21 +129,18 @@ public class World {
 		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
-		if (enableFOV) {
-			visibleBlocks = calculateVisibleBlocks(visibleBlocks);
-		}
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
 		}
 		for (Point p : visibleBlocks) {
 			blocks.get(p).drawShading(vp);
 		}
+		for (Entity e : this.characters) {
+			e.draw(vp);
+		}
 		if (Viewport.DEBUG_MODE) {
 			renderHitboxes(vp);
 			renderMouseRaytrace(vp);
-		}
-		for (Entity e : this.characters) {
-			e.draw(vp);
 		}
 	}
 
@@ -158,39 +154,10 @@ public class World {
 		List<Point> points = rayTrace(getCharacterPosition(), mousePos);
 		vp.draw(Geometry.createCircle(getCharacterPosition(), .2f), Color.cyan);
 		vp.draw(Geometry.createCircle(mousePos, .2f), Color.cyan);
+		vp.draw(new Line(getCharacterPosition(), mousePos), Color.green);
 		for (Point p : points) {
-			vp.draw(new Rectangle(p.x, p.y, 1, 1), Color.red);
+			vp.draw(new Rectangle(p.x, p.y, 1, 1), Color.pink);
 		}
-	}
-
-	private List<Point> calculateVisibleBlocks(List<Point> visiblePoints) {
-		Queue<Point> pq = new ArrayDeque<>(visiblePoints);
-		ArrayList<Point> visibleBlocks = new ArrayList<>();
-		while (!pq.isEmpty()) {
-			Point p = pq.poll();
-			Rectangle blockRect = new Rectangle(
-					p.x, p.y, Block.BLOCK_SPRITE_SIZE, Block.BLOCK_SPRITE_SIZE);
-			boolean visible = false;
-			for (int i = 0; i < blockRect.getPointCount(); i++) {
-				Vector2f blockCorner = new Vector2f(blockRect.getPoint(i));
-				List<Point> ray = rayTrace(getCharacterPosition(), blockCorner);
-				boolean blockIsVisible = true;
-				for (Point rp : ray) {
-					if (!rp.equals(p) && blocks.get(rp) instanceof SolidBlock) {
-						blockIsVisible = false;
-						break;
-					}
-				}
-				if (blockIsVisible) {
-					visible = true;
-					break;
-				}
-			}
-			if (visible) {
-				visibleBlocks.add(p);
-			}
-		}
-		return visibleBlocks;
 	}
 
 	/**
@@ -203,6 +170,45 @@ public class World {
 	 */
 	private List<Point> rayTrace(Vector2f start, Vector2f end) {
 		HashSet<Point> points = new HashSet<>();
+		boolean increasing = end.x > start.x;
+		Line viewLine = new Line(start, end);
+		int delta = increasing ? 1 : -1;
+		for (int x = floor(start.x) + delta; x < end.x ^ !increasing; x += delta) {
+			// calculates y value based off point slope formula
+			float actualY = (end.y - start.y) / (end.x - start.x) * (x - start.x)
+					+ start.y;
+
+			// Too lazy to figure out actual logic, so I'll just guess and check
+			// the block above and below the point as well
+			for (int dy = -1; dy <= 1; dy++) {
+				int ny = (int) actualY + dy;
+				Rectangle blockRect = new Rectangle(x, ny, 1, 1);
+				if (blockRect.intersects(viewLine)) {
+					points.add(new Point(x, ny));
+				}
+			}
+		}
+		increasing = end.y > start.y;
+		delta = increasing ? 1 : -1;
+		for (int y = floor(start.y) + delta; y < end.y ^ !increasing; y += delta) {
+			// calculates y value based off point slope formula
+			float actualX = (y - start.y) * (end.x - start.x) / (end.y - start.y)
+					+ start.x;
+
+			// Too lazy to figure out actual logic, so I'll just guess and check
+			// the block above and below the point as well
+			for (int dx = -1; dx <= 1; dx++) {
+				int nx = (int) actualX + dx;
+				Rectangle blockRect = new Rectangle(nx, y, 1, 1);
+				if (blockRect.intersects(viewLine)) {
+					points.add(new Point(nx, y));
+				}
+			}
+		}
+		points.add(new Point(floor(start.x), floor(start.y)));
+		points.add(new Point(floor(end.x), floor(end.y)));
+		/*
+		@formatter:off
 		for (int x = (int) end.x; insideRange(x, start.x,
 				end.x); x += end.x < start.x ? 1 : -1) {
 			// calculates y value based off point slope formula
@@ -219,21 +225,22 @@ public class World {
 			int x = (int) actualX;
 			points.add(new Point(x, y));
 		}
+		@formatter:on
+		*/
 		ArrayList<Point> pointList = new ArrayList<>(points);
 		Collections.sort(pointList, (o1, o2) -> (int) Math
 				.signum(o2.distance(start.x, start.y) - o1.distance(start.x, start.y)));
 		return pointList;
 	}
 
-	private boolean insideRange(float x, float l, float r) {
-		if (Math.abs(l - r) < 1) {
-			return false;
-		}
-		if (l < r) {
-			return x > l;
-		} else {
-			return x < l;
-		}
+	/**
+	 * floor is faster to type than (int) Math.floor(x)
+	 *
+	 * @param x
+	 * @return
+	 */
+	private int floor(float x) {
+		return (int) Math.floor(x);
 	}
 
 	/**
