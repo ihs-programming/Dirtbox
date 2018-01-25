@@ -88,13 +88,14 @@ public class World {
 	}
 
 	private void updateSun(Viewport vp) {
-		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f((float) -(Math
-				.cos(2.0 * Math.PI * Viewport.globaltimer
-						/ World.DAY_NIGHT_DURATION)
-				* 15 - vp.getCenter().x + sunsprite.getScaledCopy(4, 4).getWidth() / 2),
+		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f(
 				(float) -(Math
-						.sin(2.0 * Math.PI * Viewport.globaltimer
+						.cos(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
+						* 15 - vp.getCenter().x
+						+ sunsprite.getScaledCopy(4, 4).getWidth() / 2),
+				(float) -(Math.sin(
+						2.0 * Math.PI * Viewport.globaltimer / World.DAY_NIGHT_DURATION)
 						* 15) + 30));
 		backgroundsprites.set(0, suns);
 	}
@@ -113,8 +114,7 @@ public class World {
 		doSunLighting((int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
 				(int) viewRect.getY() - 10,
-				(int) (viewRect.getY() + view.getHeight()) + 10,
-				63);
+				(int) (viewRect.getY() + view.getHeight()) + 10, 63);
 
 		new RegionGenerator(viewRect, blocks);
 
@@ -124,16 +124,27 @@ public class World {
 		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
+		long time = System.currentTimeMillis();
+		Block.count = 0;
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
 		}
+		if (Viewport.DEBUG_MODE) {
+			System.out.printf("%d ms for visible | %d out of %d blocks rendered.\n",
+					System.currentTimeMillis() - time, Block.count, visibleBlocks.size());
+		}
+		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
 			blocks.get(p).drawShading(vp);
+		}
+		if (Viewport.DEBUG_MODE) {
+			renderHitboxes(vp);
 		}
 		for (Entity e : this.characters) {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
+			System.out.printf("%d ms for shading\n", System.currentTimeMillis() - time);
 			renderHitboxes(vp);
 			renderMouseRaytrace(vp);
 		}
@@ -245,7 +256,6 @@ public class World {
 		for (int i = xStart; i <= xEnd; i++) {
 			Point start = new Point(i, 0);
 			Point end = new Point(i, yEnd);
-
 			if (pointComparer.compare(start, end) > 0) {
 				// apparently navigableKeySet().subset() crashes if start is
 				// after end
@@ -312,8 +322,8 @@ public class World {
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
 			Point start = new Point(i, (int) (view.getMinY() - 1));
 			Point end = new Point(i, (int) (view.getMaxY() + 1));
-			NavigableSet<Point> existingBlocks = blocks.navigableKeySet()
-					.subSet(start, true, end, true);
+			NavigableSet<Point> existingBlocks = blocks.navigableKeySet().subSet(start,
+					true, end, true);
 			for (Point p : existingBlocks) {
 				blockLocs.add(p);
 			}

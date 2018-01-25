@@ -36,17 +36,26 @@ public class Block {
 		this.type = type;
 	}
 
+	public static int count = 0;
+
 	public void draw(Viewport vp) {
 		sprite.loc.set(pos.x, pos.y);
+		if (this instanceof EmptyBlock) {
+			return;
+		}
+
 		if (lighting > 0) {
 			vp.draw(sprite);
+			count++;
 		}
 	}
 
 	public void drawShading(Viewport vp) {
-		vp.fill(sprite.getBoundingBox(),
-				new Color(0, 0, 0,
-						255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 64.0)));
+		if (lighting != 63) {
+			vp.fill(sprite.getBoundingBox(),
+					new Color(0, 0, 0,
+							255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 63.0)));
+		}
 	}
 
 	public Vector2f getPos() {
