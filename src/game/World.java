@@ -20,6 +20,7 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.blocks.Block;
+import game.blocks.BlockType;
 import game.blocks.LiquidBlock;
 import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
@@ -69,7 +70,7 @@ public class World {
 
 	/**
 	 * Construct world for debugging purposes
-	 * 
+	 *
 	 * @param inp
 	 */
 	public World(Input inp) {
@@ -382,5 +383,16 @@ public class World {
 			}
 		}
 		return null;
+	}
+
+	public void removeBlock(Block b) {
+		Vector2f bpos = b.getPos();
+		Point blockLoc = new Point(round(bpos.x), round(bpos.y));
+		blocks.remove(blockLoc);
+		blocks.put(blockLoc, Block.createBlock(BlockType.EMPTY, bpos.x, bpos.y));
+	}
+
+	private int round(float f) {
+		return Math.round(f);
 	}
 }

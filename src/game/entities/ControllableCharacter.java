@@ -6,6 +6,8 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.blocks.Block;
+
 public class ControllableCharacter extends Entity {
 	private static final float SPEED = 0.0085f;
 	private static final float JUMP = 0.012f;
@@ -16,6 +18,8 @@ public class ControllableCharacter extends Entity {
 	// 9.8m/s^2
 	// = 9.8*16px/60frames, gravity =
 	// -2.613px/frame
+
+	public static final float BLOCK_MINE_TIME = 10.0f;
 
 	public ControllableCharacter(Image spritesheet, int sheetwidth, int sheetheight,
 			Vector2f pos) {
@@ -45,6 +49,10 @@ public class ControllableCharacter extends Entity {
 
 	public void jump() {
 		vel.y = -JUMP;
+	}
+
+	public void mineBlock(Block b) {
+
 	}
 
 	/**
