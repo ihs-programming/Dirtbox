@@ -1,13 +1,10 @@
 package game.entities;
 
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
-
-import game.utils.DefaultKeyListener;
 
 public class ControllableCharacter extends Entity {
 	private static final float SPEED = 0.0085f;
@@ -20,37 +17,34 @@ public class ControllableCharacter extends Entity {
 	// = 9.8*16px/60frames, gravity =
 	// -2.613px/frame
 
-	private Input userInput;
-
 	public ControllableCharacter(Image spritesheet, int sheetwidth, int sheetheight,
-			Vector2f pos, Input inp) {
+			Vector2f pos) {
 		super(spritesheet, sheetwidth, sheetheight, pos);
 		accel.y = GRAVITY;
-		userInput = inp;
-		userInput.addKeyListener(new DefaultKeyListener() {
-			@Override
-			public void keyPressed(int key, char c) {
-				if (key == Input.KEY_W) {
-					vel.y = -JUMP;
-				}
-			}
-
-			@Override
-			public void keyReleased(int key, char c) {
-			}
-		});
 	}
 
-	@Override
-	public void update(float frameTime) {
-		vel.x = 0;
-		if (userInput.isKeyDown(Input.KEY_A)) {
+	/**
+	 * Command to move the character
+	 *
+	 * @param isLeft
+	 */
+	public void move(boolean isLeft) {
+		if (isLeft) {
 			vel.x = -SPEED;
-		}
-		if (userInput.isKeyDown(Input.KEY_D)) {
+		} else {
 			vel.x = SPEED;
 		}
-		super.update(frameTime);
+	}
+
+	/**
+	 * Stops the character from moving (if he were moving)
+	 */
+	public void stopMoving() {
+		vel.x = 0;
+	}
+
+	public void jump() {
+		vel.y -= JUMP;
 	}
 
 	/**
@@ -84,4 +78,5 @@ public class ControllableCharacter extends Entity {
 							"	will result in undefined behavior\n");
 		}
 	}
+
 }

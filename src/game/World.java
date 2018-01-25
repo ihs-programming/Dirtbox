@@ -24,6 +24,7 @@ import game.blocks.LiquidBlock;
 import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
+import game.entities.PlayerController;
 import game.generation.RegionGenerator;
 import game.utils.Geometry;
 
@@ -40,6 +41,7 @@ public class World {
 	private ArrayList<Entity> characters;
 	private ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
+	private PlayerController playerController;
 
 	private static Image sunsprite;
 
@@ -75,7 +77,8 @@ public class World {
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
 			ControllableCharacter stalin = new ControllableCharacter(stalinsprite, 1, 1,
-					new Vector2f(0, 0), inp);
+					new Vector2f(0, 0));
+			playerController = new PlayerController(stalin, inp);
 			characters.add(stalin);
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
@@ -337,6 +340,8 @@ public class World {
 		for (Entity e : characters) {
 			e.update(delta);
 		}
+
+		playerController.update(delta);
 
 		// collision detection for main character
 		Shape hitbox = controlledCharacter.getHitbox();
