@@ -209,7 +209,7 @@ public class World {
 		points.add(new Point(floor(start.x), floor(start.y)));
 		points.add(new Point(floor(end.x), floor(end.y)));
 		ArrayList<Point> pointList = new ArrayList<>(points);
-		Collections.sort(pointList, (o1, o2) -> (int) Math
+		Collections.sort(pointList, (o1, o2) -> (int) -Math
 				.signum(getMiddle(o2).distance(start) - getMiddle(o1).distance(start)));
 		return pointList;
 	}
