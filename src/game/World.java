@@ -24,12 +24,10 @@ import game.blocks.LiquidBlock;
 import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
-import game.entities.PlayerController;
 import game.generation.RegionGenerator;
 import game.utils.Geometry;
 
 public class World {
-
 	static final double DAY_NIGHT_DURATION = 1200000.0;
 	private static final Comparator<Point> pointComparer = (p1, p2) -> {
 		if (p1.x == p2.x) {
@@ -41,11 +39,9 @@ public class World {
 	private ArrayList<Entity> characters;
 	private ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
-	private PlayerController playerController;
 
 	private static Image sunsprite;
 
-	private boolean enableFOV = true;
 	private Input userInp = null; // used only for debugging purposes currently
 
 	public TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
@@ -59,31 +55,26 @@ public class World {
 			sunsprite = sunsprite.getScaledCopy(4, 4);
 			Entity suns = new Entity(sunsprite, 1, 1, new Vector2f(0, 0));
 			backgroundsprites.add(suns);
+			Image stalinsprite = new Image("data/characters/stalin.png");
+			stalinsprite.setFilter(Image.FILTER_NEAREST);
+			stalinsprite = stalinsprite.getScaledCopy(1, 2);
+			ControllableCharacter stalin = new ControllableCharacter(stalinsprite, 1, 1,
+					new Vector2f(0, 0));
+			addEntity(stalin);
+			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Create a world that contains elements that change with user input
-	 *
+	 * Construct world for debugging purposes
+	 * 
 	 * @param inp
 	 */
 	public World(Input inp) {
 		this();
 		userInp = inp;
-		try {
-			Image stalinsprite = new Image("data/characters/stalin.png");
-			stalinsprite.setFilter(Image.FILTER_NEAREST);
-			stalinsprite = stalinsprite.getScaledCopy(1, 2);
-			ControllableCharacter stalin = new ControllableCharacter(stalinsprite, 1, 1,
-					new Vector2f(0, 0));
-			playerController = new PlayerController(stalin, inp);
-			characters.add(stalin);
-			controlledCharacter = stalin;
-		} catch (SlickException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public void addEntity(Entity e) {
@@ -329,6 +320,10 @@ public class World {
 		return blockLocs;
 	}
 
+	public ControllableCharacter getMainCharacter() {
+		return controlledCharacter;
+	}
+
 	public Vector2f getCharacterPosition() {
 		if (controlledCharacter != null) {
 			return controlledCharacter.getLocation();
@@ -340,8 +335,6 @@ public class World {
 		for (Entity e : characters) {
 			e.update(delta);
 		}
-
-		playerController.update(delta);
 
 		// collision detection for main character
 		Shape hitbox = controlledCharacter.getHitbox();

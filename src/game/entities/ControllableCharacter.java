@@ -44,7 +44,7 @@ public class ControllableCharacter extends Entity {
 	}
 
 	public void jump() {
-		vel.y -= JUMP;
+		vel.y = -JUMP;
 	}
 
 	/**

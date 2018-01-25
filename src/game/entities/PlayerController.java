@@ -2,13 +2,15 @@ package game.entities;
 
 import org.newdawn.slick.Input;
 
+import game.Viewport;
 import game.utils.DefaultKeyListener;
+import game.utils.DefaultMouseListener;
 
-public class PlayerController {
+public class PlayerController implements DefaultMouseListener {
 	private ControllableCharacter character;
 	private Input userInput;
 
-	public PlayerController(ControllableCharacter character, Input inp) {
+	public PlayerController(ControllableCharacter character, Input inp, Viewport vp) {
 		this.character = character;
 		userInput = inp;
 		userInput.addKeyListener(new DefaultKeyListener() {

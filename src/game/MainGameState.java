@@ -7,6 +7,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
+import game.entities.PlayerController;
 import game.utils.DefaultGameState;
 
 public class MainGameState implements DefaultGameState {
@@ -17,12 +18,15 @@ public class MainGameState implements DefaultGameState {
 	private GameUI ui;
 	private boolean worldrendered = false;
 
+	private PlayerController playerController;
+
 	@Override
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		Input gcInput = gc.getInput();
 		gcInput.addKeyListener(vp);
 		gcInput.addMouseListener(vp);
 		world = new World(gcInput);
+		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp);
 	}
 
 	@Override
@@ -63,6 +67,7 @@ public class MainGameState implements DefaultGameState {
 		if (worldrendered) {
 			vp.update(delta);
 		}
+		playerController.update(delta);
 		world.update(delta);
 	}
 
