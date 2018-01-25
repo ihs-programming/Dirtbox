@@ -119,9 +119,9 @@ public class World {
 
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		/*
-		 * The following three lines somehow randomly cause up to 1000 ms of lag
-		 * This is a big issue, as the game otherwise runs quite smoothly.
-		 * Please fix! "734.582767 ms for draw (!!!) 743.448732 ms for render"
+		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
+		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
+		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		long time = System.currentTimeMillis();
 		Block.count = 0;
