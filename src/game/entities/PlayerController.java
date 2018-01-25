@@ -61,18 +61,48 @@ public class PlayerController implements DefaultMouseListener {
 		if (userInput.isKeyDown(Input.KEY_D)) {
 			character.move(false);
 		}
-		character.update(delta);
-		mineTime += delta;
-		if (currentBlock != null && mineTime > ControllableCharacter.BLOCK_MINE_TIME) {
-			world.removeBlock(currentBlock);
-			System.out.println("Mining");
+		if (currentBlock == null
+				&& userInput.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
+			currentBlock = getMinedBlock(userInput.getMouseX(),
+					userInput.getMouseY());
 		}
+		character.update(delta);
+		if (currentBlock != null) {
+			mineTime += delta;
+			if (mineTime > ControllableCharacter.BLOCK_MINE_TIME) {
+				mineBlock();
+			}
+		}
+	}
+
+	private void mineBlock() {
+		world.removeBlock(currentBlock);
+		currentBlock = null;
+		mineTime = 0;
 	}
 
 	@Override
 	public void mousePressed(int button, int x, int y) {
-		Vector2f mousePos = vp.getInverseDrawTransform().transform(new Vector2f(x, y));
+		Vector2f mousePos = this.convertMousePos(x, y);
 		currentBlock = world.getMinedBlock(mousePos);
+	}
+
+	@Override
+	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+		Block nblock = this.getMinedBlock(oldx, oldy);
+		if (nblock != currentBlock) {
+			mineTime = 0;
+			currentBlock = nblock;
+		}
+	}
+
+	private Block getMinedBlock(int mouseX, int mouseY) {
+		Vector2f mousePos = this.convertMousePos(mouseX, mouseY);
+		return world.getMinedBlock(mousePos);
+	}
+
+	private Vector2f convertMousePos(int x, int y) {
+		return vp.getInverseDrawTransform().transform(new Vector2f(x, y));
 	}
 
 	@Override
