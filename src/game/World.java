@@ -299,10 +299,10 @@ public class World {
 							&& next.y <= yEnd) {
 
 						int str = blocks.get(curr).getLighting() - 4;
-						if (blocks.get(curr) instanceof LiquidBlock) {
+						if (blocks.get(next) instanceof LiquidBlock) {
 							str -= 2;
 						}
-						if (blocks.get(curr) instanceof SolidBlock) {
+						if (blocks.get(next) instanceof SolidBlock) {
 							str -= 10;
 						}
 						str = Math.max(str, 0);
