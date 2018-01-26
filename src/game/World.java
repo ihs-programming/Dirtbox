@@ -125,13 +125,13 @@ public class World {
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		long time = System.currentTimeMillis();
-		Block.count = 0;
+		Block.draw_hit_count = 0;
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf("%d ms for visible | %d out of %d blocks rendered.\n",
-					System.currentTimeMillis() - time, Block.count, visibleBlocks.size());
+					System.currentTimeMillis() - time, Block.draw_hit_count, visibleBlocks.size());
 		}
 		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
