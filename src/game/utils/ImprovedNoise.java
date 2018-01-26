@@ -1,4 +1,4 @@
-package util;
+package game.utils;
 
 //JAVA REFERENCE IMPLEMENTATION OF IMPROVED NOISE - COPYRIGHT 2002 KEN PERLIN.
 //Copied from github https://gist.github.com/indy/296676
