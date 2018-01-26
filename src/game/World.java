@@ -119,9 +119,9 @@ public class World {
 		new RegionGenerator(viewRect, blocks);
 
 		/*
-		 * The following three lines somehow randomly cause up to 1000 ms of lag
-		 * This is a big issue, as the game otherwise runs quite smoothly.
-		 * Please fix! "734.582767 ms for draw (!!!) 743.448732 ms for render"
+		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
+		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
+		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		long time = System.currentTimeMillis();
@@ -184,8 +184,7 @@ public class World {
 			float actualY = (end.y - start.y) / (end.x - start.x) * (x - start.x)
 					+ start.y;
 
-			// Too lazy to figure out actual logic, so I'll just guess and check
-			// around
+			// Too lazy to figure out actual logic, so I'll just guess and check around
 			// the block to avoid edge cases
 			for (int dx = -1; dx <= 1; dx++) {
 				for (int dy = -1; dy <= 1; dy++) {
@@ -257,7 +256,6 @@ public class World {
 		for (int i = xStart; i <= xEnd; i++) {
 			Point start = new Point(i, 0);
 			Point end = new Point(i, yEnd);
-
 			if (pointComparer.compare(start, end) > 0) {
 				// apparently navigableKeySet().subset() crashes if start is
 				// after end
