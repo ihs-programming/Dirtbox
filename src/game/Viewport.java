@@ -130,8 +130,8 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	private Transform cacheTransform;
 
 	/**
-	 * Note that this method implicitly depends on getInverseDrawTransform (if this
-	 * method is changed, likely so should getInverseDrawTransform).
+	 * Note that this method implicitly depends on getInverseDrawTransform (if
+	 * this method is changed, likely so should getInverseDrawTransform).
 	 *
 	 * @return transform mapping game position to screen position
 	 */
@@ -159,8 +159,8 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	}
 
 	/**
-	 * Note that this method implicitly depends on getDrawTransform (if this method
-	 * is changed, likely so should getDrawTransform)
+	 * Note that this method implicitly depends on getDrawTransform (if this
+	 * method is changed, likely so should getDrawTransform)
 	 *
 	 * @return transform mapping screen position to game position
 	 */
@@ -229,6 +229,9 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 			break;
 		case Input.KEY_P:
 			printDebugInfo();
+			break;
+		case Input.KEY_M:
+			MainGameState.playMusic = !MainGameState.playMusic;
 			break;
 		default:
 			break;

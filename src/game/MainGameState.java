@@ -11,9 +11,11 @@ import game.entities.PlayerController;
 import game.utils.DefaultGameState;
 
 public class MainGameState implements DefaultGameState {
+	public static boolean playMusic = false;
 	private World world;
 	private Viewport vp = new Viewport();
-	public static boolean inGame = true; // whether or not to display the escape menu
+	public static boolean inGame = true; // whether or not to display the escape
+											// menu
 	private boolean lockCharacter = true; // whether to follow the character
 	private GameUI ui;
 	private boolean worldrendered = false;
