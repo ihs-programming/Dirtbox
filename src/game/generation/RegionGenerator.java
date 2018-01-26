@@ -12,7 +12,7 @@ import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.EmptyBlock;
 import game.generation.TreeMaker.TreeType;
-import util.ImprovedNoise;
+import game.utils.ImprovedNoise;
 
 public class RegionGenerator {
 	private static final double SEED_STEP = 1.5;
