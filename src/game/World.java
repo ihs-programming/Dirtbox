@@ -115,10 +115,15 @@ public class World {
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = Geometry.getBoundingBox(view);
 
+		long time = System.currentTimeMillis();
 		doSunLighting((int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
 				(int) viewRect.getY() - 10,
 				(int) (viewRect.getY() + view.getHeight()) + 10, 63);
+		if (Viewport.DEBUG_MODE) {
+			System.out.printf("%d ms for sun lighting calculations.\n",
+					System.currentTimeMillis() - time);
+		}
 
 		new RegionGenerator(viewRect, blocks);
 
@@ -128,13 +133,14 @@ public class World {
 		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
-		long time = System.currentTimeMillis();
+		time = System.currentTimeMillis();
 		Block.draw_hit_count = 0;
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
-			System.out.printf("%d ms for visible | %d out of %d blocks rendered.\n",
+			System.out.printf(
+					"%d ms for visible | %d out of %d blocks rendered.\n",
 					System.currentTimeMillis() - time, Block.draw_hit_count,
 					visibleBlocks.size());
 		}
@@ -149,7 +155,8 @@ public class World {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
-			System.out.printf("%d ms for shading\n", System.currentTimeMillis() - time);
+			System.out.printf("%d ms for shading\n",
+					System.currentTimeMillis() - time);
 			renderHitboxes(vp);
 			renderMouseRaytrace(vp);
 		}
@@ -246,7 +253,7 @@ public class World {
 	}
 
 	/**
-	 * Performs lighting updates from the "sun". Takes less than 30 ms.
+	 * Performs lighting updates from the "sun".
 	 *
 	 * @param xStart
 	 *            X-coordinate to start at
@@ -270,16 +277,32 @@ public class World {
 			}
 			NavigableSet<Point> allBlocks = blocks.navigableKeySet()
 					.subSet(start, true, end, true);
-
+			HashSet<Point> visited = new HashSet<>();
+			for (Point p : allBlocks) {
+				blocks.get(p).setLighting(0);
+			}
 			for (Point p : allBlocks) {
 				Block b = blocks.get(p);
+
+				visited.add(p);
 				if (BlockType.isSeeThrough(b.type)) {
 					b.setLighting(strength);
 
 					sources.add(p);
-				} else if (BlockType.getLightValue(b) != -1) {
+				} else {
+					break;
+				}
+			}
+
+			for (Point p : allBlocks) {
+				Block b = blocks.get(p);
+				if (BlockType.getLightValue(b) != -1
+						&& BlockType.getLightValue(b) > b.getLighting()) {
 					b.setLighting(BlockType.getLightValue(b));
 
+					if (visited.contains(p)) {
+						sources.remove(p);
+					}
 					sources.add(p);
 				}
 			}
