@@ -2,6 +2,7 @@ package game.entities;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
@@ -10,6 +11,8 @@ import game.Sprite;
 import game.Viewport;
 
 public class Entity {
+	protected static final float GRAVITY = 0.00002613f;
+
 	private SpriteSheet spritesheet;
 	private Shape hitbox;
 	private Sprite sprite;
@@ -86,5 +89,37 @@ public class Entity {
 		float width = spritesheet.getWidth();
 		float height = spritesheet.getWidth();
 		return pos.copy().add(new Vector2f(width / 2, height / 2));
+	}
+
+	/**
+	 * Note that currently the character just moves above the colliding hitbox
+	 *
+	 * @param hitbox
+	 */
+	public void collide(Shape hitbox) {
+		Shape charHitbox = this.getHitbox();
+		// Check if hitboxes actually should interact
+		if (!(hitbox.contains(charHitbox) ||
+				charHitbox.contains(hitbox) ||
+				hitbox.intersects(charHitbox))) {
+			return;
+		}
+		if (hitbox instanceof Point) {
+			// Do nothing
+			// (Point means that there is no hitbox)
+		} else if (hitbox instanceof Rectangle) {
+			Rectangle boundingBox = (Rectangle) hitbox;
+			Vector2f displacement = new Vector2f();
+			// push player up
+			if (boundingBox.getMinY() < charHitbox.getMaxY()) {
+				displacement.y -= charHitbox.getMaxY() - boundingBox.getMinY();
+				vel.y = Math.min(vel.y, 0);
+			}
+			pos.add(displacement);
+		} else {
+			throw new UnsupportedOperationException(
+					"Collision with non rectangles not implemented yet\n" +
+							"	will result in undefined behavior\n");
+		}
 	}
 }

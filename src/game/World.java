@@ -24,6 +24,7 @@ import game.blocks.BlockType;
 import game.blocks.LiquidBlock;
 import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
+import game.entities.Creature;
 import game.entities.Entity;
 import game.generation.RegionGenerator;
 import game.utils.Geometry;
@@ -63,6 +64,7 @@ public class World {
 			ControllableCharacter stalin = new ControllableCharacter(stalinsprite, 1, 1,
 					new Vector2f(0, 0));
 			addEntity(stalin);
+			addEntity(new Creature(stalinsprite, 1, 1, new Vector2f(0, 0)));
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
@@ -81,7 +83,6 @@ public class World {
 
 	public void addEntity(Entity e) {
 		characters.add(e);
-		backgroundsprites.add(e);
 	}
 
 	public void updateEntities(Viewport vp) {
@@ -381,13 +382,15 @@ public class World {
 		}
 
 		// collision detection for main character
-		Shape hitbox = controlledCharacter.getHitbox();
-		Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
-		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
-		for (Point p : collidingBlocks) {
-			Block b = blocks.get(p);
-			if (b instanceof SolidBlock) {
-				controlledCharacter.collide(b.getHitbox());
+		for (Entity e : characters) {
+			Shape hitbox = e.getHitbox();
+			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
+			List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
+			for (Point p : collidingBlocks) {
+				Block b = blocks.get(p);
+				if (b instanceof SolidBlock) {
+					e.collide(b.getHitbox());
+				}
 			}
 		}
 	}
