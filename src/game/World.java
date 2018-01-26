@@ -42,6 +42,7 @@ public class World {
 	private ControllableCharacter controlledCharacter;
 
 	private static Image sunsprite;
+	private Entity sun;
 
 	private Input userInp = null; // used only for debugging purposes currently
 
@@ -88,7 +89,7 @@ public class World {
 	}
 
 	private void updateSun(Viewport vp) {
-		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f(
+		sun = new Entity(World.sunsprite, 1, 1, new Vector2f(
 				(float) -(Math
 						.cos(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
@@ -97,12 +98,15 @@ public class World {
 				(float) -(Math.sin(
 						2.0 * Math.PI * Viewport.globaltimer / World.DAY_NIGHT_DURATION)
 						* 15) + 30));
-		backgroundsprites.set(0, suns);
 	}
 
 	public void draw(Viewport vp) {
 
 		updateEntities(vp);
+
+		if (Viewport.day) {
+			sun.draw(vp);
+		}
 
 		for (Entity e : this.backgroundsprites) {
 			e.draw(vp);
@@ -131,7 +135,8 @@ public class World {
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf("%d ms for visible | %d out of %d blocks rendered.\n",
-					System.currentTimeMillis() - time, Block.draw_hit_count, visibleBlocks.size());
+					System.currentTimeMillis() - time, Block.draw_hit_count,
+					visibleBlocks.size());
 		}
 		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
