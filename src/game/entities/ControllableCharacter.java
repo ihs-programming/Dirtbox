@@ -1,6 +1,7 @@
 package game.entities;
 
 import org.newdawn.slick.Image;
+import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
@@ -68,10 +69,28 @@ public class ControllableCharacter extends Entity {
 		} else if (hitbox instanceof Rectangle) {
 			Rectangle boundingBox = (Rectangle) hitbox;
 			Vector2f displacement = new Vector2f();
-			// push player up
-			if (boundingBox.getMinY() < charHitbox.getMaxY()) {
-				displacement.y -= charHitbox.getMaxY() - boundingBox.getMinY();
-				vel.y = Math.min(vel.y, 0);
+			Vector2f corner = new Vector2f(charHitbox.getMinX(), charHitbox.getMaxY());
+			Vector2f prevVel = prevPos.copy().negate().add(pos);
+			if (prevVel.x > 0) {
+				corner.x = charHitbox.getMaxX();
+			}
+			Vector2f prevCorner = corner.copy().sub(prevVel);
+			Line l = new Line(prevCorner, corner);
+			Line blockTop = new Line(
+					boundingBox.getMinX(), boundingBox.getMinY(),
+					boundingBox.getWidth(), 0f, false);
+			if (l.intersects(blockTop)) {
+				// push player up
+				if (boundingBox.getMinY() < charHitbox.getMaxY()) {
+					displacement.y = -(charHitbox.getMaxY() - boundingBox.getMinY());
+					vel.y = Math.min(vel.y, 0);
+				}
+			} else {
+				// collide from left to right
+				if (prevCorner.x < boundingBox.getCenterX()) {
+					// displacement.x -= charHitbox.getMaxX() - boundingBox.getMinX();
+					// vel.x = Math.min(0f, vel.x);
+				}
 			}
 			pos.add(displacement);
 		} else {

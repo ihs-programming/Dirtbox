@@ -14,6 +14,7 @@ public class Entity {
 	private Shape hitbox;
 	private Sprite sprite;
 	protected Vector2f pos = new Vector2f();
+	protected Vector2f prevPos = new Vector2f();
 	protected Vector2f vel = new Vector2f();
 	protected Vector2f accel = new Vector2f();
 	private float scale = 1f;
@@ -72,10 +73,11 @@ public class Entity {
 	}
 
 	public void update(float frametime) {
-		this.pos.add(this.vel.copy().scale(frametime));
-		this.vel.add(this.accel.copy().scale(frametime));
-		this.hitbox.setCenterX(this.pos.x);
-		this.hitbox.setCenterY(this.pos.y);
+		prevPos.set(pos);
+		pos.add(vel.copy().scale(frametime));
+		vel.add(accel.copy().scale(frametime));
+		hitbox.setCenterX(pos.x);
+		hitbox.setCenterY(pos.y);
 	}
 
 	public void magnify(float factor) {
