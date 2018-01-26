@@ -51,10 +51,18 @@ public enum BlockType {
 	public static boolean isSeeThrough(BlockType type) {
 		switch (type) {
 		case EMPTY:
-		case WATER:
 			return true;
 		default:
 			return false;
+		}
+	}
+
+	public static int getLightValue(Block b) {
+		switch (b.type) {
+		case IRON_ORE:
+			return 63;
+		default:
+			return -1;
 		}
 	}
 }

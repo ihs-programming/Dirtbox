@@ -123,9 +123,9 @@ public class World {
 		new RegionGenerator(viewRect, blocks);
 
 		/*
-		 * The following three lines somehow randomly cause up to 1000 ms of lag
-		 * This is a big issue, as the game otherwise runs quite smoothly.
-		 * Please fix! "734.582767 ms for draw (!!!) 743.448732 ms for render"
+		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
+		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
+		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		long time = System.currentTimeMillis();
@@ -273,12 +273,15 @@ public class World {
 
 			for (Point p : allBlocks) {
 				Block b = blocks.get(p);
-				if (b instanceof SolidBlock || b instanceof LiquidBlock) {
-					break;
-				}
-				b.setLighting(strength);
+				if (BlockType.isSeeThrough(b.type)) {
+					b.setLighting(strength);
 
-				sources.add(p);
+					sources.add(p);
+				} else if (BlockType.getLightValue(b) != -1) {
+					b.setLighting(BlockType.getLightValue(b));
+
+					sources.add(p);
+				}
 			}
 		}
 
