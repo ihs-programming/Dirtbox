@@ -24,8 +24,8 @@ import game.blocks.BlockType;
 import game.blocks.LiquidBlock;
 import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
-import game.entities.Creature;
 import game.entities.Entity;
+import game.entities.creature.Bunny;
 import game.generation.RegionGenerator;
 import game.utils.Geometry;
 
@@ -64,7 +64,10 @@ public class World {
 			ControllableCharacter stalin = new ControllableCharacter(stalinsprite, 1, 1,
 					new Vector2f(0, 0));
 			addEntity(stalin);
-			addEntity(new Creature(stalinsprite, 1, 1, new Vector2f(0, 0)));
+
+			for (int i = 0; i < 10; i++) {
+				addEntity(new Bunny(stalinsprite, 1, 1, new Vector2f(10 * i, 0)));
+			}
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
