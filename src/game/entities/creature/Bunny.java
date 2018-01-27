@@ -3,6 +3,7 @@ package game.entities.creature;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.World;
 import game.entities.Creature;
 import game.utils.ImprovedNoise;
 
@@ -16,8 +17,8 @@ public class Bunny extends Creature {
 	}
 
 	@Override
-	public void update(float frametime) {
-		super.update(frametime);
+	public void update(World w, float frametime) {
+		super.update(w, frametime);
 
 		vel.x *= 0.9f;
 

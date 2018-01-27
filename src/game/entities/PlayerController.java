@@ -66,7 +66,7 @@ public class PlayerController implements DefaultMouseListener {
 			currentBlock = getMinedBlock(userInput.getMouseX(),
 					userInput.getMouseY());
 		}
-		character.update(delta);
+		character.update(null, delta);
 		if (currentBlock != null) {
 			mineTime += delta;
 			if (mineTime > ControllableCharacter.BLOCK_MINE_TIME) {

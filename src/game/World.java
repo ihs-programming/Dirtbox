@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.newdawn.slick.Color;
@@ -381,7 +382,7 @@ public class World {
 
 	public void update(int delta) {
 		for (Entity e : characters) {
-			e.update(delta);
+			e.update(this, delta);
 		}
 
 		// collision detection for main character
@@ -432,6 +433,16 @@ public class World {
 			}
 		}
 		return null;
+	}
+
+	public Set<Entity> getEntities(Vector2f pos, float radius) {
+		HashSet<Entity> ret = new HashSet<>();
+		for (Entity e : characters) {
+			if (e.getLocation().distance(pos) < radius) {
+				ret.add(e);
+			}
+		}
+		return ret;
 	}
 
 	public void removeBlock(Block b) {

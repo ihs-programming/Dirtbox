@@ -9,6 +9,7 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.Viewport;
+import game.World;
 
 public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
@@ -74,7 +75,7 @@ public class Entity {
 		vp.draw(this.sprite);
 	}
 
-	public void update(float frametime) {
+	public void update(World w, float frametime) {
 		this.pos.add(this.vel.copy().scale(frametime));
 		this.vel.add(this.accel.copy().scale(frametime));
 		this.hitbox.setCenterX(this.pos.x);
