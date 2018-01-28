@@ -2,17 +2,22 @@ package game.entities;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.geom.Line;
+import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.Viewport;
+import game.World;
 
 public class Entity {
+	protected static final float GRAVITY = 0.00002613f;
+
 	private SpriteSheet spritesheet;
 	private Shape hitbox;
-	private Sprite sprite;
+	protected Sprite sprite;
 	protected Vector2f pos = new Vector2f();
 	protected Vector2f prevPos = new Vector2f();
 	protected Vector2f vel = new Vector2f();
@@ -72,12 +77,16 @@ public class Entity {
 		vp.draw(this.sprite);
 	}
 
-	public void update(float frametime) {
+	public void update(World w, float frametime) {
 		prevPos.set(pos);
 		pos.add(vel.copy().scale(frametime));
 		vel.add(accel.copy().scale(frametime));
 		hitbox.setCenterX(pos.x);
 		hitbox.setCenterY(pos.y);
+		this.pos.add(this.vel.copy().scale(frametime));
+		this.vel.add(this.accel.copy().scale(frametime));
+		this.hitbox.setCenterX(this.pos.x);
+		this.hitbox.setCenterY(this.pos.y);
 	}
 
 	public void magnify(float factor) {
@@ -88,5 +97,64 @@ public class Entity {
 		float width = spritesheet.getWidth();
 		float height = spritesheet.getWidth();
 		return pos.copy().add(new Vector2f(width / 2, height / 2));
+	}
+
+	/**
+	 * Note that currently the character just moves above the colliding hitbox
+	 *
+	 * @param hitbox
+	 */
+	public void collide(Shape hitbox) {
+		Shape charHitbox = this.getHitbox();
+		// Check if hitboxes actually should interact
+		if (!(hitbox.contains(charHitbox) ||
+				charHitbox.contains(hitbox) ||
+				hitbox.intersects(charHitbox))) {
+			return;
+		}
+		if (hitbox instanceof Point) {
+			// Do nothing
+			// (Point means that there is no hitbox)
+		} else if (hitbox instanceof Rectangle) {
+			Rectangle boundingBox = (Rectangle) hitbox;
+			Vector2f displacement = new Vector2f();
+			Vector2f corner = new Vector2f(charHitbox.getMinX(), charHitbox.getMaxY());
+			Vector2f prevVel = prevPos.copy().negate().add(pos);
+			if (prevVel.x > 0) {
+				corner.x = charHitbox.getMaxX();
+			}
+			Vector2f prevCorner = corner.copy().sub(prevVel);
+			Line l = new Line(prevCorner, corner);
+			Line blockTop = new Line(
+					boundingBox.getMinX(), boundingBox.getMinY(),
+					boundingBox.getWidth(), 0f, false);
+			if (true || l.intersects(blockTop)) {
+				// push player up
+				if (boundingBox.getMinY() < charHitbox.getMaxY()) {
+					displacement.y = -(charHitbox.getMaxY() - boundingBox.getMinY());
+					vel.y = Math.min(vel.y, 0);
+				}
+			} else {
+				// collide from left to right
+				if (prevCorner.x < boundingBox.getCenterX()) {
+					// displacement.x -= charHitbox.getMaxX() - boundingBox.getMinX();
+					// vel.x = Math.min(0f, vel.x);
+				}
+			}
+			pos.add(displacement);
+		} else {
+			throw new UnsupportedOperationException(
+					"Collision with non rectangles not implemented yet\n" +
+							"	will result in undefined behavior\n");
+		}
+	}
+
+	/**
+	 * Return false if the entity should be deleted.
+	 *
+	 * @return
+	 */
+	public boolean alive() {
+		return true;
 	}
 }

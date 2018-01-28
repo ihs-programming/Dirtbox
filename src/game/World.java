@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.newdawn.slick.Color;
@@ -25,6 +27,8 @@ import game.blocks.LiquidBlock;
 import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
+import game.entities.creature.Bunny;
+import game.entities.creature.Wolf;
 import game.generation.RegionGenerator;
 import game.utils.Geometry;
 
@@ -42,6 +46,7 @@ public class World {
 	private ControllableCharacter controlledCharacter;
 
 	private static Image sunsprite;
+	private Entity sun;
 
 	private Input userInp = null; // used only for debugging purposes currently
 
@@ -62,6 +67,14 @@ public class World {
 			ControllableCharacter stalin = new ControllableCharacter(stalinsprite, 1, 1,
 					new Vector2f(0, 0));
 			addEntity(stalin);
+
+			for (int i = 0; i < 10; i++) {
+				addEntity(new Bunny(stalinsprite, 1, 1, new Vector2f(10 * i, 0)));
+			}
+			Image wolf = new Image("data/characters/wolf.bmp");
+			wolf = wolf.getScaledCopy(2, 1);
+			addEntity(new Wolf(wolf, 1, 1,
+					new Vector2f(0, 0)));
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
@@ -80,7 +93,6 @@ public class World {
 
 	public void addEntity(Entity e) {
 		characters.add(e);
-		backgroundsprites.add(e);
 	}
 
 	public void updateEntities(Viewport vp) {
@@ -88,7 +100,7 @@ public class World {
 	}
 
 	private void updateSun(Viewport vp) {
-		Entity suns = new Entity(World.sunsprite, 1, 1, new Vector2f(
+		sun = new Entity(World.sunsprite, 1, 1, new Vector2f(
 				(float) -(Math
 						.cos(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
@@ -97,12 +109,15 @@ public class World {
 				(float) -(Math.sin(
 						2.0 * Math.PI * Viewport.globaltimer / World.DAY_NIGHT_DURATION)
 						* 15) + 30));
-		backgroundsprites.set(0, suns);
 	}
 
 	public void draw(Viewport vp) {
 
 		updateEntities(vp);
+
+		if (Viewport.day) {
+			sun.draw(vp);
+		}
 
 		for (Entity e : this.backgroundsprites) {
 			e.draw(vp);
@@ -111,10 +126,15 @@ public class World {
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = Geometry.getBoundingBox(view);
 
+		long time = System.currentTimeMillis();
 		doSunLighting((int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
 				(int) viewRect.getY() - 10,
 				(int) (viewRect.getY() + view.getHeight()) + 10, 63);
+		if (Viewport.DEBUG_MODE) {
+			System.out.printf("%d ms for sun lighting calculations.\n",
+					System.currentTimeMillis() - time);
+		}
 
 		new RegionGenerator(viewRect, blocks);
 
@@ -124,14 +144,16 @@ public class World {
 		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
-		long time = System.currentTimeMillis();
-		Block.count = 0;
+		time = System.currentTimeMillis();
+		Block.draw_hit_count = 0;
 		for (Point p : visibleBlocks) {
 			blocks.get(p).draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
-			System.out.printf("%d ms for visible | %d out of %d blocks rendered.\n",
-					System.currentTimeMillis() - time, Block.count, visibleBlocks.size());
+			System.out.printf(
+					"%d ms for visible | %d out of %d blocks rendered.\n",
+					System.currentTimeMillis() - time, Block.draw_hit_count,
+					visibleBlocks.size());
 		}
 		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
@@ -144,7 +166,8 @@ public class World {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
-			System.out.printf("%d ms for shading\n", System.currentTimeMillis() - time);
+			System.out.printf("%d ms for shading\n",
+					System.currentTimeMillis() - time);
 			renderHitboxes(vp);
 			renderMouseRaytrace(vp);
 		}
@@ -184,7 +207,8 @@ public class World {
 			float actualY = (end.y - start.y) / (end.x - start.x) * (x - start.x)
 					+ start.y;
 
-			// Too lazy to figure out actual logic, so I'll just guess and check around
+			// Too lazy to figure out actual logic, so I'll just guess and check
+			// around
 			// the block to avoid edge cases
 			for (int dx = -1; dx <= 1; dx++) {
 				for (int dy = -1; dy <= 1; dy++) {
@@ -240,7 +264,7 @@ public class World {
 	}
 
 	/**
-	 * Performs lighting updates from the "sun". Takes less than 30 ms.
+	 * Performs lighting updates from the "sun".
 	 *
 	 * @param xStart
 	 *            X-coordinate to start at
@@ -256,6 +280,7 @@ public class World {
 		for (int i = xStart; i <= xEnd; i++) {
 			Point start = new Point(i, 0);
 			Point end = new Point(i, yEnd);
+
 			if (pointComparer.compare(start, end) > 0) {
 				// apparently navigableKeySet().subset() crashes if start is
 				// after end
@@ -263,15 +288,34 @@ public class World {
 			}
 			NavigableSet<Point> allBlocks = blocks.navigableKeySet()
 					.subSet(start, true, end, true);
+			HashSet<Point> visited = new HashSet<>();
+			for (Point p : allBlocks) {
+				blocks.get(p).setLighting(0);
+			}
+			for (Point p : allBlocks) {
+				Block b = blocks.get(p);
+
+				visited.add(p);
+				if (BlockType.isSeeThrough(b.type)) {
+					b.setLighting(strength);
+
+					sources.add(p);
+				} else {
+					break;
+				}
+			}
 
 			for (Point p : allBlocks) {
 				Block b = blocks.get(p);
-				if (b instanceof SolidBlock || b instanceof LiquidBlock) {
-					break;
-				}
-				b.setLighting(strength);
+				if (BlockType.getLightValue(b) != -1
+						&& BlockType.getLightValue(b) > b.getLighting()) {
+					b.setLighting(BlockType.getLightValue(b));
 
-				sources.add(p);
+					if (visited.contains(p)) {
+						sources.remove(p);
+					}
+					sources.add(p);
+				}
 			}
 		}
 
@@ -297,10 +341,10 @@ public class World {
 							&& next.y <= yEnd) {
 
 						int str = blocks.get(curr).getLighting() - 4;
-						if (blocks.get(curr) instanceof LiquidBlock) {
+						if (blocks.get(next) instanceof LiquidBlock) {
 							str -= 2;
 						}
-						if (blocks.get(curr) instanceof SolidBlock) {
+						if (blocks.get(next) instanceof SolidBlock) {
 							str -= 10;
 						}
 						str = Math.max(str, 0);
@@ -343,18 +387,26 @@ public class World {
 	}
 
 	public void update(int delta) {
-		for (Entity e : characters) {
-			e.update(delta);
+		Iterator<Entity> iter = characters.iterator();
+		while (iter.hasNext()) {
+			Entity e = iter.next();
+			e.update(this, delta);
+
+			if (!e.alive()) {
+				iter.remove();
+			}
 		}
 
 		// collision detection for main character
-		Shape hitbox = controlledCharacter.getHitbox();
-		Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
-		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
-		for (Point p : collidingBlocks) {
-			Block b = blocks.get(p);
-			if (b instanceof SolidBlock) {
-				controlledCharacter.collide(b.getHitbox());
+		for (Entity e : characters) {
+			Shape hitbox = e.getHitbox();
+			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
+			List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
+			for (Point p : collidingBlocks) {
+				Block b = blocks.get(p);
+				if (b instanceof SolidBlock) {
+					e.collide(b.getHitbox());
+				}
 			}
 		}
 	}
@@ -393,6 +445,16 @@ public class World {
 			}
 		}
 		return null;
+	}
+
+	public Set<Entity> getEntities(Vector2f pos, float radius) {
+		HashSet<Entity> ret = new HashSet<>();
+		for (Entity e : characters) {
+			if (e.getLocation().distance(pos) < radius) {
+				ret.add(e);
+			}
+		}
+		return ret;
 	}
 
 	public void removeBlock(Block b) {

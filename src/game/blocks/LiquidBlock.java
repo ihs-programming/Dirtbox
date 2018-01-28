@@ -12,7 +12,7 @@ import org.newdawn.slick.geom.Shape;
 public class LiquidBlock extends Block {
 	private Shape hitbox;
 
-	public LiquidBlock(BlockType t, float xpos, float ypos) {
+	protected LiquidBlock(BlockType t, float xpos, float ypos) {
 		super(t, t.sx, t.sy, xpos, ypos);
 
 		// change size later

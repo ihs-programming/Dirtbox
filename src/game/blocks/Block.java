@@ -9,8 +9,13 @@ import game.Sprite;
 import game.SpriteSheetLoader;
 import game.Viewport;
 
-public class Block {
+public abstract class Block {
 	public static final int BLOCK_SPRITE_SIZE = 1;
+
+	/**
+	 * Used for debug purposes
+	 */
+	public static int draw_hit_count = 0;
 
 	private Sprite sprite;
 	private Vector2f pos;
@@ -36,8 +41,6 @@ public class Block {
 		this.type = type;
 	}
 
-	public static int count = 0;
-
 	public void draw(Viewport vp) {
 		sprite.loc.set(pos.x, pos.y);
 		if (this instanceof EmptyBlock) {
@@ -46,7 +49,7 @@ public class Block {
 
 		if (lighting > 0) {
 			vp.draw(sprite);
-			count++;
+			draw_hit_count++;
 		}
 	}
 

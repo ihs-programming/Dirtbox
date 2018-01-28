@@ -25,7 +25,7 @@ public class AmbiancePlayer extends Thread {
 			for (int i = 0; i < MusicPlayer.SongLength(soundFile)
 					* 1000.0; i += 1000.0
 							/ Dirtbox.DEFAULT_FRAME_RATE) {
-				if (!MainGameState.inGame) {
+				if (!MainGameState.inGame || !MainGameState.playMusic) {
 					audioclip.stop();
 					break;
 				}
@@ -43,17 +43,25 @@ public class AmbiancePlayer extends Thread {
 	@Override
 	public void run() {
 		while (true) {
-			if (Viewport.day) {
-				playsound(daymusic);
-				if (!MainGameState.inGame) {
-					break;
+			if (MainGameState.playMusic) {
+				if (Viewport.day) {
+					playsound(daymusic);
+					if (!MainGameState.inGame) {
+						break;
+					}
+				} else {
+					playsound(nightmusic);
+					if (!MainGameState.inGame) {
+						break;
+					}
 				}
 			} else {
-				playsound(nightmusic);
-				if (!MainGameState.inGame) {
-					break;
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
 				}
 			}
 		}
+
 	}
 }
