@@ -1,5 +1,6 @@
 package game.entities;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.geom.Line;
@@ -11,6 +12,7 @@ import org.newdawn.slick.geom.Vector2f;
 import game.Sprite;
 import game.Viewport;
 import game.World;
+import game.utils.Geometry;
 
 public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
@@ -75,6 +77,17 @@ public class Entity {
 	public void draw(Viewport vp) {
 		this.sprite.img = this.spritesheet.getSprite(0, 0).getScaledCopy(scale);
 		vp.draw(this.sprite);
+		if (Viewport.DEBUG_MODE) {
+			renderMovement(vp);
+		}
+	}
+
+	private void renderMovement(Viewport vp) {
+		Line moveLine = new Line(prevPos, pos);
+		vp.draw(moveLine, Color.green);
+
+		vp.fill(Geometry.createCircle(new Vector2f(hitbox.getCenter()), .2f),
+				Color.pink);
 	}
 
 	public void update(World w, float frametime) {
@@ -83,10 +96,6 @@ public class Entity {
 		vel.add(accel.copy().scale(frametime));
 		hitbox.setCenterX(pos.x);
 		hitbox.setCenterY(pos.y);
-		this.pos.add(this.vel.copy().scale(frametime));
-		this.vel.add(this.accel.copy().scale(frametime));
-		this.hitbox.setCenterX(this.pos.x);
-		this.hitbox.setCenterY(this.pos.y);
 	}
 
 	public void magnify(float factor) {
@@ -118,27 +127,16 @@ public class Entity {
 		} else if (hitbox instanceof Rectangle) {
 			Rectangle boundingBox = (Rectangle) hitbox;
 			Vector2f displacement = new Vector2f();
-			Vector2f corner = new Vector2f(charHitbox.getMinX(), charHitbox.getMaxY());
-			Vector2f prevVel = prevPos.copy().negate().add(pos);
-			if (prevVel.x > 0) {
-				corner.x = charHitbox.getMaxX();
-			}
-			Vector2f prevCorner = corner.copy().sub(prevVel);
-			Line l = new Line(prevCorner, corner);
-			Line blockTop = new Line(
-					boundingBox.getMinX(), boundingBox.getMinY(),
-					boundingBox.getWidth(), 0f, false);
-			if (true || l.intersects(blockTop)) {
+			Vector2f prevCenter = new Vector2f(charHitbox.getCenter())
+					.add(prevPos).sub(pos).sub(new Vector2f(hitbox.getCenter()));
+			double angle = prevCenter.getTheta();
+
+			System.out.printf("Angle: %f\n", angle);
+			if (angle <= 135 && angle >= 45) {
 				// push player up
 				if (boundingBox.getMinY() < charHitbox.getMaxY()) {
 					displacement.y = -(charHitbox.getMaxY() - boundingBox.getMinY());
 					vel.y = Math.min(vel.y, 0);
-				}
-			} else {
-				// collide from left to right
-				if (prevCorner.x < boundingBox.getCenterX()) {
-					// displacement.x -= charHitbox.getMaxX() - boundingBox.getMinX();
-					// vel.x = Math.min(0f, vel.x);
 				}
 			}
 			pos.add(displacement);
