@@ -159,17 +159,14 @@ public class World {
 		for (Point p : visibleBlocks) {
 			blocks.get(p).drawShading(vp);
 		}
-		if (Viewport.DEBUG_MODE) {
-			renderHitboxes(vp);
-		}
 		for (Entity e : this.characters) {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf("%d ms for shading\n",
 					System.currentTimeMillis() - time);
-			renderHitboxes(vp);
-			renderMouseRaytrace(vp);
+			// renderHitboxes(vp);
+			// renderMouseRaytrace(vp);
 		}
 	}
 
