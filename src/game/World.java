@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
@@ -27,6 +28,7 @@ import game.blocks.SolidBlock;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
 import game.entities.creature.Bunny;
+import game.entities.creature.Wolf;
 import game.generation.RegionGenerator;
 import game.utils.Geometry;
 
@@ -69,6 +71,10 @@ public class World {
 			for (int i = 0; i < 10; i++) {
 				addEntity(new Bunny(stalinsprite, 1, 1, new Vector2f(10 * i, 0)));
 			}
+			Image wolf = new Image("data/characters/wolf.bmp");
+			wolf = wolf.getScaledCopy(2, 1);
+			addEntity(new Wolf(wolf, 1, 1,
+					new Vector2f(0, 0)));
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
@@ -381,8 +387,14 @@ public class World {
 	}
 
 	public void update(int delta) {
-		for (Entity e : characters) {
+		Iterator<Entity> iter = characters.iterator();
+		while (iter.hasNext()) {
+			Entity e = iter.next();
 			e.update(this, delta);
+
+			if (!e.alive()) {
+				iter.remove();
+			}
 		}
 
 		// collision detection for main character

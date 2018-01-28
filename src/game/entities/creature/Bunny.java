@@ -25,7 +25,6 @@ public class Bunny extends Creature {
 		if (Math.random() < 0.01) {
 			vel.y = -JUMP_STRENGTH;
 			vel.x = 0.1f * (float) ImprovedNoise.noise(-0.1, count++ / 1000.0, 1);
-			System.out.println(vel.x);
 		}
 	}
 }

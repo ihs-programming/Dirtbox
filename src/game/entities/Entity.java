@@ -16,7 +16,7 @@ public class Entity {
 
 	private SpriteSheet spritesheet;
 	private Shape hitbox;
-	private Sprite sprite;
+	protected Sprite sprite;
 	protected Vector2f pos = new Vector2f();
 	protected Vector2f vel = new Vector2f();
 	protected Vector2f accel = new Vector2f();
@@ -122,5 +122,14 @@ public class Entity {
 					"Collision with non rectangles not implemented yet\n" +
 							"	will result in undefined behavior\n");
 		}
+	}
+
+	/**
+	 * Return false if the entity should be deleted.
+	 *
+	 * @return
+	 */
+	public boolean alive() {
+		return true;
 	}
 }
