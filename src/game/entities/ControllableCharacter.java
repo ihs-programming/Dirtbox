@@ -1,7 +1,10 @@
 package game.entities;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
+
+import game.Viewport;
 
 public class ControllableCharacter extends Entity {
 	private static final float SPEED = 0.0085f;
@@ -44,5 +47,19 @@ public class ControllableCharacter extends Entity {
 
 	public void jump() {
 		vel.y = -JUMP;
+	}
+
+	@Override
+	public void draw(Viewport vp) {
+		super.draw(vp);
+		if (Viewport.DEBUG_MODE) {
+			String debugString = String.format("Character position: %f %f\n", pos.x,
+					pos.y);
+			vp.draw(debugString, 20, 30, Color.white);
+			if (lastMovement != null) {
+				vp.draw(String.format("Last movement: %f %f\n", lastMovement.getMinX(),
+						lastMovement.getMinY()), 20, 50, Color.white);
+			}
+		}
 	}
 }

@@ -5,6 +5,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Point;
+import org.newdawn.slick.geom.Polygon;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
@@ -25,6 +26,8 @@ public class Entity {
 	protected Vector2f vel = new Vector2f();
 	protected Vector2f accel = new Vector2f();
 	private float scale = 1f;
+
+	protected Polygon lastMovement;
 
 	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
 			float hitheight, Vector2f pos) {
@@ -88,6 +91,9 @@ public class Entity {
 
 		vp.fill(Geometry.createCircle(new Vector2f(hitbox.getCenter()), .2f),
 				Color.pink);
+		if (lastMovement != null) {
+			vp.fill(lastMovement, Color.red);
+		}
 	}
 
 	public void update(World w, float frametime) {
@@ -125,21 +131,34 @@ public class Entity {
 			// Do nothing
 			// (Point means that there is no hitbox)
 		} else if (hitbox instanceof Rectangle) {
-			Rectangle boundingBox = (Rectangle) hitbox;
-			Vector2f displacement = new Vector2f();
-			Vector2f prevCenter = new Vector2f(charHitbox.getCenter())
-					.add(prevPos).sub(pos).sub(new Vector2f(hitbox.getCenter()));
-			double angle = prevCenter.getTheta();
-
-			System.out.printf("Angle: %f\n", angle);
-			if (angle <= 135 && angle >= 45) {
-				// push player up
-				if (boundingBox.getMinY() < charHitbox.getMaxY()) {
-					displacement.y = -(charHitbox.getMaxY() - boundingBox.getMinY());
+			float[] displacement = new float[2];
+			Vector2f prevDirection = pos.copy().sub(prevPos).negate();
+			float charPoints[] = { charHitbox.getMinX(), charHitbox.getMinY(),
+					charHitbox.getMaxX(), charHitbox.getMaxY() };
+			float hitboxPoints[] = { hitbox.getMinX(), hitbox.getMinY(), hitbox.getMaxX(),
+					hitbox.getMaxY() };
+			// 0 is lower edge
+			for (int i = 0; i < 4; i++) {
+				Polygon edgeMovement = new Polygon();
+				edgeMovement.addPoint(charPoints[i % 4], charPoints[(i + 3) % 4]);
+				edgeMovement.addPoint(charPoints[(i + 2) % 4], charPoints[(i + 3) % 4]);
+				edgeMovement.addPoint(charPoints[(i + 2) % 4] + prevDirection.x,
+						charPoints[(i + 3) % 4] + prevDirection.y);
+				edgeMovement.addPoint(charPoints[i % 4] + prevDirection.x,
+						charPoints[(i + 3) % 4] + prevDirection.y);
+				lastMovement = edgeMovement;
+				Line hitEdge = new Line(hitboxPoints[i % 4], hitboxPoints[(i + 1) % 4],
+						hitboxPoints[(i + 2) % 4], hitboxPoints[(i + 1) % 4]);
+				if (edgeMovement.intersects(hitEdge)) {
+					displacement[(i + 1) % 2] = hitboxPoints[(i + 1) % 4]
+							- charPoints[(i + 3) % 4] - 1e-5f; // 1e-5 helps avoid
+																// numerical precision
+																// errors
 					vel.y = Math.min(vel.y, 0);
 				}
 			}
-			pos.add(displacement);
+
+			pos.add(new Vector2f(displacement));
 		} else {
 			throw new UnsupportedOperationException(
 					"Collision with non rectangles not implemented yet\n" +

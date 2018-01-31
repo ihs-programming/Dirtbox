@@ -72,6 +72,11 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		graphics.draw(s.transform(getDrawTransform()));
 	}
 
+	public void draw(String s, int x, int y, Color c) {
+		graphics.setColor(c);
+		graphics.drawString(s, x, y);
+	}
+
 	public void fill(Shape s, Color c) {
 		graphics.setColor(c);
 		graphics.fill(s.transform(getDrawTransform()));
@@ -80,11 +85,10 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	private void printDebugInfo() {
 		if (DEBUG_MODE) {
 			System.out.println("Debug button pressed, debug mode OFF");
-			DEBUG_MODE = !DEBUG_MODE;
 		} else {
 			System.out.println("Debug button pressed, debug mode ON");
-			DEBUG_MODE = !DEBUG_MODE;
 		}
+		DEBUG_MODE = !DEBUG_MODE;
 	}
 
 	public void setGraphics(Graphics g) {
@@ -233,8 +237,6 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		case Input.KEY_M:
 			MainGameState.playMusic = !MainGameState.playMusic;
 			break;
-		case Input.KEY_F:
-			Viewport.DEBUG_MODE = !Viewport.DEBUG_MODE;
 		default:
 			break;
 		}
