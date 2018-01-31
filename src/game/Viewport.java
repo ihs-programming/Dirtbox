@@ -130,8 +130,8 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	private Transform cacheTransform;
 
 	/**
-	 * Note that this method implicitly depends on getInverseDrawTransform (if
-	 * this method is changed, likely so should getInverseDrawTransform).
+	 * Note that this method implicitly depends on getInverseDrawTransform (if this
+	 * method is changed, likely so should getInverseDrawTransform).
 	 *
 	 * @return transform mapping game position to screen position
 	 */
@@ -159,8 +159,8 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	}
 
 	/**
-	 * Note that this method implicitly depends on getDrawTransform (if this
-	 * method is changed, likely so should getDrawTransform)
+	 * Note that this method implicitly depends on getDrawTransform (if this method
+	 * is changed, likely so should getDrawTransform)
 	 *
 	 * @return transform mapping screen position to game position
 	 */
@@ -212,7 +212,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 			movement.x -= MOVEMENT_FACTOR;
 			break;
 		case Input.KEY_MINUS:
-			if (scaleFactor > 0) {
+			if (scaleFactor > 13) {
 				scaleFactor *= SCALE_DECREASE;
 			}
 			if (DEBUG_MODE) {
@@ -261,7 +261,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	@Override
 	public void mouseWheelMoved(int change) {
 		if (change < 0) {
-			if (scaleFactor > 0) {
+			if (scaleFactor > 13) {
 				scaleFactor *= SCALE_DECREASE;
 			}
 			if (DEBUG_MODE) {
