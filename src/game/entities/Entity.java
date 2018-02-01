@@ -89,9 +89,15 @@ public class Entity {
 		vp.fill(Geometry.createCircle(new Vector2f(hitbox.getCenter()), .2f),
 				Color.pink);
 		if (lastMovement != null) {
+			Color c = new Color(255, 0, 0);
+			int height = 50;
 			for (Polygon element : lastMovement) {
-				if (element != null) {
-					vp.fill(element, Color.red);
+				if (element != null && this instanceof ControllableCharacter) {
+					vp.draw(element, c);
+					vp.fill(Geometry.createCircle(element.getLocation(), 1f), Color.red);
+					vp.draw(String.format("Element location: %f %f", element.getMinX(),
+							element.getMinY()), 10, height, Color.white);
+					height += 20;
 				}
 			}
 		}
@@ -151,8 +157,8 @@ public class Entity {
 						charPoints[(i + 3) % 4] + prevDirection.y);
 
 				// Swaps x and y coordinate
-				float[] prevVal = { prevDirection.x, prevDirection.y };
-				prevDirection.set(prevVal[1], prevVal[0]);
+				// float[] prevVal = { prevDirection.x, prevDirection.y };
+				// prevDirection.set(prevVal[1], prevVal[0]);
 				lastMovement[i] = edgeMovement;
 				Line hitEdge = new Line(hitboxPoints[i % 4], hitboxPoints[(i + 1) % 4],
 						hitboxPoints[(i + 2) % 4], hitboxPoints[(i + 1) % 4]);
@@ -162,10 +168,23 @@ public class Entity {
 						epsilon = -epsilon;
 					}
 					displacement[(i + 1) % 2] += hitboxPoints[(i + 1) % 4]
-							- charPoints[(i + 3) % 4] + epsilon; // 1e-5 helps avoid
+							- charPoints[(i + 3) % 4] + epsilon; // epsilon helps avoid
 																	// numerical precision
 																	// errors
-					vel.y = Math.min(vel.y, 0);
+					switch (i) {
+					case 0: // down
+						vel.y = Math.min(vel.y, 0);
+						break;
+					case 1: // right
+						vel.x = Math.min(vel.x, 0);
+						break;
+					case 2: // up
+						vel.y = Math.max(vel.y, 0);
+						break;
+					case 3: // left
+						vel.x = Math.max(vel.x, 0);
+						break;
+					}
 				}
 			}
 
