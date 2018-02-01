@@ -216,7 +216,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 			movement.x -= MOVEMENT_FACTOR;
 			break;
 		case Input.KEY_MINUS:
-			if (scaleFactor > 0) {
+			if (scaleFactor > 13) {
 				scaleFactor *= SCALE_DECREASE;
 			}
 			if (DEBUG_MODE) {
@@ -265,7 +265,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	@Override
 	public void mouseWheelMoved(int change) {
 		if (change < 0) {
-			if (scaleFactor > 0) {
+			if (scaleFactor > 13) {
 				scaleFactor *= SCALE_DECREASE;
 			}
 			if (DEBUG_MODE) {
