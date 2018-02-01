@@ -8,6 +8,7 @@ import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Polygon;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
+import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
@@ -157,11 +158,18 @@ public class Entity {
 						charPoints[(i + 3) % 4] + prevDirection.y);
 
 				// Swaps x and y coordinate
-				// float[] prevVal = { prevDirection.x, prevDirection.y };
-				// prevDirection.set(prevVal[1], prevVal[0]);
-				lastMovement[i] = edgeMovement;
+				float[] prevVal = { prevDirection.x, prevDirection.y };
+				prevDirection.set(prevVal[1], prevVal[0]);
+
 				Line hitEdge = new Line(hitboxPoints[i % 4], hitboxPoints[(i + 1) % 4],
 						hitboxPoints[(i + 2) % 4], hitboxPoints[(i + 1) % 4]);
+				if (i % 2 == 1) {
+					// reflect across y=x
+					Transform reflect = new Transform(new float[] { 0, 1, 0, 1, 0, 0 });
+					edgeMovement = (Polygon) edgeMovement.transform(reflect);
+					hitEdge = (Line) hitEdge.transform(reflect);
+				}
+				lastMovement[i] = edgeMovement;
 				if (edgeMovement.intersects(hitEdge)) {
 					float epsilon = 1e-5f;
 					if (i == 0 || i == 3) {
