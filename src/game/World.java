@@ -59,8 +59,6 @@ public class World {
 			sunsprite = new Image("data/characters/sunsprite.png");
 			sunsprite.setFilter(Image.FILTER_NEAREST);
 			sunsprite = sunsprite.getScaledCopy(4, 4);
-			Entity suns = new Entity(sunsprite, 1, 1, new Vector2f(0, 0));
-			backgroundsprites.add(suns);
 			Image stalinsprite = new Image("data/characters/stalin.png");
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
