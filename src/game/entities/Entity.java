@@ -18,7 +18,7 @@ import game.utils.Geometry;
 
 public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
-	private static final boolean DEBUG_COLLISION = true;
+	private static final boolean DEBUG_COLLISION = false;
 
 	private SpriteSheet spritesheet;
 	private Shape hitbox;
