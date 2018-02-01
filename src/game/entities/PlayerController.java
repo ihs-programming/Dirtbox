@@ -82,16 +82,20 @@ public class PlayerController implements DefaultMouseListener {
 
 	@Override
 	public void mousePressed(int button, int x, int y) {
-		Vector2f mousePos = this.convertMousePos(x, y);
-		currentBlock = world.getMinedBlock(mousePos);
+		if (button == Input.MOUSE_LEFT_BUTTON) {
+			Vector2f mousePos = this.convertMousePos(x, y);
+			currentBlock = world.getMinedBlock(mousePos);
+		}
 	}
 
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
-		Block nblock = this.getMinedBlock(oldx, oldy);
-		if (nblock != currentBlock) {
-			mineTime = 0;
-			currentBlock = nblock;
+		if (userInput.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
+			Block nblock = this.getMinedBlock(oldx, oldy);
+			if (nblock != currentBlock) {
+				mineTime = 0;
+				currentBlock = nblock;
+			}
 		}
 	}
 
