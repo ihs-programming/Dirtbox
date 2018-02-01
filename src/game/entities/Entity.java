@@ -86,9 +86,6 @@ public class Entity {
 	}
 
 	private void renderMovement(Viewport vp) {
-		Line moveLine = new Line(prevPos, pos);
-		vp.draw(moveLine, Color.green);
-
 		vp.fill(Geometry.createCircle(new Vector2f(hitbox.getCenter()), .2f),
 				Color.pink);
 		if (lastMovement != null) {
@@ -143,6 +140,8 @@ public class Entity {
 					hitbox.getMaxY() };
 			// 0 is lower edge
 			for (int i = 0; i < 4; i++) {
+				// edgeMovement represents area that an edge of the entity hitbox passes
+				// through
 				Polygon edgeMovement = new Polygon();
 				edgeMovement.addPoint(charPoints[i % 4], charPoints[(i + 3) % 4]);
 				edgeMovement.addPoint(charPoints[(i + 2) % 4], charPoints[(i + 3) % 4]);
@@ -150,14 +149,22 @@ public class Entity {
 						charPoints[(i + 3) % 4] + prevDirection.y);
 				edgeMovement.addPoint(charPoints[i % 4] + prevDirection.x,
 						charPoints[(i + 3) % 4] + prevDirection.y);
+
+				// Swaps x and y coordinate
+				float[] prevVal = { prevDirection.x, prevDirection.y };
+				prevDirection.set(prevVal[1], prevVal[0]);
 				lastMovement[i] = edgeMovement;
 				Line hitEdge = new Line(hitboxPoints[i % 4], hitboxPoints[(i + 1) % 4],
 						hitboxPoints[(i + 2) % 4], hitboxPoints[(i + 1) % 4]);
 				if (edgeMovement.intersects(hitEdge)) {
-					displacement[(i + 1) % 2] = hitboxPoints[(i + 1) % 4]
-							- charPoints[(i + 3) % 4] - 1e-5f; // 1e-5 helps avoid
-																// numerical precision
-																// errors
+					float epsilon = 1e-5f;
+					if (i == 0 || i == 3) {
+						epsilon = -epsilon;
+					}
+					displacement[(i + 1) % 2] += hitboxPoints[(i + 1) % 4]
+							- charPoints[(i + 3) % 4] + epsilon; // 1e-5 helps avoid
+																	// numerical precision
+																	// errors
 					vel.y = Math.min(vel.y, 0);
 				}
 			}
