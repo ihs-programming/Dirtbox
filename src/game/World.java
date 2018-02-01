@@ -62,8 +62,8 @@ public class World {
 			Image stalinsprite = new Image("data/characters/stalin.png");
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
-			ControllableCharacter stalin = new ControllableCharacter(stalinsprite, 1, 1,
-					new Vector2f(0, 0));
+			ControllableCharacter stalin = new ControllableCharacter(this, stalinsprite,
+					1, 1, new Vector2f(0, 0));
 			addEntity(stalin);
 
 			for (int i = 0; i < 10; i++) {
@@ -431,7 +431,7 @@ public class World {
 	 * @param gameMouseLocation
 	 * @return
 	 */
-	public Block getMinedBlock(Vector2f gameMouseLocation) {
+	public Block getBlockAtPosition(Vector2f gameMouseLocation) {
 		List<Point> clickLine = rayTrace(getCharacterPosition(), gameMouseLocation);
 		for (Point p : clickLine) {
 			Block b = blocks.get(p);
