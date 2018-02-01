@@ -56,10 +56,6 @@ public class ControllableCharacter extends Entity {
 			String debugString = String.format("Character position: %f %f\n", pos.x,
 					pos.y);
 			vp.draw(debugString, 20, 30, Color.white);
-			if (lastMovement != null) {
-				vp.draw(String.format("Last movement: %f %f\n", lastMovement.getMinX(),
-						lastMovement.getMinY()), 20, 50, Color.white);
-			}
 		}
 	}
 }

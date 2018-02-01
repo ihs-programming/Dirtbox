@@ -27,7 +27,7 @@ public class Entity {
 	protected Vector2f accel = new Vector2f();
 	private float scale = 1f;
 
-	protected Polygon lastMovement;
+	protected Polygon[] lastMovement = new Polygon[4];
 
 	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
 			float hitheight, Vector2f pos) {
@@ -92,7 +92,11 @@ public class Entity {
 		vp.fill(Geometry.createCircle(new Vector2f(hitbox.getCenter()), .2f),
 				Color.pink);
 		if (lastMovement != null) {
-			vp.fill(lastMovement, Color.red);
+			for (Polygon element : lastMovement) {
+				if (element != null) {
+					vp.fill(element, Color.red);
+				}
+			}
 		}
 	}
 
@@ -146,7 +150,7 @@ public class Entity {
 						charPoints[(i + 3) % 4] + prevDirection.y);
 				edgeMovement.addPoint(charPoints[i % 4] + prevDirection.x,
 						charPoints[(i + 3) % 4] + prevDirection.y);
-				lastMovement = edgeMovement;
+				lastMovement[i] = edgeMovement;
 				Line hitEdge = new Line(hitboxPoints[i % 4], hitboxPoints[(i + 1) % 4],
 						hitboxPoints[(i + 2) % 4], hitboxPoints[(i + 1) % 4]);
 				if (edgeMovement.intersects(hitEdge)) {
