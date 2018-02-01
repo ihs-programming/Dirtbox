@@ -29,6 +29,7 @@ public class Entity {
 	private float scale = 1f;
 
 	protected Polygon[] lastMovement = new Polygon[4];
+	private Shape intersectionEdge;
 
 	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
 			float hitheight, Vector2f pos) {
@@ -100,6 +101,9 @@ public class Entity {
 							element.getMinY()), 10, height, Color.white);
 					height += 20;
 				}
+				if (intersectionEdge != null) {
+					vp.draw(intersectionEdge, Color.orange);
+				}
 			}
 		}
 	}
@@ -146,20 +150,30 @@ public class Entity {
 			float hitboxPoints[] = { hitbox.getMinX(), hitbox.getMinY(), hitbox.getMaxX(),
 					hitbox.getMaxY() };
 			// 0 is lower edge
-			for (int i = 0; i < 4; i++) {
+			int[] collisionOrder = { 1, 3, 0, 2 };
+			for (int j = 0; j < 4; j++) {
+				int i = collisionOrder[j];
 				// edgeMovement represents area that an edge of the entity hitbox passes
 				// through
 				Polygon edgeMovement = new Polygon();
 				edgeMovement.addPoint(charPoints[i % 4], charPoints[(i + 3) % 4]);
 				edgeMovement.addPoint(charPoints[(i + 2) % 4], charPoints[(i + 3) % 4]);
-				edgeMovement.addPoint(charPoints[(i + 2) % 4] + prevDirection.x,
-						charPoints[(i + 3) % 4] + prevDirection.y);
-				edgeMovement.addPoint(charPoints[i % 4] + prevDirection.x,
-						charPoints[(i + 3) % 4] + prevDirection.y);
 
-				// Swaps x and y coordinate
-				float[] prevVal = { prevDirection.x, prevDirection.y };
-				prevDirection.set(prevVal[1], prevVal[0]);
+				Vector2f prevDisplacement = prevDirection;
+				if (i % 2 == 1) {
+					// Swaps x and y coordinate
+					float[] prevVal = { prevDirection.x, prevDirection.y };
+					prevDisplacement.set(prevVal[1], prevVal[0]);
+				}
+				edgeMovement.addPoint(charPoints[(i + 2) % 4] + prevDisplacement.x,
+						charPoints[(i + 3) % 4] + prevDisplacement.y);
+				edgeMovement.addPoint(charPoints[i % 4] + prevDisplacement.x,
+						charPoints[(i + 3) % 4] + prevDisplacement.y);
+				if (i % 2 == 1) {
+					// Swaps x and y coordinate
+					float[] prevVal = { prevDirection.x, prevDirection.y };
+					prevDirection.set(prevVal[1], prevVal[0]);
+				}
 
 				Line hitEdge = new Line(hitboxPoints[i % 4], hitboxPoints[(i + 1) % 4],
 						hitboxPoints[(i + 2) % 4], hitboxPoints[(i + 1) % 4]);
@@ -171,6 +185,7 @@ public class Entity {
 				}
 				lastMovement[i] = edgeMovement;
 				if (edgeMovement.intersects(hitEdge)) {
+					intersectionEdge = hitEdge;
 					float epsilon = 1e-5f;
 					if (i == 0 || i == 3) {
 						epsilon = -epsilon;
