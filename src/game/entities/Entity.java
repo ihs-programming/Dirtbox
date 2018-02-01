@@ -18,6 +18,7 @@ import game.utils.Geometry;
 
 public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
+	private static final boolean DEBUG_COLLISION = true;
 
 	private SpriteSheet spritesheet;
 	private Shape hitbox;
@@ -82,7 +83,7 @@ public class Entity {
 	public void draw(Viewport vp) {
 		this.sprite.img = this.spritesheet.getSprite(0, 0).getScaledCopy(scale);
 		vp.draw(this.sprite);
-		if (Viewport.DEBUG_MODE) {
+		if (Viewport.DEBUG_MODE && Entity.DEBUG_COLLISION) {
 			renderMovement(vp);
 		}
 	}
@@ -94,12 +95,14 @@ public class Entity {
 			Color c = new Color(255, 0, 0);
 			int height = 50;
 			for (Polygon element : lastMovement) {
-				if (element != null && this instanceof ControllableCharacter) {
+				if (element != null) {
 					vp.draw(element, c);
-					vp.fill(Geometry.createCircle(element.getLocation(), 1f), Color.red);
-					vp.draw(String.format("Element location: %f %f", element.getMinX(),
-							element.getMinY()), 10, height, Color.white);
-					height += 20;
+					if (this instanceof ControllableCharacter) {
+						vp.draw(String.format("Element location: %f %f",
+								element.getMinX(),
+								element.getMinY()), 10, height, Color.white);
+						height += 20;
+					}
 				}
 				if (intersectionEdge != null) {
 					vp.draw(intersectionEdge, Color.orange);
