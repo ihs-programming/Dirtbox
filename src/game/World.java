@@ -93,10 +93,6 @@ public class World {
 		characters.add(e);
 	}
 
-	public void updateEntities(Viewport vp) {
-		updateSun(vp);
-	}
-
 	private void updateSun(Viewport vp) {
 		sun = new Entity(World.sunsprite, 1, 1, new Vector2f(
 				(float) -(Math
@@ -110,8 +106,7 @@ public class World {
 	}
 
 	public void draw(Viewport vp) {
-
-		updateEntities(vp);
+		updateSun(vp);
 
 		if (Viewport.day) {
 			sun.draw(vp);
