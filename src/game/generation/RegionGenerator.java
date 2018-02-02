@@ -20,7 +20,6 @@ public class RegionGenerator {
 	private static final int CHUNK_HEIGHT = 127;
 	private static final int CHUNK_SIZE = 63;
 	private static final int BEDROCK_LAYER = 127;
-	private static final int CHUNK_BOUNDARY_HEIGHT = (int) (CHUNK_HEIGHT * 0.7);
 
 	/**
 	 * The seed that region generators use. This is static because multiple
