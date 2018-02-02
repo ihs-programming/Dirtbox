@@ -25,7 +25,7 @@ public class ControllableCharacter extends Entity {
 								// with items in the game
 	private float mineTime = 0;
 	private Block currentBlock;
-	private int damage;
+	private int damage = 1;
 
 	protected World world;
 
@@ -74,10 +74,15 @@ public class ControllableCharacter extends Entity {
 		}
 		Block newBlock = world.getBlockAtPosition(position);
 		if (newBlock == null || attackedEntity == null) {
-			if (newBlock == null) {
+			if (newBlock == null && attackedEntity == null) {
+			} else if (newBlock == null) {
+				if (attackedEntity instanceof Creature) {
+					((Creature) attackedEntity).doHit(this, damage);
+				}
 			} else if (attackedEntity == null) {
-
+				mineBlock(newBlock);
 			}
+			return;
 		}
 		Vector2f blockCenter = new Vector2f(newBlock.getHitbox().getCenter());
 		if (attackedEntity == null ||
