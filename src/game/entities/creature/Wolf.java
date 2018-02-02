@@ -10,6 +10,7 @@ import game.entities.Creature;
 import game.entities.Entity;
 
 public class Wolf extends Creature {
+	private int count;
 
 	public Wolf(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
 		super(spritesheet, sheetwidth, sheetheight, pos);
@@ -37,6 +38,9 @@ public class Wolf extends Creature {
 			}
 			if (Math.random() < 0.1) {
 				((Creature) target).doHit(this, 1);
+			}
+			if (Math.random() < 0.01) {
+				vel.y = -Bunny.JUMP_STRENGTH;
 			}
 		}
 
