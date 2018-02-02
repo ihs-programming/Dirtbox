@@ -2,6 +2,7 @@ package game.entities;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
@@ -25,7 +26,7 @@ public class ControllableCharacter extends Entity {
 	private float mineTime = 0;
 	private Block currentBlock;
 
-	private World world;
+	protected World world;
 
 	public ControllableCharacter(World w, Image spritesheet, int sheetwidth,
 			int sheetheight,
@@ -57,6 +58,23 @@ public class ControllableCharacter extends Entity {
 
 	public void jump() {
 		vel.y = -JUMP;
+	}
+
+	public void interact(Vector2f position) {
+		Entity attackedEntity = null;
+		Line characterClick = new Line(pos, position);
+		for (Entity e : world.getEntities()) {
+			if (e.getHitbox().intersects(characterClick) &&
+					(attackedEntity == null ||
+							attackedEntity.getLocation().distance(pos) < e.getLocation()
+									.distance(pos))) {
+
+			}
+		}
+	}
+
+	public void stopInteracting() {
+
 	}
 
 	public void mineBlock(Vector2f position) {

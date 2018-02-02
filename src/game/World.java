@@ -456,4 +456,8 @@ public class World {
 	private int round(float f) {
 		return Math.round(f);
 	}
+
+	public List<Entity> getEntities() {
+		return characters;
+	}
 }

@@ -28,8 +28,7 @@ public class MainGameState implements DefaultGameState {
 		gcInput.addKeyListener(vp);
 		gcInput.addMouseListener(vp);
 		world = new World(gcInput);
-		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp,
-				world);
+		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp);
 	}
 
 	@Override
