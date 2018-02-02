@@ -73,6 +73,12 @@ public class ControllableCharacter extends Entity {
 			}
 		}
 		Block newBlock = world.getBlockAtPosition(position);
+		if (newBlock == null || attackedEntity == null) {
+			if (newBlock == null) {
+			} else if (attackedEntity == null) {
+
+			}
+		}
 		Vector2f blockCenter = new Vector2f(newBlock.getHitbox().getCenter());
 		if (attackedEntity == null ||
 				blockCenter.distance(pos) < attackedEntity.getLocation().distance(pos)) {
