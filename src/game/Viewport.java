@@ -9,6 +9,12 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.utils.DefaultKeyListener;
 
+/**
+ * Handles all drawing in the game. Does not, and should not handle ui drawing
+ *
+ * Useful because it allows the position of the "camera" (viewport) to move
+ * around
+ */
 public class Viewport implements DefaultKeyListener {
 	private Graphics graphics;
 	private Vector2f center = new Vector2f(); // in game units
@@ -20,6 +26,8 @@ public class Viewport implements DefaultKeyListener {
 	private static final float SCALE_INCREASE = 1.2f;
 	private static final float SCALE_DECREASE = 1.0f / 1.2f;
 
+	public static boolean DEBUG_MODE = false;
+
 	public Viewport() {
 
 	}
@@ -30,8 +38,11 @@ public class Viewport implements DefaultKeyListener {
 
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
+
+		// Check if the sprite needs to be drawn
 		Shape resultImageBox = s.getBoundingBox().transform(t);
-		if (getViewShape().contains(resultImageBox) || getViewShape().intersects(resultImageBox)) {
+		if (getViewShape().contains(resultImageBox) || getViewShape().intersects(resultImageBox)
+				|| resultImageBox.contains(getViewShape())) {
 			Vector2f res = t.transform(s.loc.copy());
 			int nw = (int) Math.ceil(s.img.getWidth() * scaleFactor);
 			int nh = (int) Math.ceil(s.img.getHeight() * scaleFactor);
@@ -41,13 +52,21 @@ public class Viewport implements DefaultKeyListener {
 
 	public void draw(Shape s) {
 		Shape resultShape = s.transform(getDrawTransform());
+
+		// Check if the sprite needs to be drawn
 		if (getViewShape().contains(resultShape)) {
 			graphics.draw(s.transform(getDrawTransform()));
 		}
 	}
 
 	private void printDebugInfo() {
-		System.out.println("debug button pressed");
+		if (DEBUG_MODE) {
+			System.out.println("Debug button pressed, debug mode OFF");
+			DEBUG_MODE = !DEBUG_MODE;
+		} else {
+			System.out.println("Debug button pressed, debug mode ON");
+			DEBUG_MODE = !DEBUG_MODE;
+		}
 	}
 
 	public void setGraphics(Graphics g) {
@@ -74,7 +93,7 @@ public class Viewport implements DefaultKeyListener {
 	 * Note that this method implicitly depends on getInverseDrawTransform (if this
 	 * method is changed, likely so should getInverseDrawTransform).
 	 *
-	 * @return
+	 * @return transform mapping game position to screen position
 	 */
 	private Transform getDrawTransform() {
 		Transform t = new Transform();
@@ -92,26 +111,19 @@ public class Viewport implements DefaultKeyListener {
 		return t;
 	}
 
-	public void zoom(float factor) {
-		scaleFactor *= factor;
-	}
-
-	public void setZoom(float factor) {
-		scaleFactor = factor;
-	}
-
 	/**
 	 * Note that this method implicitly depends on getDrawTransform (if this method
 	 * is changed, likely so should getDrawTransform)
 	 *
-	 * @return
+	 * @return transform mapping screen position to game position
 	 */
 	private Transform getInverseDrawTransform() {
 		Transform t = new Transform();
 
 		// Inverted order and transformation of getDrawTransform
 		Transform[] trans = new Transform[] {
-				Transform.createTranslateTransform(-screenDimensions.x / 2, -screenDimensions.y / 2),
+				Transform.createTranslateTransform(-screenDimensions.x / 2,
+						-screenDimensions.y / 2),
 				Transform.createScaleTransform(1f / scaleFactor, 1f / scaleFactor),
 				Transform.createTranslateTransform(center.x, center.y) };
 
@@ -119,6 +131,14 @@ public class Viewport implements DefaultKeyListener {
 			t.concatenate(trans[i]);
 		}
 		return t;
+	}
+
+	public void zoom(float factor) {
+		scaleFactor *= factor;
+	}
+
+	public void setZoom(float factor) {
+		scaleFactor = factor;
 	}
 
 	@Override

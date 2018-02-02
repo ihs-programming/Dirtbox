@@ -4,6 +4,11 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 
+import game.blocks.Block;
+
+/**
+ * Place where all resources should be loaded from
+ */
 public class SpriteSheetLoader {
 	private static final SpriteSheet BLOCK_SHEET = loadSpriteSheet("data/blocks.png", 16, 16);
 

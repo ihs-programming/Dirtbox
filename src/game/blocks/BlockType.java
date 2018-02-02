@@ -1,11 +1,11 @@
-package game;
+package game.blocks;
 
 public enum BlockType {
 	// Align the blocks like this to help git with version control
 	// Git keeps track of what lines change, so keeping blocks on different
 	// lines should reduce merge conflicts)
 	//
-	// Notice also that the blocks are alphabetically ordered...	
+	// Notice also that the blocks are alphabetically ordered...
 	BEDROCK(1, 1),
 	COAL_ORE(2, 2),
 	DIAMOND_ORE(2, 3),
@@ -16,10 +16,14 @@ public enum BlockType {
 	GRASS(3, 0),
 	IRON_ORE(1, 2),
 	REDSTONE_ORE(3, 3),
+	SAND(2, 1),
+	SANDSTONE(0, 11),
 	STONE(1, 0),
 	UNDEFINED(14, 1),
+	WATER(14, 0),
 	WOOD(4, 1);
 
+	// Position on spritesheet (from 0, 0 being the top left block)
 	int sx;
 	int sy;
 

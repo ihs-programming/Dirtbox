@@ -1,4 +1,4 @@
-package game;
+package game.blocks;
 
 import org.newdawn.slick.geom.Shape;
 
@@ -18,5 +18,11 @@ public class Platform extends Block {
 	public Platform(int sx, int sy, float xpos, float ypos) {
 		super(sx, sy, xpos, ypos);
 		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
