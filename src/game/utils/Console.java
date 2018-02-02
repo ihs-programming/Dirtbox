@@ -3,6 +3,7 @@ package game.utils;
 import java.util.Scanner;
 
 import game.Viewport;
+import game.World;
 
 public class Console extends Thread {
 
@@ -13,6 +14,9 @@ public class Console extends Thread {
 		scanner = new Scanner(System.in);
 		System.out.print("Console input: \n");
 		String input = scanner.nextLine();
+
+		// Use the following format for commands which take an input value
+
 		if (input.startsWith("!settime ")) {
 			input = input.replace("!settime ", "");
 			try {
@@ -21,7 +25,25 @@ public class Console extends Thread {
 			} catch (NumberFormatException e) {
 				System.out.println("\"" + input + "\" is not a valid time");
 			}
-		} else {
+		}
+
+		// Use the following format for commands which require no input and instead
+		// return a value
+
+		else if (input.equals("!time")) {
+			System.out.println("Time is: " + Viewport.globaltimer);
+		}
+
+		else if (input.equals("!characters")) {
+			System.out.println("Number of characters: " + World.characters.size());
+		}
+
+		else if (input.equals("!backgroundsprites")) {
+			System.out.println(
+					"Number of background sprites: " + World.backgroundsprites.size());
+		}
+
+		else {
 			System.out.println("\"" + input + "\" is not a recognized command");
 		}
 		return;
