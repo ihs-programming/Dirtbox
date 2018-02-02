@@ -46,9 +46,9 @@ public class PlayerController {
 		if (userInput.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
 			Vector2f blockPos = convertMousePos(userInput.getMouseX(),
 					userInput.getMouseY());
-			character.mineBlock(blockPos);
+			character.interact(blockPos);
 		} else {
-			character.stopMining();
+			character.stopInteracting();
 		}
 	}
 
