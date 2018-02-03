@@ -25,11 +25,11 @@ public abstract class Creature extends Entity {
 
 	public void doHit(Entity aggressor, int damage) {
 		Vector2f dist = getLocation().sub(aggressor.getLocation());
-		timeSinceLastHit = 0f;
 
 		if (dist.length() < 5) {
 			vel.x += dist.normalise().scale(0.01f).x;
 			health -= damage;
+			timeSinceLastHit = 0f;
 		}
 	}
 
