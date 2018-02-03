@@ -4,12 +4,16 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
+import game.items.Inventory;
 import game.utils.DefaultKeyListener;
 
-public class PlayerController {
+public class PlayerController implements DefaultKeyListener {
 	private ControllableCharacter character;
+	private Inventory inventory = new Inventory();
 	private Input userInput;
 	private Viewport vp;
+
+	private boolean showInventory = false;
 
 	public PlayerController(ControllableCharacter character, Input inp, Viewport vp) {
 		this.character = character;
@@ -17,9 +21,6 @@ public class PlayerController {
 		userInput.addKeyListener(new DefaultKeyListener() {
 			@Override
 			public void keyPressed(int key, char c) {
-				if (key == Input.KEY_W) {
-					character.jump();
-				}
 			}
 
 			@Override
@@ -29,14 +30,21 @@ public class PlayerController {
 			}
 
 		});
+		userInput.addKeyListener(this);
 		this.vp = vp;
 	}
 
 	public void draw(Viewport vp) {
+		if (showInventory) {
+			inventory.draw(vp);
+		}
 	}
 
 	public void update(int delta) {
 		character.stopMoving();
+		if (showInventory) {
+			return;
+		}
 		if (userInput.isKeyDown(Input.KEY_A)) {
 			character.move(true);
 		}
@@ -54,5 +62,23 @@ public class PlayerController {
 
 	private Vector2f convertMousePos(int x, int y) {
 		return vp.getInverseDrawTransform().transform(new Vector2f(x, y));
+	}
+
+	@Override
+	public void keyPressed(int key, char c) {
+		switch (key) {
+		case Input.KEY_I:
+			showInventory = !showInventory;
+			break;
+		case Input.KEY_W:
+			if (!showInventory) {
+				character.jump();
+			}
+			break;
+		}
+	}
+
+	@Override
+	public void keyReleased(int key, char c) {
 	}
 }

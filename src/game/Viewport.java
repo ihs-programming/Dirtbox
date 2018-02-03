@@ -201,6 +201,10 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		return center.copy();
 	}
 
+	public Graphics getGraphics() {
+		return graphics;
+	}
+
 	@Override
 	public void keyPressed(int key, char c) {
 		switch (key) {
