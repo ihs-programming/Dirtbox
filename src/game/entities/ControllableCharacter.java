@@ -73,7 +73,7 @@ public class ControllableCharacter extends Entity {
 			}
 			if (e.getHitbox().intersects(characterClick) &&
 					(attackedEntity == null ||
-							attackedEntity.getLocation().distance(pos) < e.getLocation()
+							attackedEntity.getLocation().distance(pos) > e.getLocation()
 									.distance(pos))) {
 				attackedEntity = e;
 			}
