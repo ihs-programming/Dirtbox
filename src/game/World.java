@@ -41,8 +41,8 @@ public class World {
 		return p1.x - p2.x;
 	};
 
-	private ArrayList<Entity> characters;
-	private ArrayList<Entity> backgroundsprites;
+	public static ArrayList<Entity> characters;
+	public static ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
 	private static Image sunsprite;
@@ -112,7 +112,7 @@ public class World {
 			sun.draw(vp);
 		}
 
-		for (Entity e : this.backgroundsprites) {
+		for (Entity e : World.backgroundsprites) {
 			e.draw(vp);
 		}
 
@@ -152,7 +152,7 @@ public class World {
 		for (Point p : visibleBlocks) {
 			blocks.get(p).drawShading(vp);
 		}
-		for (Entity e : this.characters) {
+		for (Entity e : World.characters) {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
