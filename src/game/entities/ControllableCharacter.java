@@ -27,6 +27,9 @@ public class ControllableCharacter extends Entity {
 	private Block currentBlock;
 	private int damage = 1;
 
+	private float totalAttackTime = 250;
+	private float attackCharge = 0f;
+
 	protected World world;
 
 	public ControllableCharacter(World w, Image spritesheet, int sheetwidth,
@@ -80,7 +83,7 @@ public class ControllableCharacter extends Entity {
 			if (newBlock == null && attackedEntity == null) {
 			} else if (newBlock == null) {
 				if (attackedEntity instanceof Creature) {
-					((Creature) attackedEntity).doHit(this, damage);
+					attack((Creature) attackedEntity);
 				}
 			} else if (attackedEntity == null) {
 				mineBlock(newBlock);
@@ -91,8 +94,14 @@ public class ControllableCharacter extends Entity {
 		if (blockCenter.distance(pos) < attackedEntity.getLocation().distance(pos)) {
 			mineBlock(newBlock);
 		} else if (attackedEntity instanceof Creature) {
-			Creature creature = (Creature) attackedEntity;
-			creature.doHit(this, damage);
+			attack((Creature) attackedEntity);
+		}
+	}
+
+	public void attack(Creature c) {
+		if (attackCharge > 1) {
+			c.doHit(this, damage);
+			attackCharge -= 1;
 		}
 	}
 
@@ -137,5 +146,7 @@ public class ControllableCharacter extends Entity {
 				stopMining();
 			}
 		}
+		attackCharge += frametime / totalAttackTime;
+		attackCharge = Math.min(2, attackCharge);
 	}
 }
