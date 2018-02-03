@@ -69,8 +69,8 @@ public class World {
 			for (int i = 0; i < 10; i++) {
 				addEntity(new Bunny(stalinsprite, 1, 1, new Vector2f(10 * i, 0)));
 			}
-			Image wolf = new Image("data/characters/wolf.bmp");
-			wolf = wolf.getScaledCopy(2, 1);
+			Image wolf = new Image("data/characters/woof.png");
+			wolf = wolf.getScaledCopy(1, 1);
 			addEntity(new Wolf(wolf, 1, 1,
 					new Vector2f(0, 0)));
 			controlledCharacter = stalin;
@@ -132,9 +132,9 @@ public class World {
 		new RegionGenerator(viewRect, blocks);
 
 		/*
-		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
-		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
-		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
+		 * The following three lines somehow randomly cause up to 1000 ms of lag
+		 * This is a big issue, as the game otherwise runs quite smoothly.
+		 * Please fix! "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		time = System.currentTimeMillis();
