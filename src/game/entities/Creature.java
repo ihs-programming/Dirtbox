@@ -7,12 +7,15 @@ import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
+import game.World;
 
 public abstract class Creature extends Entity {
 	private final float HEALTH_BAR_HEIGHT = .1f;
 	private final float HEALTH_BAR_DISPLACEMENT = .1f;
+	private final float DAMAGE_FADE_TIME = 250;
 	protected int totalHealth = 20;
 	protected int health;
+	private float timeSinceLastHit;
 
 	public Creature(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
 		super(spritesheet, sheetwidth, sheetheight, pos);
@@ -22,6 +25,7 @@ public abstract class Creature extends Entity {
 
 	public void doHit(Entity aggressor, int damage) {
 		Vector2f dist = getLocation().sub(aggressor.getLocation());
+		timeSinceLastHit = 0f;
 
 		if (dist.length() < 5) {
 			vel.x += dist.normalise().scale(0.01f).x;
@@ -37,6 +41,10 @@ public abstract class Creature extends Entity {
 	@Override
 	public void draw(Viewport vp) {
 		super.draw(vp);
+		Rectangle outline = sprite.getBoundingBox();
+		Color damagedColor = new Color(1, 0, 0,
+				(DAMAGE_FADE_TIME - timeSinceLastHit) / DAMAGE_FADE_TIME);
+		vp.fill(outline, damagedColor);
 		if (Viewport.DEBUG_MODE) {
 			// create health bar
 			Rectangle healthBarOutline = new Rectangle(0, 0, 1, 1);
@@ -48,5 +56,11 @@ public abstract class Creature extends Entity {
 			vp.fill(healthBar.transform(barTransform), Color.red);
 			vp.draw(healthBarOutline.transform(barTransform), Color.white);
 		}
+	}
+
+	@Override
+	public void update(World w, float frametime) {
+		super.update(w, frametime);
+		timeSinceLastHit += frametime;
 	}
 }
