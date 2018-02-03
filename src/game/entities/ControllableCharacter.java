@@ -65,6 +65,9 @@ public class ControllableCharacter extends Entity {
 		Entity attackedEntity = null;
 		Line characterClick = new Line(pos, position);
 		for (Entity e : world.getEntities()) {
+			if (e == this) {
+				continue;
+			}
 			if (e.getHitbox().intersects(characterClick) &&
 					(attackedEntity == null ||
 							attackedEntity.getLocation().distance(pos) < e.getLocation()
@@ -85,10 +88,9 @@ public class ControllableCharacter extends Entity {
 			return;
 		}
 		Vector2f blockCenter = new Vector2f(newBlock.getHitbox().getCenter());
-		if (attackedEntity == null ||
-				blockCenter.distance(pos) < attackedEntity.getLocation().distance(pos)) {
+		if (blockCenter.distance(pos) < attackedEntity.getLocation().distance(pos)) {
 			mineBlock(newBlock);
-		} else if (attackedEntity != null && attackedEntity instanceof Creature) {
+		} else if (attackedEntity instanceof Creature) {
 			Creature creature = (Creature) attackedEntity;
 			creature.doHit(this, damage);
 		}
