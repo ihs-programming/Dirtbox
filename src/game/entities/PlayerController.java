@@ -4,19 +4,15 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
-import game.World;
 import game.utils.DefaultKeyListener;
 
 public class PlayerController {
 	private ControllableCharacter character;
 	private Input userInput;
-	private World world;
 	private Viewport vp;
 
-	public PlayerController(ControllableCharacter character, Input inp, Viewport vp,
-			World world) {
+	public PlayerController(ControllableCharacter character, Input inp, Viewport vp) {
 		this.character = character;
-		this.world = world;
 		userInput = inp;
 		userInput.addKeyListener(new DefaultKeyListener() {
 			@Override
@@ -48,11 +44,11 @@ public class PlayerController {
 			character.move(false);
 		}
 		if (userInput.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
-			Vector2f blockPos = convertMousePos(userInput.getMouseX(),
+			Vector2f mousePos = convertMousePos(userInput.getMouseX(),
 					userInput.getMouseY());
-			character.mineBlock(blockPos);
+			character.interact(mousePos);
 		} else {
-			character.stopMining();
+			character.stopInteracting();
 		}
 	}
 

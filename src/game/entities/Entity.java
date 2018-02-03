@@ -52,7 +52,6 @@ public class Entity {
 	public Entity(SpriteSheet sheet, Vector2f pos) {
 		this.pos = pos.copy();
 		this.setSpriteSheet(sheet);
-		this.generateHitbox();
 	}
 
 	public void setSpriteSheet(SpriteSheet sheet) {
@@ -62,10 +61,8 @@ public class Entity {
 	}
 
 	public void setSpriteSheet(Image sheet, int width, int height) {
-		this.spritesheet = new SpriteSheet(sheet, sheet.getWidth() / width,
-				sheet.getHeight() / height);
-		this.sprite = new Sprite(this.spritesheet.getSprite(0, 0));
-		this.sprite.loc = pos;
+		setSpriteSheet(new SpriteSheet(sheet, sheet.getWidth() / width,
+				sheet.getHeight() / height));
 	}
 
 	public Shape getHitbox() {
