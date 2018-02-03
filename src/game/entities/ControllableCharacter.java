@@ -2,6 +2,7 @@ package game.entities;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
@@ -24,8 +25,12 @@ public class ControllableCharacter extends Entity {
 								// with items in the game
 	private float mineTime = 0;
 	private Block currentBlock;
+	private int damage = 1;
 
-	private World world;
+	private float totalAttackTime = 250;
+	private float attackCharge = 0f;
+
+	protected World world;
 
 	public ControllableCharacter(World w, Image spritesheet, int sheetwidth,
 			int sheetheight,
@@ -59,8 +64,52 @@ public class ControllableCharacter extends Entity {
 		vel.y = -JUMP;
 	}
 
-	public void mineBlock(Vector2f position) {
+	public void interact(Vector2f position) {
+		Entity attackedEntity = null;
+		Line characterClick = new Line(pos, position);
+		for (Entity e : world.getEntities()) {
+			if (e == this) {
+				continue;
+			}
+			if (e.getHitbox().intersects(characterClick) &&
+					(attackedEntity == null ||
+							attackedEntity.getLocation().distance(pos) > e.getLocation()
+									.distance(pos))) {
+				attackedEntity = e;
+			}
+		}
 		Block newBlock = world.getBlockAtPosition(position);
+		if (newBlock == null || attackedEntity == null) {
+			if (newBlock == null && attackedEntity == null) {
+			} else if (newBlock == null) {
+				if (attackedEntity instanceof Creature) {
+					attack((Creature) attackedEntity);
+				}
+			} else if (attackedEntity == null) {
+				mineBlock(newBlock);
+			}
+			return;
+		}
+		Vector2f blockCenter = new Vector2f(newBlock.getHitbox().getCenter());
+		if (blockCenter.distance(pos) < attackedEntity.getLocation().distance(pos)) {
+			mineBlock(newBlock);
+		} else if (attackedEntity instanceof Creature) {
+			attack((Creature) attackedEntity);
+		}
+	}
+
+	public void attack(Creature c) {
+		if (attackCharge > 1) {
+			c.doHit(this, damage);
+			attackCharge -= 1;
+		}
+	}
+
+	public void stopInteracting() {
+		stopMining();
+	}
+
+	public void mineBlock(Block newBlock) {
 		if (newBlock == null || newBlock.getPos().distance(pos) > reach) {
 			stopMining();
 			return;
@@ -97,5 +146,7 @@ public class ControllableCharacter extends Entity {
 				stopMining();
 			}
 		}
+		attackCharge += frametime / totalAttackTime;
+		attackCharge = Math.min(2, attackCharge);
 	}
 }

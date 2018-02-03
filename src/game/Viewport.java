@@ -8,6 +8,7 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.utils.Console;
 import game.utils.DefaultKeyListener;
 import game.utils.DefaultMouseListener;
 
@@ -36,7 +37,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	static long timerupdate = 0;
 
 	public static boolean day = true;
-	public static boolean DEBUG_MODE = true;
+	public static boolean DEBUG_MODE = false;
 
 	public Viewport() {
 
@@ -233,6 +234,10 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 			break;
 		case Input.KEY_P:
 			printDebugInfo();
+			break;
+		case Input.KEY_F1:
+			Thread console = new Console();
+			console.start();
 			break;
 		case Input.KEY_M:
 			MainGameState.playMusic = !MainGameState.playMusic;
