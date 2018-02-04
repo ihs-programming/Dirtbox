@@ -31,7 +31,8 @@ public class BlockUpdates {
 			Point p = iter.next();
 			Point above = new Point(p.x, p.y - 1);
 			if (blocks.containsKey(above) && blocks.containsKey(p)) {
-				if (blocks.get(p).type == BlockType.EMPTY) {
+				if (blocks.get(p).type == BlockType.EMPTY
+						|| blocks.get(p) instanceof LiquidBlock) {
 					Block onTop = blocks.get(above);
 					if (onTop.type == BlockType.WATER || onTop.type == BlockType.SAND) {
 						swapBlocks(blocks, p, above);
@@ -59,14 +60,16 @@ public class BlockUpdates {
 				// supposed to tho.
 				Optional<Block> under = Optional.of(blocks.get(new Point(p.x, p.y + 1)))
 						.filter(block -> block.type == BlockType.EMPTY);
+				// First try flowing under
 				if (under.isPresent()) {
 					swapBlocks(blocks, p, new Point(p.x, p.y + 1));
 					addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 				} else {
+					// Flow to the left
 					Point curr = new Point(p.x - 1, p.y);
 					Point currBot = new Point(p.x - 1, p.y + 1);
 					while (blocks.containsKey(curr) && blocks.containsKey(currBot)) {
-						if (blocks.get(curr).type != BlockType.EMPTY) {
+						if (!flowThrough(blocks.get(curr))) {
 							break;
 						}
 						if (blocks.get(currBot).type == BlockType.EMPTY) {
@@ -75,15 +78,15 @@ public class BlockUpdates {
 						curr.x--;
 						currBot.x--;
 					}
-					if (blocks.containsKey(currBot)
-							&& blocks.get(currBot).type == BlockType.EMPTY) {
+					if (blocks.containsKey(curr) && flowThrough(blocks.get(curr))) {
 						swapBlocks(blocks, p, new Point(p.x - 1, p.y));
 						addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 					} else {
+						// Try flowing to the right
 						curr = new Point(p.x + 1, p.y);
 						currBot = new Point(p.x + 1, p.y + 1);
 						while (blocks.containsKey(curr) && blocks.containsKey(currBot)) {
-							if (blocks.get(curr).type != BlockType.EMPTY) {
+							if (!flowThrough(blocks.get(curr))) {
 								break;
 							}
 							if (blocks.get(currBot).type == BlockType.EMPTY) {
@@ -92,8 +95,7 @@ public class BlockUpdates {
 							curr.x++;
 							currBot.x++;
 						}
-						if (blocks.containsKey(currBot)
-								&& blocks.get(currBot).type == BlockType.EMPTY) {
+						if (blocks.containsKey(curr) && flowThrough(blocks.get(curr))) {
 							swapBlocks(blocks, p, new Point(p.x + 1, p.y));
 							addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 						}
@@ -106,16 +108,18 @@ public class BlockUpdates {
 		changedBlocks.addAll(queue);
 	}
 
+	private static boolean flowThrough(Block b) {
+		return b instanceof LiquidBlock || b.type == BlockType.EMPTY;
+	}
+
 	private static void swapBlocks(TreeMap<Point, Block> blocks, Point a, Point b) {
 		if (blocks.containsKey(a) && blocks.containsKey(b)) {
 			Block first = blocks.get(a);
 			Block second = blocks.get(b);
-			if (first.type == BlockType.EMPTY || second.type == BlockType.EMPTY) {
-				Vector2f oriPos = first.getPos();
-				Vector2f newPos = second.getPos();
-				blocks.put(a, Block.createBlock(second.type, oriPos.x, oriPos.y));
-				blocks.put(b, Block.createBlock(first.type, newPos.x, newPos.y));
-			}
+			Vector2f oriPos = first.getPos();
+			Vector2f newPos = second.getPos();
+			blocks.put(a, Block.createBlock(second.type, oriPos.x, oriPos.y));
+			blocks.put(b, Block.createBlock(first.type, newPos.x, newPos.y));
 		}
 	}
 
