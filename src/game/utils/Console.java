@@ -8,8 +8,8 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import game.Viewport;
-import game.World;
 import game.entities.ControllableCharacter;
+import game.world.World;
 
 public class Console extends Thread {
 

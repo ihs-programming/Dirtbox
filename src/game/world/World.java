@@ -1,4 +1,4 @@
-package game;
+package game.world;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.LiquidBlock;
@@ -34,7 +35,7 @@ import game.generation.RegionGenerator;
 import game.utils.Geometry;
 
 public class World {
-	static final double DAY_NIGHT_DURATION = 1200000.0;
+	public static final double DAY_NIGHT_DURATION = 1200000.0;
 	private static final Comparator<Point> pointComparer = (p1, p2) -> {
 		if (p1.x == p2.x) {
 			return p1.y - p2.y;

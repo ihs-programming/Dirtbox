@@ -6,8 +6,8 @@ import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
-import game.World;
 import game.blocks.Block;
+import game.world.World;
 
 public class ControllableCharacter extends Entity {
 	public static boolean flying = false;

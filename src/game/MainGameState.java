@@ -9,6 +9,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import game.entities.PlayerController;
 import game.utils.DefaultGameState;
+import game.world.World;
 
 public class MainGameState implements DefaultGameState {
 	public static boolean playMusic = false;

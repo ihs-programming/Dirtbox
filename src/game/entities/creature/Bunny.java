@@ -3,9 +3,9 @@ package game.entities.creature;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
-import game.World;
 import game.entities.Creature;
 import game.utils.ImprovedNoise;
+import game.world.World;
 
 public class Bunny extends Creature {
 	public static final float JUMP_STRENGTH = 0.008f;

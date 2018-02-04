@@ -5,9 +5,9 @@ import java.util.Set;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
-import game.World;
 import game.entities.Creature;
 import game.entities.Entity;
+import game.world.World;
 
 public class Wolf extends Creature {
 

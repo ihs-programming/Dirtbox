@@ -7,7 +7,7 @@ import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
-import game.World;
+import game.world.World;
 
 public abstract class Creature extends Entity {
 	private final float HEALTH_BAR_HEIGHT = .1f;
