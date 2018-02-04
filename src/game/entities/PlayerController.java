@@ -90,7 +90,6 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 		if (button == Input.MOUSE_LEFT_BUTTON && showInventory) {
 			Point invLoc = inventory
 					.convertScreenPosToInventoryItem(new Vector2f(x, y));
-			System.out.println(invLoc);
 			if (invLoc == null) {
 				// ensure that invLoc is nonnull in rest of the branches
 			} else if (heldItem == null) {
