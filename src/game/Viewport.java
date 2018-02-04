@@ -7,6 +7,7 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.utils.Chat;
 import game.world.World;
 
 /**
@@ -37,6 +38,8 @@ public class Viewport {
 
 	public static boolean day = true;
 	public static boolean DEBUG_MODE = false;
+
+	public final Chat chat = new Chat();
 
 	public Viewport() {
 	}
@@ -104,6 +107,10 @@ public class Viewport {
 		timerupdate = System.currentTimeMillis();
 	}
 
+	public void renderChat() {
+		draw(chat.getMessage(), 5, 500, Color.black);
+	}
+
 	public void setScreenCenter(Vector2f center) {
 		screenDimensions.set(center.copy().scale(2f));
 
@@ -119,8 +126,8 @@ public class Viewport {
 	}
 
 	/**
-	 * Note that this method implicitly depends on getInverseDrawTransform (if this
-	 * method is changed, likely so should getInverseDrawTransform).
+	 * Note that this method implicitly depends on getInverseDrawTransform (if
+	 * this method is changed, likely so should getInverseDrawTransform).
 	 *
 	 * @return transform mapping game position to screen position
 	 */
@@ -148,8 +155,8 @@ public class Viewport {
 	}
 
 	/**
-	 * Note that this method implicitly depends on getDrawTransform (if this method
-	 * is changed, likely so should getDrawTransform)
+	 * Note that this method implicitly depends on getDrawTransform (if this
+	 * method is changed, likely so should getDrawTransform)
 	 *
 	 * @return transform mapping screen position to game position
 	 */

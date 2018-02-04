@@ -34,8 +34,7 @@ public class Console extends Thread {
 		frame.pack();
 	}
 
-	private void doCommand(String input) {
-		commandLine.setText("");
+	public static void doCommand(String input) {
 		if (input.startsWith("!settime ")) {
 			input = input.replace("!settime ", "");
 			try {

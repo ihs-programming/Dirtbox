@@ -165,6 +165,8 @@ public class World {
 			// renderHitboxes(vp);
 			// renderMouseRaytrace(vp);
 		}
+
+		vp.renderChat();
 	}
 
 	private void renderMouseRaytrace(Viewport vp) {

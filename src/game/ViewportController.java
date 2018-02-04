@@ -38,27 +38,36 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 		vp.move(movement);
 	}
 
+	private boolean inChat = false;
+
 	@Override
 	public void keyPressed(int key, char c) {
-		switch (key) {
-		case Input.KEY_MINUS:
-			vp.zoom(SCALE_DECREASE);
-			break;
-		case Input.KEY_EQUALS:
-			vp.zoom(SCALE_INCREASE);
-			break;
-		case Input.KEY_P:
-			vp.printDebugInfo();
-			break;
-		case Input.KEY_F1:
-			Thread console = new Console();
-			console.start();
-			break;
-		case Input.KEY_M:
-			MainGameState.playMusic = !MainGameState.playMusic;
-			break;
-		default:
-			break;
+		if (inChat) {
+			inChat = vp.chat.keyPressed(key, c);
+		} else {
+			switch (key) {
+			case Input.KEY_MINUS:
+				vp.zoom(SCALE_DECREASE);
+				break;
+			case Input.KEY_EQUALS:
+				vp.zoom(SCALE_INCREASE);
+				break;
+			case Input.KEY_P:
+				vp.printDebugInfo();
+				break;
+			case Input.KEY_T:
+				inChat = true;
+				break;
+			case Input.KEY_F1:
+				Thread console = new Console();
+				console.start();
+				break;
+			case Input.KEY_M:
+				MainGameState.playMusic = !MainGameState.playMusic;
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
