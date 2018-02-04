@@ -30,11 +30,31 @@ public class InventoryItem {
 		return false;
 	}
 
+	public void addItem() {
+		number++;
+	}
+
 	public Image getIcon() {
 		return item.getIcon();
 	}
 
 	public int getCount() {
 		return number;
+	}
+
+	public Item getItem() {
+		return item;
+	}
+
+	public boolean remove() {
+		if (number == 0) {
+			return false;
+		}
+		number--;
+		return true;
+	}
+
+	public boolean isEmpty() {
+		return number == 0;
 	}
 }

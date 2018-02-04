@@ -1,36 +1,30 @@
 package game.entities;
 
+import java.awt.Point;
+
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
 import game.items.Inventory;
+import game.items.Item;
 import game.utils.DefaultKeyListener;
+import game.utils.DefaultMouseListener;
 
-public class PlayerController implements DefaultKeyListener {
+public class PlayerController implements DefaultKeyListener, DefaultMouseListener {
 	private ControllableCharacter character;
 	private Inventory inventory = new Inventory();
 	private Input userInput;
 	private Viewport vp;
 
 	private boolean showInventory = false;
+	private Item heldItem;
 
 	public PlayerController(ControllableCharacter character, Input inp, Viewport vp) {
 		this.character = character;
 		userInput = inp;
-		userInput.addKeyListener(new DefaultKeyListener() {
-			@Override
-			public void keyPressed(int key, char c) {
-			}
-
-			@Override
-			public void keyReleased(int key, char c) {
-				// TODO Auto-generated method stub
-
-			}
-
-		});
 		userInput.addKeyListener(this);
+		userInput.addMouseListener(this);
 		this.vp = vp;
 	}
 
@@ -80,5 +74,41 @@ public class PlayerController implements DefaultKeyListener {
 
 	@Override
 	public void keyReleased(int key, char c) {
+	}
+
+	@Override
+	public void mouseClicked(int button, int x, int y, int clickCount) {
+		if (button == Input.MOUSE_LEFT_BUTTON && showInventory) {
+			Point invLoc = inventory
+					.convertScreenPosToInventoryItem(new Vector2f(x, y));
+			System.out.println(invLoc);
+			if (invLoc == null) {
+				// ensure that invLoc is nonnull in rest of the branches
+			} else if (heldItem == null) {
+				if (invLoc != null) {
+					heldItem = inventory.getItem(invLoc);
+					inventory.removeItem(invLoc);
+				}
+			} else {
+				inventory.addItem(heldItem, invLoc);
+			}
+		}
+	}
+
+	@Override
+	public void inputEnded() {
+	}
+
+	@Override
+	public boolean isAcceptingInput() {
+		return true;
+	}
+
+	@Override
+	public void inputStarted() {
+	}
+
+	@Override
+	public void setInput(Input inp) {
 	}
 }

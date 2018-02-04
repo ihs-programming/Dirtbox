@@ -1,8 +1,11 @@
 package game.items;
 
+import java.awt.Point;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -15,8 +18,16 @@ public class Inventory {
 	private InventoryConfig config = new InventoryConfig();
 	private InventoryItem items[][] = new InventoryItem[config.numSlotsWide][config.numSlotsHigh];
 
+	private Image clickableArea; // for debugging purposes only
+
 	public Inventory() {
 		addItem(new BlockItem(Block.createBlock(BlockType.COAL_ORE, 0, 0)));
+		try {
+			clickableArea = new Image(1000, 1000);
+			drawClickableArea(clickableArea);
+		} catch (SlickException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void addItem(Item item) {
@@ -34,9 +45,43 @@ public class Inventory {
 			for (int j = 0; j < items[i].length; j++) {
 				if (items[i][j] == null) {
 					items[i][j] = new InventoryItem(item);
-					items[i][j].addItem(item);
+					items[i][j].addItem();
 					return;
 				}
+			}
+		}
+	}
+
+	/**
+	 * Attempts to add item to specified position slot
+	 *
+	 * Note that this method will silently fail if the item to add does not match
+	 * the item already in the slot
+	 *
+	 * @param item
+	 * @param pos
+	 */
+	public void addItem(Item item, Point pos) {
+		int i = pos.x, j = pos.y;
+		if (items[i][j] == null) {
+			items[i][j] = new InventoryItem(item);
+			items[i][j].addItem();
+		} else {
+			items[i][j].addItem(item);
+		}
+	}
+
+	/**
+	 * Removes one item stored in the slot at pos
+	 *
+	 * @param pos
+	 */
+	public void removeItem(Point pos) {
+		InventoryItem item = items[pos.x][pos.y];
+		if (item != null) {
+			item.remove();
+			if (item.isEmpty()) {
+				items[pos.x][pos.y] = null;
 			}
 		}
 	}
@@ -45,6 +90,7 @@ public class Inventory {
 		Graphics g = vp.getGraphics();
 		drawOverlay(g);
 		drawItems(g);
+		g.drawImage(clickableArea, 0, 0);
 	}
 
 	private void drawOverlay(Graphics g) {
@@ -87,6 +133,59 @@ public class Inventory {
 							numPos.x, numPos.y);
 				}
 			}
+		}
+	}
+
+	public Point convertScreenPosToInventoryItem(Vector2f pos) {
+		Vector2f invPos = pos.copy().sub(config.location);
+		float slotSpace = config.slotMargin + config.slotSize;
+		int x = (int) (invPos.x / slotSpace);
+		int y = (int) (invPos.y / slotSpace);
+		if (x >= config.numSlotsWide || x < 0 || y >= config.numSlotsHigh || y < 0) {
+			return null;
+		}
+		Vector2f slotPos = new Vector2f(pos.x % slotSpace, pos.y % slotSpace);
+		if (Math.max(slotPos.x, slotPos.y) > config.slotSize) {
+			return null;
+		}
+		return new Point(x, y);
+	}
+
+	public Item getItem(Point pos) {
+		try {
+			InventoryItem invItem = items[pos.x][pos.y];
+			if (invItem == null) {
+				return null;
+			}
+			return invItem.getItem();
+		} catch (ArrayIndexOutOfBoundsException e) {
+			// shady method to ensure the position is in bounds
+			return null;
+		}
+	}
+
+	/**
+	 * Draws white where a region is clickable onto the image (passed as parameter)
+	 *
+	 * @param img
+	 */
+	private void drawClickableArea(Image img) {
+		try {
+			Graphics g = img.getGraphics();
+			for (int i = 0; i < img.getWidth(); i++) {
+				for (int j = 0; j < img.getHeight(); j++) {
+					int transparency;
+					if (convertScreenPosToInventoryItem(new Vector2f(i, j)) == null) {
+						g.setColor(new Color(255, 255, 255, 128));
+					} else {
+						g.setColor(new Color(0, 0, 0, 128));
+					}
+					g.fillRect(i, j, 1, 1);
+				}
+			}
+			g.destroy();
+		} catch (SlickException e) {
+			e.printStackTrace();
 		}
 	}
 }
