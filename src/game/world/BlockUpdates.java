@@ -3,7 +3,9 @@ package game.world;
 import java.awt.Point;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -55,10 +57,47 @@ public class BlockUpdates {
 			if (b instanceof LiquidBlock) {
 				// Hmm.. Might as well use it? This probably isn't how you're
 				// supposed to tho.
-				Optional<Block> under = Optional.of(blocks.get(new Point(p.x, p.y + 1)));
+				Optional<Block> under = Optional.of(blocks.get(new Point(p.x, p.y + 1)))
+						.filter(block -> block.type == BlockType.EMPTY);
 				if (under.isPresent()) {
 					swapBlocks(blocks, p, new Point(p.x, p.y + 1));
-					addAround(queue, p);
+					addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
+				} else {
+					Point curr = new Point(p.x - 1, p.y);
+					Point currBot = new Point(p.x - 1, p.y + 1);
+					while (blocks.containsKey(curr) && blocks.containsKey(currBot)) {
+						if (blocks.get(curr).type != BlockType.EMPTY) {
+							break;
+						}
+						if (blocks.get(currBot).type == BlockType.EMPTY) {
+							break;
+						}
+						curr.x--;
+						currBot.x--;
+					}
+					if (blocks.containsKey(currBot)
+							&& blocks.get(currBot).type == BlockType.EMPTY) {
+						swapBlocks(blocks, p, new Point(p.x - 1, p.y));
+						addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
+					} else {
+						curr = new Point(p.x + 1, p.y);
+						currBot = new Point(p.x + 1, p.y + 1);
+						while (blocks.containsKey(curr) && blocks.containsKey(currBot)) {
+							if (blocks.get(curr).type != BlockType.EMPTY) {
+								break;
+							}
+							if (blocks.get(currBot).type == BlockType.EMPTY) {
+								break;
+							}
+							curr.x++;
+							currBot.x++;
+						}
+						if (blocks.containsKey(currBot)
+								&& blocks.get(currBot).type == BlockType.EMPTY) {
+							swapBlocks(blocks, p, new Point(p.x + 1, p.y));
+							addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
+						}
+					}
 				}
 			}
 		}
@@ -78,6 +117,31 @@ public class BlockUpdates {
 				blocks.put(b, Block.createBlock(first.type, newPos.x, newPos.y));
 			}
 		}
+	}
+
+	private static void addAllAdjacentWater(TreeMap<Point, Block> blocks, Point start,
+			Set<Point> queue) {
+		Queue<Point> all = new LinkedList<>();
+		HashSet<Point> ret = new HashSet<>();
+
+		all.add(start);
+		while (!all.isEmpty()) {
+			Point curr = all.poll();
+			int[][] cardinalDirections = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+			for (int[] dir : cardinalDirections) {
+				Point next = new Point(curr.x + dir[0], curr.y + dir[1]);
+
+				if (!ret.contains(next)) {
+					if (blocks.containsKey(next)) {
+						if (blocks.get(next) instanceof LiquidBlock) {
+							all.add(next);
+							ret.add(next);
+						}
+					}
+				}
+			}
+		}
+		queue.addAll(ret);
 	}
 
 	private static void addAround(Set<Point> queue, Point p) {
