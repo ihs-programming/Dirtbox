@@ -10,6 +10,7 @@ import game.World;
 import game.blocks.Block;
 
 public class ControllableCharacter extends Entity {
+	public static boolean flying = false;
 	private static final float SPEED = 0.0085f;
 	private static final float JUMP = 0.012f;
 	// 1 block = 1 m^2, 1 block = 16 px,
@@ -21,7 +22,8 @@ public class ControllableCharacter extends Entity {
 	// -2.613px/frame
 
 	public static final float BLOCK_MINE_TIME = 10.0f;
-	private float reach = 5f; // distance (in game units) in which the player can interact
+	private float reach = 5f; // distance (in game units) in which the player
+								// can interact
 								// with items in the game
 	private float mineTime = 0;
 	private Block currentBlock;
@@ -46,10 +48,11 @@ public class ControllableCharacter extends Entity {
 	 * @param isLeft
 	 */
 	public void move(boolean isLeft) {
+		float move = (flying ? 10 : 1) * SPEED;
 		if (isLeft) {
-			vel.x = -SPEED;
+			vel.x = -move;
 		} else {
-			vel.x = SPEED;
+			vel.x = move;
 		}
 	}
 

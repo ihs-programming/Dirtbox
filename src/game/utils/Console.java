@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import game.Viewport;
 import game.World;
+import game.entities.ControllableCharacter;
 
 public class Console extends Thread {
 
@@ -27,7 +28,8 @@ public class Console extends Thread {
 			}
 		}
 
-		// Use the following format for commands which require no input and instead
+		// Use the following format for commands which require no input and
+		// instead
 		// return a value
 
 		else if (input.equals("!time")) {
@@ -41,6 +43,8 @@ public class Console extends Thread {
 		else if (input.equals("!backgroundsprites")) {
 			System.out.println(
 					"Number of background sprites: " + World.backgroundsprites.size());
+		} else if (input.equals("!fly")) {
+			ControllableCharacter.flying = !ControllableCharacter.flying;
 		}
 
 		else {
