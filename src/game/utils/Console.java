@@ -1,6 +1,11 @@
 package game.utils;
 
+import java.awt.Dimension;
 import java.util.Scanner;
+
+import javax.swing.JFrame;
+import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import game.Viewport;
 import game.World;
@@ -12,12 +17,28 @@ public class Console extends Thread {
 
 	@Override
 	public void run() {
-		scanner = new Scanner(System.in);
-		System.out.print("Console input: \n");
-		String input = scanner.nextLine();
+		frame.setVisible(true);
 
-		// Use the following format for commands which take an input value
+		return;
+	}
 
+	private JFrame frame;
+	private JTextField commandLine;
+
+	public Console() {
+		frame = new JFrame();
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+		commandLine = new JTextField();
+		commandLine.addActionListener((e) -> doCommand(commandLine.getText()));
+
+		commandLine.setPreferredSize(new Dimension(100, 20));
+		frame.add(commandLine);
+		frame.pack();
+	}
+
+	private void doCommand(String input) {
+		commandLine.setText("");
 		if (input.startsWith("!settime ")) {
 			input = input.replace("!settime ", "");
 			try {
@@ -50,10 +71,6 @@ public class Console extends Thread {
 		else {
 			System.out.println("\"" + input + "\" is not a recognized command");
 		}
-		return;
-	}
-
-	public Console() {
 	}
 
 }
