@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
-import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeMap;
@@ -53,6 +52,11 @@ public class World {
 	private Input userInp = null; // used only for debugging purposes currently
 
 	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
+
+	/**
+	 * A set of blocks that have been changed, and thus require updating.
+	 */
+	private Set<Point> changedBlocks = new HashSet<Point>();
 
 	public World() {
 		characters = new ArrayList<>();
@@ -352,73 +356,6 @@ public class World {
 		}
 	}
 
-	private Set<Point> changedBlocks = new HashSet<Point>();
-
-	private void propagateFallingBlocks(HashSet<Point> queue) {
-
-		Iterator<Point> iter = changedBlocks.iterator();
-		while (iter.hasNext()) {
-			Point p = iter.next();
-			Point above = new Point(p.x, p.y - 1);
-			if (blocks.containsKey(above) && blocks.containsKey(p)) {
-				if (blocks.get(p).type == BlockType.EMPTY) {
-					Block onTop = blocks.get(above);
-					if (onTop.type == BlockType.WATER || onTop.type == BlockType.SAND) {
-						swapBlocks(p, above);
-
-						addAround(queue, p);
-					}
-				}
-			}
-		}
-	}
-
-	private void propagateLiquids() {
-		HashSet<Point> queue = new HashSet<>();
-		propagateFallingBlocks(queue);
-
-		HashSet<Point> possibleLiquids = new HashSet<>();
-		for (Point p : changedBlocks) {
-			addAround(possibleLiquids, p);
-		}
-		for (Point p : possibleLiquids) {
-			Block b = blocks.get(p);
-			if (b instanceof LiquidBlock) {
-				// Hmm.. Might as well use it? This probably isn't how you're
-				// supposed to tho.
-				Optional<Block> under = Optional.of(blocks.get(new Point(p.x, p.y + 1)));
-				if (under.isPresent()) {
-					swapBlocks(p, new Point(p.x, p.y + 1));
-					addAround(queue, p);
-				}
-			}
-		}
-
-		changedBlocks = queue;
-
-	}
-
-	private void swapBlocks(Point a, Point b) {
-		if (blocks.containsKey(a) && blocks.containsKey(b)) {
-			Block first = blocks.get(a);
-			Block second = blocks.get(b);
-			if (first.type == BlockType.EMPTY || second.type == BlockType.EMPTY) {
-				Vector2f oriPos = first.getPos();
-				Vector2f newPos = second.getPos();
-				blocks.put(a, Block.createBlock(second.type, oriPos.x, oriPos.y));
-				blocks.put(b, Block.createBlock(first.type, newPos.x, newPos.y));
-			}
-		}
-	}
-
-	private void addAround(Set<Point> queue, Point p) {
-		for (int i = -1; i <= 1; i++) {
-			for (int z = -1; z <= 1; z++) {
-				queue.add(new Point(p.x + i, p.y + z));
-			}
-		}
-	}
-
 	public List<Point> getVisibleBlockLocations(Rectangle view) {
 		ArrayList<Point> blockLocs = new ArrayList<>();
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
@@ -455,7 +392,7 @@ public class World {
 			}
 		}
 
-		propagateLiquids();
+		BlockUpdates.propagateLiquids(changedBlocks, blocks);
 
 		// collision detection for main character
 		for (Entity e : characters) {
