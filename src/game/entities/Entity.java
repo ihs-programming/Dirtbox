@@ -66,7 +66,12 @@ public class Entity {
 	}
 
 	public Shape getHitbox() {
-		generateHitbox();
+		if (this.hitbox == null) {
+			generateHitbox();
+		} else {
+			hitbox.setX(pos.x);
+			hitbox.setY(pos.y);
+		}
 		return this.hitbox;
 	}
 
