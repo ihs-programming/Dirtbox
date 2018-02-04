@@ -102,7 +102,7 @@ public class RegionGenerator {
 		long chunkgenerationtime = System.nanoTime();
 		BiomeType biometype = biomes[chunkNumber];
 
-		int[] heightMap = generateHeightMap(biometype, chunkNumber);
+		int[] heightMap = generateHeightMap(biometype, chunkNumber, seed);
 		// Generate the underlying blocks
 		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
@@ -189,7 +189,7 @@ public class RegionGenerator {
 		return blocks;
 	}
 
-	private int[] generateHeightMap(BiomeType biometype, int chunkNumber) {
+	private int[] generateHeightMap(BiomeType biometype, int chunkNumber, double seed) {
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
 			if (biometype != BiomeType.BUFFER) {
