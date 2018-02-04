@@ -2,6 +2,7 @@ package game.entities;
 
 import java.awt.Point;
 
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -19,6 +20,7 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 
 	private boolean showInventory = false;
 	private Item heldItem;
+	private final Point heldItemSize = new Point(25, 25);
 
 	public PlayerController(ControllableCharacter character, Input inp, Viewport vp) {
 		this.character = character;
@@ -30,7 +32,14 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 
 	public void draw(Viewport vp) {
 		if (showInventory) {
+			Graphics g = vp.getGraphics();
 			inventory.draw(vp);
+			if (heldItem != null) {
+				g.drawImage(
+						heldItem.getIcon().getScaledCopy(heldItemSize.x, heldItemSize.y),
+						userInput.getMouseX(),
+						userInput.getMouseY());
+			}
 		}
 	}
 
@@ -91,6 +100,7 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 				}
 			} else {
 				inventory.addItem(heldItem, invLoc);
+				heldItem = null;
 			}
 		}
 	}
