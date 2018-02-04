@@ -20,15 +20,18 @@ import game.world.World;
  * around
  */
 public class Viewport implements DefaultKeyListener, DefaultMouseListener {
+	private static final float MOVEMENT_FACTOR = 1f;
+	private static final float SCALE_INCREASE = 1.2f;
+	private static final float SCALE_DECREASE = 1.0f / 1.2f;
+
 	private Graphics graphics;
 	private Vector2f center = new Vector2f(); // in game units
 	private Vector2f screenDimensions = new Vector2f(); // in pixels
 	private float scaleFactor = 2.5f;
 	private Vector2f movement = new Vector2f();
 
-	private static final float MOVEMENT_FACTOR = 1f;
-	private static final float SCALE_INCREASE = 1.2f;
-	private static final float SCALE_DECREASE = 1.0f / 1.2f;
+	private boolean resetTransformCache = true;
+	private Transform cacheTransform;
 
 	/**
 	 * Expected range: 0.0 - 1.0
@@ -41,7 +44,6 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public static boolean DEBUG_MODE = false;
 
 	public Viewport() {
-
 	}
 
 	public Viewport(Graphics g) {
@@ -51,22 +53,11 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
 
-		/*
-		 * Check if the sprite needs to be drawn.
-		 *
-		 * This check is really expensive and it runs on an inner loop.
-		 *
-		 * Shape resultImageBox = s.getBoundingBox().transform(t); if
-		 * (getViewShape().contains(resultImageBox) ||
-		 * getViewShape().intersects(resultImageBox) ||
-		 * resultImageBox.contains(getViewShape())) {
-		 */
 		Vector2f res = t.transform(s.loc.copy());
 		// Cheap hack? removes a Math.ceil
 		int nw = (int) (0.999999 + s.img.getWidth() * scaleFactor);
 		int nh = (int) (0.999999 + s.img.getHeight() * scaleFactor);
 		graphics.drawImage(s.getCachedImage(nw, nh), (int) res.x, (int) res.y);
-		// }
 	}
 
 	public void draw(Shape s, Color c) {
@@ -132,12 +123,9 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		return getViewShape().transform(getInverseDrawTransform());
 	}
 
-	private boolean resetTransformCache = true;
-	private Transform cacheTransform;
-
 	/**
-	 * Note that this method implicitly depends on getInverseDrawTransform (if
-	 * this method is changed, likely so should getInverseDrawTransform).
+	 * Note that this method implicitly depends on getInverseDrawTransform (if this
+	 * method is changed, likely so should getInverseDrawTransform).
 	 *
 	 * @return transform mapping game position to screen position
 	 */
@@ -165,8 +153,8 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	}
 
 	/**
-	 * Note that this method implicitly depends on getDrawTransform (if this
-	 * method is changed, likely so should getDrawTransform)
+	 * Note that this method implicitly depends on getDrawTransform (if this method
+	 * is changed, likely so should getDrawTransform)
 	 *
 	 * @return transform mapping screen position to game position
 	 */
