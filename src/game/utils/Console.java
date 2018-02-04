@@ -1,7 +1,6 @@
 package game.utils;
 
 import java.awt.Dimension;
-import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -12,8 +11,6 @@ import game.entities.ControllableCharacter;
 import game.world.World;
 
 public class Console extends Thread {
-
-	private Scanner scanner;
 
 	@Override
 	public void run() {
