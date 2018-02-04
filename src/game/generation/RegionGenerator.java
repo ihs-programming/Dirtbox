@@ -21,6 +21,9 @@ public class RegionGenerator {
 	private static final int CHUNK_SIZE = 63;
 	private static final int BEDROCK_LAYER = 127;
 
+	private static final int SEALEVEL = (int) (CHUNK_HEIGHT * 0.25)
+			+ getAmplitude(BiomeType.OCEAN) + 1;
+
 	/**
 	 * The seed that region generators use. This is static because multiple
 	 * instances of RegionGenerator are created.
@@ -92,9 +95,6 @@ public class RegionGenerator {
 		}
 	}
 
-	private static final int SEALEVEL = (int) (CHUNK_HEIGHT * 0.25)
-			+ getAmplitude(BiomeType.OCEAN) + 1;
-
 	private Block[][] generateChunk(int x, int y, double seed) {
 		int chunkNumber = biomes.length / 2 + x / CHUNK_SIZE;
 		seed = SEED_STEP * chunkNumber + RegionGenerator.seed;
@@ -102,56 +102,10 @@ public class RegionGenerator {
 		long chunkgenerationtime = System.nanoTime();
 		BiomeType biometype = biomes[chunkNumber];
 
-		// The blocks
+		int[] heightMap = generateHeightMap(biometype, chunkNumber);
+		// Generate the underlying blocks
 		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
-		int[] heightMap = new int[CHUNK_SIZE];
-		for (int i = 0; i < heightMap.length; i++) {
-			if (biometype != BiomeType.BUFFER) {
-				heightMap[i] = (int) (getAmplitude(biometype)
-						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
-								RegionGenerator.seed, RegionGenerator.seed)
-						+ CHUNK_HEIGHT * 0.25);
-			} else {
-				heightMap[i] = (int) (getAmplitude(biomes, chunkNumber, i)
-						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
-								RegionGenerator.seed, RegionGenerator.seed)
-						+ CHUNK_HEIGHT * 0.25);
-			}
-		}
-		if (biometype == BiomeType.OCEAN) {
-			boolean oceanLeft = biomes[chunkNumber - 1] == BiomeType.OCEAN;
-			boolean oceanRight = biomes[chunkNumber + 1] == BiomeType.OCEAN;
-
-			// Kinda like another biome?
-			boolean deepOcean = oceanLeft && oceanRight;
-
-			if (deepOcean) {
-				for (int i = 0; i < heightMap.length; i++) {
-					heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
-					heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
-							- Math.abs(heightMap.length / 2 - i));
-				}
-			} else {
-				for (int i = 0; i < heightMap.length / 2; i++) {
-					if (oceanLeft) {
-						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
-					} else {
-						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
-								- Math.abs(heightMap.length / 2 - i));
-					}
-				}
-				for (int i = heightMap.length / 2; i < heightMap.length; i++) {
-					if (oceanRight) {
-						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
-					} else {
-						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
-								- Math.abs(heightMap.length / 2 - i));
-					}
-				}
-			}
-		}
-		// Generate the underlying blocks
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int z = 0; z < heightMap[i]; z++) {
 				blocks[i][z] = Block.createBlock(BlockType.EMPTY,
@@ -233,6 +187,56 @@ public class RegionGenerator {
 					+ " ms to generate chunk of type " + biometype);
 		}
 		return blocks;
+	}
+
+	private int[] generateHeightMap(BiomeType biometype, int chunkNumber) {
+		int[] heightMap = new int[CHUNK_SIZE];
+		for (int i = 0; i < heightMap.length; i++) {
+			if (biometype != BiomeType.BUFFER) {
+				heightMap[i] = (int) (getAmplitude(biometype)
+						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
+								RegionGenerator.seed, RegionGenerator.seed)
+						+ CHUNK_HEIGHT * 0.25);
+			} else {
+				heightMap[i] = (int) (getAmplitude(biomes, chunkNumber, i)
+						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
+								RegionGenerator.seed, RegionGenerator.seed)
+						+ CHUNK_HEIGHT * 0.25);
+			}
+		}
+		if (biometype == BiomeType.OCEAN) {
+			boolean oceanLeft = biomes[chunkNumber - 1] == BiomeType.OCEAN;
+			boolean oceanRight = biomes[chunkNumber + 1] == BiomeType.OCEAN;
+
+			// Kinda like another biome?
+			boolean deepOcean = oceanLeft && oceanRight;
+
+			if (deepOcean) {
+				for (int i = 0; i < heightMap.length; i++) {
+					heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
+					heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
+							- Math.abs(heightMap.length / 2 - i));
+				}
+			} else {
+				for (int i = 0; i < heightMap.length / 2; i++) {
+					if (oceanLeft) {
+						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
+					} else {
+						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
+								- Math.abs(heightMap.length / 2 - i));
+					}
+				}
+				for (int i = heightMap.length / 2; i < heightMap.length; i++) {
+					if (oceanRight) {
+						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2);
+					} else {
+						heightMap[i] += 2 * Math.sqrt(heightMap.length / 2
+								- Math.abs(heightMap.length / 2 - i));
+					}
+				}
+			}
+		}
+		return heightMap;
 	}
 
 	private static int getAmplitude(BiomeType biometype) {
