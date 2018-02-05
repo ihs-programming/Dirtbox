@@ -31,6 +31,7 @@ public class Entity {
 
 	protected Polygon[] lastMovement = new Polygon[4];
 	private Shape intersectionEdge;
+	private Point scalefactor;
 
 	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
 			float hitheight, Vector2f pos) {
@@ -69,17 +70,31 @@ public class Entity {
 		if (this.hitbox == null) {
 			generateHitbox();
 		} else {
-			hitbox.setX(pos.x);
-			hitbox.setY(pos.y);
+			hitbox.setX(pos.x + (1 - scalefactor.getX()) * hitbox.getWidth());
+			hitbox.setY(pos.y + (1 - scalefactor.getY()) * hitbox.getHeight());
 		}
 		return this.hitbox;
 	}
 
 	private void generateHitbox() {
-		float width = this.spritesheet.getWidth() / this.spritesheet.getHorizontalCount();
-		float height = this.spritesheet.getHeight() / this.spritesheet.getVerticalCount();
+		float width = 0.95f * this.spritesheet.getWidth()
+				/ this.spritesheet.getHorizontalCount();
+		float height = 0.99f * this.spritesheet.getHeight()
+				/ this.spritesheet.getVerticalCount();
 		this.hitbox = new Rectangle(
-				pos.x, pos.y, width, height);
+				pos.x + 0.025f * width, pos.y + 0.01f * height, width, height);
+		this.scalefactor = new Point(0.95f, 0.99f);
+	}
+
+	private void generateHitbox(float widthscale, float heightscale) {
+		float width = widthscale * this.spritesheet.getWidth()
+				/ this.spritesheet.getHorizontalCount();
+		float height = heightscale * this.spritesheet.getHeight()
+				/ this.spritesheet.getVerticalCount();
+		this.hitbox = new Rectangle(
+				pos.x + (1 - widthscale) / 2 * width, pos.y + (1 - heightscale) * height,
+				width, height);
+		this.scalefactor = new Point(widthscale, heightscale);
 	}
 
 	public void draw(Viewport vp) {
