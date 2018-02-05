@@ -35,37 +35,60 @@ public class Console extends Thread {
 	}
 
 	public static void doCommand(String input) {
-		if (input.startsWith("!settime ")) {
-			input = input.replace("!settime ", "");
-			try {
-				Viewport.globaltimer = Long.parseLong(input);
-				System.out.println("Time set to " + Viewport.globaltimer);
-			} catch (NumberFormatException e) {
-				System.out.println("\"" + input + "\" is not a valid time");
+		if (input.indexOf(' ') > -1) { // Check if there is more than one word.
+			String command[] = input.split(" ");
+			executeCommand(command);
+		} else {
+			String command = input; // Text is the first word itself.
+			executeCommand(command);
+		}
+	}
+
+	public static void executeCommand(String command[]) {
+		switch (command[0]) {
+
+		// "!time" command, sets and checks time
+		case "!time":
+			System.out.println("test");
+			if (command[1].equals("set")) {
+				try {
+					Viewport.globaltimer = Long.parseLong(command[2]);
+					System.out.println("Time set to " + Viewport.globaltimer);
+				} catch (NumberFormatException e) {
+					System.out.println("\"" + command[2] + "\" is not a valid time");
+				}
 			}
+			break;
+
+		// if command doesn't work, return this
+		default:
+			System.out.println("\"" + command[0] + "\" is not a recognized command");
+			break;
 		}
+	}
 
-		// Use the following format for commands which require no input and
-		// instead
-		// return a value
+	public static void executeCommand(String command) {
+		switch (command) {
 
-		else if (input.equals("!time")) {
+		// "!time" command, sets and returns time
+		case "!time":
 			System.out.println("Time is: " + Viewport.globaltimer);
-		}
+			break;
 
-		else if (input.equals("!characters")) {
+		// "!characters" command, returns number of characters
+		case "!characters":
 			System.out.println("Number of characters: " + World.characters.size());
-		}
+			break;
 
-		else if (input.equals("!backgroundsprites")) {
-			System.out.println(
-					"Number of background sprites: " + World.backgroundsprites.size());
-		} else if (input.equals("!fly")) {
+		// "!fly" command, changes flying state
+		case "!fly":
 			ControllableCharacter.flying = !ControllableCharacter.flying;
-		}
+			break;
 
-		else {
-			System.out.println("\"" + input + "\" is not a recognized command");
+		// if command doesn't work, return this
+		default:
+			System.out.println("\"" + command + "\" is not a recognized command");
+			break;
 		}
 	}
 
