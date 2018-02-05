@@ -79,7 +79,7 @@ public class BlockUpdates {
 						currBot.x--;
 					}
 					if (blocks.containsKey(curr) && flowThrough(blocks.get(curr))) {
-						swapBlocks(blocks, p, new Point(p.x - 1, p.y));
+						swapBlocks(blocks, p, curr);
 						addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 					} else {
 						// Try flowing to the right
@@ -96,7 +96,7 @@ public class BlockUpdates {
 							currBot.x++;
 						}
 						if (blocks.containsKey(curr) && flowThrough(blocks.get(curr))) {
-							swapBlocks(blocks, p, new Point(p.x + 1, p.y));
+							swapBlocks(blocks, p, curr);
 							addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 						}
 					}
@@ -109,7 +109,7 @@ public class BlockUpdates {
 	}
 
 	private static boolean flowThrough(Block b) {
-		return b instanceof LiquidBlock || b.type == BlockType.EMPTY;
+		return b.type == BlockType.EMPTY;
 	}
 
 	private static void swapBlocks(TreeMap<Point, Block> blocks, Point a, Point b) {
