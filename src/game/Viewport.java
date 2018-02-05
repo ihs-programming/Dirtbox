@@ -108,7 +108,7 @@ public class Viewport {
 	}
 
 	public void renderChat() {
-		draw(chat.getMessage(), 5, 500, Color.black);
+		draw(chat.getMessage(), 5, 500, Color.blue);
 	}
 
 	public void setScreenCenter(Vector2f center) {
