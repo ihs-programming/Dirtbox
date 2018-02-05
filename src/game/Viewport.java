@@ -2,15 +2,13 @@ package game;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
-import game.utils.Console;
-import game.utils.DefaultKeyListener;
-import game.utils.DefaultMouseListener;
+import game.utils.Chat;
+import game.world.World;
 
 /**
  * Handles all drawing in the game. Does not, and should not handle ui drawing
@@ -18,16 +16,18 @@ import game.utils.DefaultMouseListener;
  * Useful because it allows the position of the "camera" (viewport) to move
  * around
  */
-public class Viewport implements DefaultKeyListener, DefaultMouseListener {
+public class Viewport {
+	private final float MIN_ZOOM = 13;
+	private final float MAX_ZOOM = 75;
+
 	private Graphics graphics;
 	private Vector2f center = new Vector2f(); // in game units
 	private Vector2f screenDimensions = new Vector2f(); // in pixels
 	private float scaleFactor = 2.5f;
 	private Vector2f movement = new Vector2f();
 
-	private static final float MOVEMENT_FACTOR = 1f;
-	private static final float SCALE_INCREASE = 1.2f;
-	private static final float SCALE_DECREASE = 1.0f / 1.2f;
+	private boolean resetTransformCache = true;
+	private Transform cacheTransform;
 
 	/**
 	 * Expected range: 0.0 - 1.0
@@ -39,8 +39,9 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public static boolean day = true;
 	public static boolean DEBUG_MODE = false;
 
-	public Viewport() {
+	public final Chat chat = new Chat();
 
+	public Viewport() {
 	}
 
 	public Viewport(Graphics g) {
@@ -50,22 +51,11 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	public void draw(Sprite s) {
 		Transform t = getDrawTransform();
 
-		/*
-		 * Check if the sprite needs to be drawn.
-		 *
-		 * This check is really expensive and it runs on an inner loop.
-		 *
-		 * Shape resultImageBox = s.getBoundingBox().transform(t); if
-		 * (getViewShape().contains(resultImageBox) ||
-		 * getViewShape().intersects(resultImageBox) ||
-		 * resultImageBox.contains(getViewShape())) {
-		 */
 		Vector2f res = t.transform(s.loc.copy());
 		// Cheap hack? removes a Math.ceil
 		int nw = (int) (0.999999 + s.img.getWidth() * scaleFactor);
 		int nh = (int) (0.999999 + s.img.getHeight() * scaleFactor);
 		graphics.drawImage(s.getCachedImage(nw, nh), (int) res.x, (int) res.y);
-		// }
 	}
 
 	public void draw(Shape s, Color c) {
@@ -83,7 +73,7 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		graphics.fill(s.transform(getDrawTransform()));
 	}
 
-	private void printDebugInfo() {
+	public void printDebugInfo() {
 		if (DEBUG_MODE) {
 			System.out.println("Debug button pressed, debug mode OFF");
 		} else {
@@ -117,6 +107,10 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		timerupdate = System.currentTimeMillis();
 	}
 
+	public void renderChat() {
+		draw(chat.getMessage(), 5, 500, Color.blue);
+	}
+
 	public void setScreenCenter(Vector2f center) {
 		screenDimensions.set(center.copy().scale(2f));
 
@@ -131,12 +125,9 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		return getViewShape().transform(getInverseDrawTransform());
 	}
 
-	private boolean resetTransformCache = true;
-	private Transform cacheTransform;
-
 	/**
-	 * Note that this method implicitly depends on getInverseDrawTransform (if this
-	 * method is changed, likely so should getInverseDrawTransform).
+	 * Note that this method implicitly depends on getInverseDrawTransform (if
+	 * this method is changed, likely so should getInverseDrawTransform).
 	 *
 	 * @return transform mapping game position to screen position
 	 */
@@ -164,8 +155,8 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	}
 
 	/**
-	 * Note that this method implicitly depends on getDrawTransform (if this method
-	 * is changed, likely so should getDrawTransform)
+	 * Note that this method implicitly depends on getDrawTransform (if this
+	 * method is changed, likely so should getDrawTransform)
 	 *
 	 * @return transform mapping screen position to game position
 	 */
@@ -186,11 +177,11 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 	}
 
 	public void zoom(float factor) {
-		scaleFactor *= factor;
+		setZoom(scaleFactor * factor);
 	}
 
 	public void setZoom(float factor) {
-		scaleFactor = factor;
+		scaleFactor = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, factor));
 	}
 
 	public void setCenter(Vector2f center) {
@@ -201,105 +192,11 @@ public class Viewport implements DefaultKeyListener, DefaultMouseListener {
 		return center.copy();
 	}
 
-	@Override
-	public void keyPressed(int key, char c) {
-		switch (key) {
-		case Input.KEY_UP:
-			movement.y -= MOVEMENT_FACTOR;
-			break;
-		case Input.KEY_DOWN:
-			movement.y += MOVEMENT_FACTOR;
-			break;
-		case Input.KEY_RIGHT:
-			movement.x += MOVEMENT_FACTOR;
-			break;
-		case Input.KEY_LEFT:
-			movement.x -= MOVEMENT_FACTOR;
-			break;
-		case Input.KEY_MINUS:
-			if (scaleFactor > 13) {
-				scaleFactor *= SCALE_DECREASE;
-			}
-			if (DEBUG_MODE) {
-				System.out.println("Scale factor of " + scaleFactor);
-			}
-			break;
-		case Input.KEY_EQUALS:
-			if (scaleFactor < 75) {
-				scaleFactor *= SCALE_INCREASE;
-			}
-			if (DEBUG_MODE) {
-				System.out.println("Scale factor of " + scaleFactor);
-			}
-			break;
-		case Input.KEY_P:
-			printDebugInfo();
-			break;
-		case Input.KEY_F1:
-			Thread console = new Console();
-			console.start();
-			break;
-		case Input.KEY_M:
-			MainGameState.playMusic = !MainGameState.playMusic;
-			break;
-		default:
-			break;
-		}
+	public Graphics getGraphics() {
+		return graphics;
 	}
 
-	@Override
-	public void keyReleased(int key, char c) {
-		switch (key) {
-		case Input.KEY_UP:
-			movement.y += MOVEMENT_FACTOR;
-			break;
-		case Input.KEY_DOWN:
-			movement.y -= MOVEMENT_FACTOR;
-			break;
-		case Input.KEY_RIGHT:
-			movement.x -= MOVEMENT_FACTOR;
-			break;
-		case Input.KEY_LEFT:
-			movement.x += MOVEMENT_FACTOR;
-			break;
-		default:
-			break;
-		}
-	}
-
-	@Override
-	public void mouseWheelMoved(int change) {
-		if (change < 0) {
-			if (scaleFactor > 13) {
-				scaleFactor *= SCALE_DECREASE;
-			}
-			if (DEBUG_MODE) {
-				System.out.println("Scale factor of " + scaleFactor);
-			}
-		} else {
-			if (scaleFactor < 75) {
-				scaleFactor *= SCALE_INCREASE;
-			}
-			if (DEBUG_MODE) {
-				System.out.println("Scale factor of " + scaleFactor);
-			}
-		}
-	}
-
-	@Override
-	public void inputEnded() {
-	}
-
-	@Override
-	public boolean isAcceptingInput() {
-		return true;
-	}
-
-	@Override
-	public void inputStarted() {
-	}
-
-	@Override
-	public void setInput(Input input) {
+	public void move(Vector2f displacement) {
+		movement.set(displacement);
 	}
 }

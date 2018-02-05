@@ -1,6 +1,7 @@
 package game.blocks;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
@@ -78,5 +79,9 @@ public abstract class Block {
 
 	public void setLighting(int lighting) {
 		this.lighting = lighting;
+	}
+
+	public Image getImage() {
+		return sprite.img.copy(); // ensure image can't be modified outside of this class
 	}
 }

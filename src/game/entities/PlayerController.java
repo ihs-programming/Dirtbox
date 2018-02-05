@@ -1,42 +1,53 @@
 package game.entities;
 
+import java.awt.Point;
+
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
+import game.items.Inventory;
+import game.items.Item;
 import game.utils.DefaultKeyListener;
+import game.utils.DefaultMouseListener;
 
-public class PlayerController {
+public class PlayerController implements DefaultKeyListener, DefaultMouseListener {
 	private ControllableCharacter character;
+	private Inventory inventory = new Inventory();
 	private Input userInput;
 	private Viewport vp;
+
+	private boolean showInventory = false;
+	private Item heldItem;
+	private final Point heldItemSize = new Point(25, 25);
 
 	public PlayerController(ControllableCharacter character, Input inp, Viewport vp) {
 		this.character = character;
 		userInput = inp;
-		userInput.addKeyListener(new DefaultKeyListener() {
-			@Override
-			public void keyPressed(int key, char c) {
-				if (key == Input.KEY_W) {
-					character.jump();
-				}
-			}
-
-			@Override
-			public void keyReleased(int key, char c) {
-				// TODO Auto-generated method stub
-
-			}
-
-		});
+		userInput.addKeyListener(this);
+		userInput.addMouseListener(this);
 		this.vp = vp;
 	}
 
 	public void draw(Viewport vp) {
+		if (showInventory) {
+			Graphics g = vp.getGraphics();
+			inventory.draw(vp);
+			if (heldItem != null) {
+				g.drawImage(
+						heldItem.getIcon().getScaledCopy(heldItemSize.x, heldItemSize.y),
+						userInput.getMouseX(),
+						userInput.getMouseY());
+			}
+		}
 	}
 
 	public void update(int delta) {
 		character.stopMoving();
+		if (showInventory) {
+			return;
+		}
 		if (userInput.isKeyDown(Input.KEY_A)) {
 			character.move(true);
 		}
@@ -54,5 +65,59 @@ public class PlayerController {
 
 	private Vector2f convertMousePos(int x, int y) {
 		return vp.getInverseDrawTransform().transform(new Vector2f(x, y));
+	}
+
+	@Override
+	public void keyPressed(int key, char c) {
+		switch (key) {
+		case Input.KEY_I:
+			showInventory = !showInventory;
+			break;
+		case Input.KEY_W:
+			if (!showInventory) {
+				character.jump();
+			}
+			break;
+		}
+	}
+
+	@Override
+	public void keyReleased(int key, char c) {
+	}
+
+	@Override
+	public void mouseClicked(int button, int x, int y, int clickCount) {
+		if (button == Input.MOUSE_LEFT_BUTTON && showInventory) {
+			Point invLoc = inventory
+					.convertScreenPosToInventoryItem(new Vector2f(x, y));
+			if (invLoc == null) {
+				// ensure that invLoc is nonnull in rest of the branches
+			} else if (heldItem == null) {
+				if (invLoc != null) {
+					heldItem = inventory.getItem(invLoc);
+					inventory.removeItem(invLoc);
+				}
+			} else {
+				inventory.addItem(heldItem, invLoc);
+				heldItem = null;
+			}
+		}
+	}
+
+	@Override
+	public void inputEnded() {
+	}
+
+	@Override
+	public boolean isAcceptingInput() {
+		return true;
+	}
+
+	@Override
+	public void inputStarted() {
+	}
+
+	@Override
+	public void setInput(Input inp) {
 	}
 }

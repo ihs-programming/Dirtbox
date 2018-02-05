@@ -13,12 +13,12 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.Viewport;
-import game.World;
 import game.utils.Geometry;
+import game.world.World;
 
 public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
-	private static final boolean DEBUG_COLLISION = false;
+	private static final boolean DEBUG_COLLISION = true;
 
 	private SpriteSheet spritesheet;
 	private Shape hitbox;
@@ -66,7 +66,12 @@ public class Entity {
 	}
 
 	public Shape getHitbox() {
-		generateHitbox();
+		if (this.hitbox == null) {
+			generateHitbox();
+		} else {
+			hitbox.setX(pos.x);
+			hitbox.setY(pos.y);
+		}
 		return this.hitbox;
 	}
 
@@ -153,7 +158,8 @@ public class Entity {
 			int[] collisionOrder = { 1, 3, 0, 2 };
 			for (int j = 0; j < 4; j++) {
 				int i = collisionOrder[j];
-				// edgeMovement represents area that an edge of the entity hitbox passes
+				// edgeMovement represents area that an edge of the entity
+				// hitbox passes
 				// through
 				Polygon edgeMovement = new Polygon();
 				edgeMovement.addPoint(charPoints[i % 4], charPoints[(i + 3) % 4]);
@@ -191,8 +197,11 @@ public class Entity {
 						epsilon = -epsilon;
 					}
 					displacement[(i + 1) % 2] += hitboxPoints[(i + 1) % 4]
-							- charPoints[(i + 3) % 4] + epsilon; // epsilon helps avoid
-																	// numerical precision
+							- charPoints[(i + 3) % 4] + epsilon; // epsilon
+																	// helps
+																	// avoid
+																	// numerical
+																	// precision
 																	// errors
 					switch (i) {
 					case 0: // down

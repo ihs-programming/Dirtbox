@@ -9,11 +9,13 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import game.entities.PlayerController;
 import game.utils.DefaultGameState;
+import game.world.World;
 
 public class MainGameState implements DefaultGameState {
 	public static boolean playMusic = false;
 	private World world;
 	private Viewport vp = new Viewport();
+	private ViewportController vpc;
 	public static boolean inGame = true; // whether or not to display the escape
 											// menu
 	private boolean lockCharacter = true; // whether to follow the character
@@ -25,8 +27,7 @@ public class MainGameState implements DefaultGameState {
 	@Override
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		Input gcInput = gc.getInput();
-		gcInput.addKeyListener(vp);
-		gcInput.addMouseListener(vp);
+		vpc = new ViewportController(gcInput, vp);
 		world = new World(gcInput);
 		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp);
 	}
@@ -52,8 +53,8 @@ public class MainGameState implements DefaultGameState {
 			if (lockCharacter) {
 				vp.setCenter(world.getCharacterPosition());
 			}
-			playerController.draw(vp);
 			world.draw(vp);
+			playerController.draw(vp);
 		} else {
 			// Display ui
 			ui.draw(g);
@@ -72,6 +73,7 @@ public class MainGameState implements DefaultGameState {
 		}
 		playerController.update(delta);
 		world.update(delta);
+		vpc.update(delta);
 	}
 
 	@Override
