@@ -1,6 +1,7 @@
 package game.utils;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -35,21 +36,40 @@ public class Console extends Thread {
 	}
 
 	public static void doCommand(String input) {
+
+		// List of all commands and what they do
+		ArrayList<String> commandhelp = new ArrayList<>();
+		commandhelp.add("!help, !h, !? : returns a list of commands");
+		commandhelp.add(
+				"!time, !time set [time] : !time returns the time, !time set [time] sets the current time to [time]");
+		commandhelp.add("!characters : returns the total number of chracters");
+		commandhelp.add("!fly : increases movement speed tenfold");
+
 		if (input.indexOf(' ') > -1) { // Check if there is more than one word.
 			String command[] = input.split(" ");
-			executeCommand(command);
+			executeCommand(command, commandhelp);
 		} else {
 			String command = input; // Text is the first word itself.
-			executeCommand(command);
+			executeCommand(command, commandhelp);
 		}
 	}
 
-	public static void executeCommand(String command[]) {
+	public static void executeCommand(String command[], ArrayList<String> commandhelp) {
+
+		// return help value
+		if (command[1].equals("?")) {
+			for (int i = 0; i < commandhelp.size(); i++) {
+				if (commandhelp.get(i).startsWith(command[0])) {
+					System.out.println(commandhelp.get(i));
+					return;
+				}
+			}
+		}
+
 		switch (command[0]) {
 
 		// "!time" command, sets and checks time
 		case "!time":
-			System.out.println("test");
 			if (command[1].equals("set")) {
 				try {
 					Viewport.globaltimer = Long.parseLong(command[2]);
@@ -67,8 +87,16 @@ public class Console extends Thread {
 		}
 	}
 
-	public static void executeCommand(String command) {
+	public static void executeCommand(String command, ArrayList<String> commandhelp) {
 		switch (command) {
+
+		case "!h":
+		case "!help":
+		case "!?":
+			for (int i = 0; i < commandhelp.size(); i++) {
+				System.out.println(commandhelp.get(i));
+			}
+			break;
 
 		// "!time" command, sets and returns time
 		case "!time":
