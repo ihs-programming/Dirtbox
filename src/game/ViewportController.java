@@ -3,6 +3,7 @@ package game;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.utils.Chat;
 import game.utils.Console;
 import game.utils.DefaultKeyListener;
 import game.utils.DefaultMouseListener;
@@ -56,6 +57,7 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 				vp.printDebugInfo();
 				break;
 			case Input.KEY_T:
+				Chat.timeoflastmessage = System.currentTimeMillis();
 				inChat = true;
 				break;
 			case Input.KEY_F1:
