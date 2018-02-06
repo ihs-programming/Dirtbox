@@ -38,7 +38,7 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 		vp.move(movement);
 	}
 
-	private boolean inChat = false;
+	public static boolean inChat = false;
 
 	@Override
 	public void keyPressed(int key, char c) {

@@ -7,6 +7,7 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Viewport;
+import game.ViewportController;
 import game.items.Inventory;
 import game.items.Item;
 import game.utils.DefaultKeyListener;
@@ -69,15 +70,17 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 
 	@Override
 	public void keyPressed(int key, char c) {
-		switch (key) {
-		case Input.KEY_I:
-			showInventory = !showInventory;
-			break;
-		case Input.KEY_W:
-			if (!showInventory) {
-				character.jump();
+		if (!ViewportController.inChat) {
+			switch (key) {
+			case Input.KEY_I:
+				showInventory = !showInventory;
+				break;
+			case Input.KEY_W:
+				if (!showInventory) {
+					character.jump();
+				}
+				break;
 			}
-			break;
 		}
 	}
 
