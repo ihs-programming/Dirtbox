@@ -40,8 +40,8 @@ public class Console extends Thread {
 		// List of all commands and what they do
 		ArrayList<String> commandhelp = new ArrayList<>();
 		commandhelp.add("!help, !h, !? : returns a list of commands");
-		commandhelp.add(
-				"!time, !time set [time] : !time returns the time, !time set [time] sets the current time to [time]");
+		commandhelp.add("!time : returns the time");
+		commandhelp.add("!time set [time] : sets the current time to [time]");
 		commandhelp.add("!characters : returns the total number of chracters");
 		commandhelp.add("!fly : increases movement speed tenfold");
 
@@ -61,9 +61,9 @@ public class Console extends Thread {
 			for (int i = 0; i < commandhelp.size(); i++) {
 				if (commandhelp.get(i).startsWith(command[0])) {
 					System.out.println(commandhelp.get(i));
-					return;
 				}
 			}
+			return;
 		}
 
 		switch (command[0]) {
@@ -75,14 +75,16 @@ public class Console extends Thread {
 					Viewport.globaltimer = Long.parseLong(command[2]);
 					System.out.println("Time set to " + Viewport.globaltimer);
 				} catch (NumberFormatException e) {
-					System.out.println("\"" + command[2] + "\" is not a valid time");
+					System.out.println("\"" + command[2]
+							+ "\" is not a valid time. Use \"!time ?\" for help");
 				}
 			}
 			break;
 
 		// if command doesn't work, return this
 		default:
-			System.out.println("\"" + command[0] + "\" is not a recognized command");
+			System.out.println("\"" + command[0]
+					+ "\" is not a recognized command. Use \"!help\" for help");
 			break;
 		}
 	}
@@ -109,13 +111,15 @@ public class Console extends Thread {
 			break;
 
 		// "!fly" command, changes flying state
+		case "!f":
 		case "!fly":
 			ControllableCharacter.flying = !ControllableCharacter.flying;
 			break;
 
 		// if command doesn't work, return this
 		default:
-			System.out.println("\"" + command + "\" is not a recognized command");
+			System.out.println("\"" + command
+					+ "\" is not a recognized command. Use \"!help\" for help");
 			break;
 		}
 	}
