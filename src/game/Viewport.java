@@ -108,7 +108,7 @@ public class Viewport {
 	}
 
 	public void renderChat() {
-		draw(chat.getMessage(), 5, 500, Color.blue);
+		draw(chat.getMessage(), 5, 500, Color.white);
 	}
 
 	public void setScreenCenter(Vector2f center) {
@@ -126,8 +126,8 @@ public class Viewport {
 	}
 
 	/**
-	 * Note that this method implicitly depends on getInverseDrawTransform (if
-	 * this method is changed, likely so should getInverseDrawTransform).
+	 * Note that this method implicitly depends on getInverseDrawTransform (if this
+	 * method is changed, likely so should getInverseDrawTransform).
 	 *
 	 * @return transform mapping game position to screen position
 	 */
@@ -155,8 +155,8 @@ public class Viewport {
 	}
 
 	/**
-	 * Note that this method implicitly depends on getDrawTransform (if this
-	 * method is changed, likely so should getDrawTransform)
+	 * Note that this method implicitly depends on getDrawTransform (if this method
+	 * is changed, likely so should getDrawTransform)
 	 *
 	 * @return transform mapping screen position to game position
 	 */

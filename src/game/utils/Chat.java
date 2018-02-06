@@ -17,7 +17,7 @@ public class Chat {
 			Console.doCommand(curr);
 			curr = "";
 			return false;
-		case Input.KEY_BACKSLASH:
+		case Input.KEY_BACK:
 			if (curr.length() > 0) {
 				curr = curr.substring(0, curr.length() - 1);
 			}
