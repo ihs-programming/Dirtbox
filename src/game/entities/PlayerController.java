@@ -49,11 +49,13 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 		if (showInventory) {
 			return;
 		}
-		if (userInput.isKeyDown(Input.KEY_A)) {
-			character.move(true);
-		}
-		if (userInput.isKeyDown(Input.KEY_D)) {
-			character.move(false);
+		if (!ViewportController.inChat) {
+			if (userInput.isKeyDown(Input.KEY_A)) {
+				character.move(true);
+			}
+			if (userInput.isKeyDown(Input.KEY_D)) {
+				character.move(false);
+			}
 		}
 		if (userInput.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
 			Vector2f mousePos = convertMousePos(userInput.getMouseX(),

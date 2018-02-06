@@ -108,13 +108,14 @@ public class Viewport {
 	}
 
 	public void renderChat() {
-		if (System.currentTimeMillis() - Chat.timeoflastmessage <= 5000) {
-			int chatlength = chat.chat.size();
-			for (int i = 1; i <= 10; i++) {
-				if (i <= chatlength) {
-					draw(chat.chat.get(chatlength - i), 5,
-							(int) screenDimensions.getY() - 25 - 20 * i, Color.white);
-				}
+		int chatlength = Chat.chat.size();
+		for (int i = 1; i <= 10; i++) {
+			if (i <= chatlength
+					&& (System.currentTimeMillis()
+							- Chat.timeofmessage.get(chatlength - i) <= 5000
+							|| Chat.displaychat)) {
+				draw(Chat.chat.get(chatlength - i), 5,
+						(int) screenDimensions.getY() - 25 - 20 * i, Color.white);
 			}
 		}
 		draw(chat.getMessage(), 5, (int) screenDimensions.getY() - 25, Color.white);

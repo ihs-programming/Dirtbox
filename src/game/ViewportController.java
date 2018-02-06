@@ -57,7 +57,7 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 				vp.printDebugInfo();
 				break;
 			case Input.KEY_T:
-				Chat.timeoflastmessage = System.currentTimeMillis();
+				Chat.displaychat = true;
 				inChat = true;
 				break;
 			case Input.KEY_F1:
