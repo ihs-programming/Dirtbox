@@ -1,9 +1,16 @@
 package game.utils;
 
+import java.util.ArrayList;
+
 import org.newdawn.slick.Input;
 
 public class Chat {
 	private String curr = "";
+	public ArrayList<String> chat = new ArrayList<>();
+
+	public void chatAddLine(String chatstring) {
+		chat.add(chatstring);
+	}
 
 	/**
 	 *
@@ -15,6 +22,7 @@ public class Chat {
 		switch (key) {
 		case Input.KEY_ENTER:
 			Console.doCommand(curr);
+			chatAddLine(curr);
 			curr = "";
 			return false;
 		case Input.KEY_BACK:

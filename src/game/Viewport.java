@@ -108,7 +108,14 @@ public class Viewport {
 	}
 
 	public void renderChat() {
-		draw(chat.getMessage(), 5, 500, Color.white);
+		int chatlength = chat.chat.size();
+		for (int i = 1; i <= 10; i++) {
+			if (i <= chatlength) {
+				draw(chat.chat.get(chatlength - i), 5,
+						(int) screenDimensions.getY() - 25 - 20 * i, Color.white);
+			}
+		}
+		draw(chat.getMessage(), 5, (int) screenDimensions.getY() - 25, Color.white);
 	}
 
 	public void setScreenCenter(Vector2f center) {
