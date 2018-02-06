@@ -6,10 +6,10 @@ import org.newdawn.slick.Input;
 
 public class Chat {
 	private String curr = "";
-	public ArrayList<String> chat = new ArrayList<>();
+	public static ArrayList<String> chat = new ArrayList<>();
 	public static long timeoflastmessage = 0;
 
-	public void chatAddLine(String chatstring) {
+	public static void chatAddLine(String chatstring) {
 		chat.add(chatstring);
 	}
 
@@ -22,8 +22,8 @@ public class Chat {
 	public boolean keyPressed(int key, char c) {
 		switch (key) {
 		case Input.KEY_ENTER:
-			Console.doCommand(curr);
 			chatAddLine(curr);
+			Console.doCommand(curr);
 			timeoflastmessage = System.currentTimeMillis();
 			curr = "";
 			return false;

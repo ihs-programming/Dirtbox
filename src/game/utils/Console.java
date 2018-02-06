@@ -44,13 +44,14 @@ public class Console extends Thread {
 		commandhelp.add("!time set [time] : sets the current time to [time]");
 		commandhelp.add("!characters : returns the total number of chracters");
 		commandhelp.add("!fly : increases movement speed tenfold");
-
-		if (input.indexOf(' ') > -1) { // Check if there is more than one word.
-			String command[] = input.split(" ");
-			executeCommand(command, commandhelp);
-		} else {
-			String command = input; // Text is the first word itself.
-			executeCommand(command, commandhelp);
+		if (input.startsWith("!")) {
+			if (input.indexOf(' ') > -1) { // Check if there is more than one word.
+				String command[] = input.split(" ");
+				executeCommand(command, commandhelp);
+			} else {
+				String command = input; // Text is the first word itself.
+				executeCommand(command, commandhelp);
+			}
 		}
 	}
 
@@ -60,7 +61,7 @@ public class Console extends Thread {
 		if (command[1].equals("?")) {
 			for (int i = 0; i < commandhelp.size(); i++) {
 				if (commandhelp.get(i).startsWith(command[0])) {
-					System.out.println(commandhelp.get(i));
+					Chat.chatAddLine(commandhelp.get(i));
 				}
 			}
 			return;
@@ -73,9 +74,9 @@ public class Console extends Thread {
 			if (command[1].equals("set")) {
 				try {
 					Viewport.globaltimer = Long.parseLong(command[2]);
-					System.out.println("Time set to " + Viewport.globaltimer);
+					Chat.chatAddLine("Time set to " + Viewport.globaltimer);
 				} catch (NumberFormatException e) {
-					System.out.println("\"" + command[2]
+					Chat.chatAddLine("\"" + command[2]
 							+ "\" is not a valid time. Use \"!time ?\" for help");
 				}
 			}
@@ -83,7 +84,7 @@ public class Console extends Thread {
 
 		// if command doesn't work, return this
 		default:
-			System.out.println("\"" + command[0]
+			Chat.chatAddLine("\"" + command[0]
 					+ "\" is not a recognized command. Use \"!help\" for help");
 			break;
 		}
@@ -96,18 +97,18 @@ public class Console extends Thread {
 		case "!help":
 		case "!?":
 			for (int i = 0; i < commandhelp.size(); i++) {
-				System.out.println(commandhelp.get(i));
+				Chat.chatAddLine(commandhelp.get(i));
 			}
 			break;
 
 		// "!time" command, sets and returns time
 		case "!time":
-			System.out.println("Time is: " + Viewport.globaltimer);
+			Chat.chatAddLine("Time is: " + Viewport.globaltimer);
 			break;
 
 		// "!characters" command, returns number of characters
 		case "!characters":
-			System.out.println("Number of characters: " + World.characters.size());
+			Chat.chatAddLine("Number of characters: " + World.characters.size());
 			break;
 
 		// "!fly" command, changes flying state
@@ -118,7 +119,7 @@ public class Console extends Thread {
 
 		// if command doesn't work, return this
 		default:
-			System.out.println("\"" + command
+			Chat.chatAddLine("\"" + command
 					+ "\" is not a recognized command. Use \"!help\" for help");
 			break;
 		}
