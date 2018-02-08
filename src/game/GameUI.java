@@ -15,7 +15,7 @@ import org.newdawn.slick.gui.GUIContext;
 import org.newdawn.slick.gui.MouseOverArea;
 
 public class GameUI {
-	private final static float DEFAULT_BLOCKBUTTON_SIZE = 100;
+	public final static float DEFAULT_BLOCKBUTTON_SIZE = 4;
 	private GameContainer context;
 	private List<AbstractComponent> components = new ArrayList<>();
 
@@ -59,14 +59,17 @@ public class GameUI {
 	}
 
 	private LabelButton generateStoneCoalButton(Vector2f location) {
-		LabelButton button = generateButton(location, getBlockImg(0, 0, DEFAULT_BLOCKBUTTON_SIZE),
+		LabelButton button = generateButton(location,
+				getBlockImg(0, 0, DEFAULT_BLOCKBUTTON_SIZE),
 				null);
-		button.setMouseOverImage(getBlockImg(2, 2, DEFAULT_BLOCKBUTTON_SIZE));
+		button.setMouseOverImage(getBlockImg(1, 0, DEFAULT_BLOCKBUTTON_SIZE));
 		return button;
 	}
 
-	private LabelButton generateButton(Vector2f center, Image img, ComponentListener listener) {
-		LabelButton button = new LabelButton(context, img, (int) (center.x - img.getWidth() / 2),
+	private LabelButton generateButton(Vector2f center, Image img,
+			ComponentListener listener) {
+		LabelButton button = new LabelButton(context, img,
+				(int) (center.x - img.getWidth() / 2),
 				(int) (center.y - img.getWidth() / 2));
 		if (listener != null) {
 			button.addListener(listener);
@@ -75,7 +78,7 @@ public class GameUI {
 	}
 
 	private Image getBlockImg(int sx, int sy, float size) {
-		return SpriteSheetLoader.getBlockImage(sx, sy).getScaledCopy(size);
+		return SpriteSheetLoader.getGuiImage(sx, sy).getScaledCopy(size);
 	}
 
 	public void draw(Graphics g) {
