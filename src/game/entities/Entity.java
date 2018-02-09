@@ -16,6 +16,9 @@ import game.Viewport;
 import game.utils.Geometry;
 import game.world.World;
 
+/**
+ * Represents anything that is in the world
+ */
 public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
 	private static final boolean DEBUG_COLLISION = true;
@@ -33,26 +36,14 @@ public class Entity {
 	private Shape intersectionEdge;
 	private Point scalefactor;
 
-	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
-			float hitheight, Vector2f pos) {
-		this.pos = pos.copy();
-		setSpriteSheet(spritesheet, sheetwidth, sheetheight);
-		this.hitbox = new Rectangle(0, 0, hitwidth, hitheight);
-		this.hitbox.setCenterX(this.pos.x);
-		this.hitbox.setCenterY(this.pos.y);
-	}
-
 	public Entity(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		this.pos = pos.copy();
-		this.setSpriteSheet(spritesheet, sheetwidth, sheetheight);
-		this.generateHitbox();
-		this.hitbox.setCenterX(this.pos.x);
-		this.hitbox.setCenterY(this.pos.y);
+		this(getSpriteSheet(spritesheet, sheetwidth, sheetheight), pos);
 	}
 
 	public Entity(SpriteSheet sheet, Vector2f pos) {
 		this.pos = pos.copy();
 		this.setSpriteSheet(sheet);
+		generateHitbox();
 	}
 
 	public void setSpriteSheet(SpriteSheet sheet) {
@@ -61,9 +52,9 @@ public class Entity {
 		this.sprite.loc = pos;
 	}
 
-	public void setSpriteSheet(Image sheet, int width, int height) {
-		setSpriteSheet(new SpriteSheet(sheet, sheet.getWidth() / width,
-				sheet.getHeight() / height));
+	private static SpriteSheet getSpriteSheet(Image sheet, int width, int height) {
+		return new SpriteSheet(sheet, sheet.getWidth() / width,
+				sheet.getHeight() / height);
 	}
 
 	public Shape getHitbox() {
@@ -84,17 +75,6 @@ public class Entity {
 		this.hitbox = new Rectangle(
 				pos.x + 0.025f * width, pos.y + 0.01f * height, width, height);
 		this.scalefactor = new Point(0.95f, 0.99f);
-	}
-
-	private void generateHitbox(float widthscale, float heightscale) {
-		float width = widthscale * this.spritesheet.getWidth()
-				/ this.spritesheet.getHorizontalCount();
-		float height = heightscale * this.spritesheet.getHeight()
-				/ this.spritesheet.getVerticalCount();
-		this.hitbox = new Rectangle(
-				pos.x + (1 - widthscale) / 2 * width, pos.y + (1 - heightscale) * height,
-				width, height);
-		this.scalefactor = new Point(widthscale, heightscale);
 	}
 
 	public void draw(Viewport vp) {
