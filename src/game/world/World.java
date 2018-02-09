@@ -86,6 +86,7 @@ public class World {
 
 			addEntity(new CollectibleItem(new BlockItem(BlockType.BEDROCK),
 					new Vector2f()));
+			System.out.println("Entity added");
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}

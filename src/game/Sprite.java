@@ -8,26 +8,41 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
 public class Sprite {
-	public Image img;
+	private float scaleFactor;
+	private Image img;
 	public Vector2f loc = new Vector2f();
 
 	private HashMap<Point, Image> cache = new HashMap<>();
 
 	public Sprite(Image img) {
 		this.img = img;
+		scaleFactor = 1;
 	}
 
 	public Rectangle getBoundingBox() {
 		return new Rectangle(loc.x, loc.y, img.getWidth(), img.getHeight());
 	}
 
-	public Image getCachedImage(int nw, int nh) {
-		// if (cache.containsKey(new Point(nw, nh))) {
-		// return cache.get(new Point(nw, nh));
-		// }
-		Image ret = img.getScaledCopy(nw, nh);
-		cache.put(new Point(nw, nh), ret);
+	public void scale(float amount) {
+		// note that negative scales invert the image
+		scaleFactor *= amount;
+	}
 
-		return ret;
+	public Sprite getScaledCopy() {
+		Sprite copy = new Sprite(img);
+		copy.scale(scaleFactor);
+		return copy;
+	}
+
+	public Image getImage() {
+		return img.getScaledCopy(scaleFactor);
+	}
+
+	public float getWidth() {
+		return img.getWidth() * scaleFactor;
+	}
+
+	public float getHeight() {
+		return img.getHeight() * scaleFactor;
 	}
 }
