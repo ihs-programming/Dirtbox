@@ -12,8 +12,8 @@ public class Bunny extends Creature {
 
 	int count = 0;
 
-	public Bunny(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public Bunny(Image spritesheet, Vector2f pos) {
+		super(spritesheet, pos);
 	}
 
 	@Override

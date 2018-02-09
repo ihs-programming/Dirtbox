@@ -17,8 +17,8 @@ public abstract class Creature extends Entity {
 	protected int health;
 	private float timeSinceLastHit;
 
-	public Creature(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public Creature(Image img, Vector2f pos) {
+		super(img, pos);
 		accel.y = GRAVITY;
 		health = totalHealth;
 	}

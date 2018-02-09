@@ -36,7 +36,7 @@ public class Entity {
 
 	public Entity(Image img, Vector2f pos) {
 		this.pos = pos.copy();
-		sprite.img = img;
+		sprite = new Sprite(img);
 		generateHitbox();
 	}
 
@@ -59,7 +59,8 @@ public class Entity {
 	}
 
 	public void draw(Viewport vp) {
-		vp.draw(this.sprite);
+		sprite.loc.set(pos);
+		vp.draw(sprite);
 		if (Viewport.DEBUG_MODE && Entity.DEBUG_COLLISION) {
 			renderMovement(vp);
 		}

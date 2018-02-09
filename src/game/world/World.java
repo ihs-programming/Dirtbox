@@ -73,16 +73,15 @@ public class World {
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
 			ControllableCharacter stalin = new ControllableCharacter(this, stalinsprite,
-					1, 1, new Vector2f(0, 0));
+					new Vector2f(0, 0));
 			addEntity(stalin);
 
 			for (int i = 0; i < 10; i++) {
-				addEntity(new Bunny(stalinsprite, 1, 1, new Vector2f(10 * i, 0)));
+				addEntity(new Bunny(stalinsprite, new Vector2f(10 * i, 0)));
 			}
 			Image wolf = new Image("data/characters/woof.png");
 			wolf = wolf.getScaledCopy(1, 1);
-			addEntity(new Wolf(wolf, 1, 1,
-					new Vector2f(0, 0)));
+			addEntity(new Wolf(wolf, new Vector2f(0, 0)));
 			controlledCharacter = stalin;
 
 			addEntity(new CollectibleItem(new BlockItem(BlockType.BEDROCK),

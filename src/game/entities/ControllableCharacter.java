@@ -34,10 +34,8 @@ public class ControllableCharacter extends Entity {
 
 	protected World world;
 
-	public ControllableCharacter(World w, Image spritesheet, int sheetwidth,
-			int sheetheight,
-			Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public ControllableCharacter(World w, Image img, Vector2f pos) {
+		super(img, pos);
 
 		accel.y = GRAVITY;
 		world = w;

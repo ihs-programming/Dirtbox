@@ -11,8 +11,8 @@ import game.world.World;
 
 public class Wolf extends Creature {
 
-	public Wolf(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public Wolf(Image spritesheet, Vector2f pos) {
+		super(spritesheet, pos);
 	}
 
 	@Override
