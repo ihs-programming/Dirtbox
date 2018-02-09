@@ -71,10 +71,13 @@ public class World {
 			addEntity(stalin);
 
 			for (int i = 0; i < 10; i++) {
-				addEntity(new Bunny(stalinsprite, 1, 1, new Vector2f(10 * i, 0)));
+				Image bunny = new Image("data/characters/rabbit.png");
+				bunny = bunny.getScaledCopy(1, 1);
+				addEntity(new Bunny(bunny, 1, 1,
+						new Vector2f(0, 0)));
 			}
 			Image wolf = new Image("data/characters/woof.png");
-			wolf = wolf.getScaledCopy(1, 1);
+			wolf = wolf.getScaledCopy(2, 2);
 			addEntity(new Wolf(wolf, 1, 1,
 					new Vector2f(0, 0)));
 			controlledCharacter = stalin;
