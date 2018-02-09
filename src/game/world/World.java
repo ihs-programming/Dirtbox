@@ -54,7 +54,7 @@ public class World {
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
 	 */
-	private Set<Point> changedBlocks = new HashSet<Point>();
+	private Set<Point> changedBlocks = new HashSet<>();
 
 	public World() {
 		characters = new ArrayList<>();
@@ -136,9 +136,9 @@ public class World {
 		new RegionGenerator(viewRect, blocks);
 
 		/*
-		 * The following three lines somehow randomly cause up to 1000 ms of lag
-		 * This is a big issue, as the game otherwise runs quite smoothly.
-		 * Please fix! "734.582767 ms for draw (!!!) 743.448732 ms for render"
+		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
+		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
+		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		time = System.currentTimeMillis();
@@ -305,7 +305,7 @@ public class World {
 			for (Point p : collidingBlocks) {
 				Block b = blocks.get(p);
 				if (b instanceof SolidBlock) {
-					e.collide(b.getHitbox());
+					e.collide(b.getHitbox(), e);
 				}
 			}
 		}

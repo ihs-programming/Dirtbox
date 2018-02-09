@@ -33,6 +33,11 @@ public abstract class Creature extends Entity {
 		}
 	}
 
+	public void doHit(int damage) {
+		health -= damage;
+		timeSinceLastHit = 0f;
+	}
+
 	@Override
 	public boolean alive() {
 		return health > 0;

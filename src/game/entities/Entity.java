@@ -151,7 +151,7 @@ public class Entity {
 	 *
 	 * @param hitbox
 	 */
-	public void collide(Shape hitbox) {
+	public void collide(Shape hitbox, Entity entity) {
 		Shape charHitbox = this.getHitbox();
 		// Check if hitboxes actually should interact
 		if (!(hitbox.contains(charHitbox) ||
@@ -220,6 +220,7 @@ public class Entity {
 																	// errors
 					switch (i) {
 					case 0: // down
+						falldamage(entity);
 						vel.y = Math.min(vel.y, 0);
 						break;
 					case 1: // right
@@ -240,6 +241,14 @@ public class Entity {
 			throw new UnsupportedOperationException(
 					"Collision with non rectangles not implemented yet\n" +
 							"	will result in undefined behavior\n");
+		}
+	}
+
+	public void falldamage(Entity entity) {
+		if (entity.vel.getY() > 0.03) {
+			if (entity instanceof Creature) {
+				((Creature) entity).doHit((int) (entity.vel.getY() * 300));
+			}
 		}
 	}
 
