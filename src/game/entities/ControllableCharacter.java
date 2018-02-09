@@ -9,7 +9,7 @@ import game.Viewport;
 import game.blocks.Block;
 import game.world.World;
 
-public class ControllableCharacter extends Entity {
+public class ControllableCharacter extends Creature {
 	public static boolean flying = false;
 	private static final float SPEED = 0.0085f;
 	private static final float JUMP = 0.012f;

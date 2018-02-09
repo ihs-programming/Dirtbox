@@ -68,4 +68,11 @@ public abstract class Creature extends Entity {
 		super.update(w, frametime);
 		timeSinceLastHit += frametime;
 	}
+
+	@Override
+	protected void falldamage() {
+		if (vel.getY() > 0.03) {
+			doHit((int) (vel.getY() * 300));
+		}
+	}
 }

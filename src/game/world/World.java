@@ -305,7 +305,7 @@ public class World {
 			for (Point p : collidingBlocks) {
 				Block b = blocks.get(p);
 				if (b instanceof SolidBlock) {
-					e.collide(b.getHitbox(), e);
+					e.collide(b.getHitbox());
 				}
 			}
 		}

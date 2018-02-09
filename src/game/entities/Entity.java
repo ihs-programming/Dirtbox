@@ -151,7 +151,7 @@ public class Entity {
 	 *
 	 * @param hitbox
 	 */
-	public void collide(Shape hitbox, Entity entity) {
+	public void collide(Shape hitbox) {
 		Shape charHitbox = this.getHitbox();
 		// Check if hitboxes actually should interact
 		if (!(hitbox.contains(charHitbox) ||
@@ -220,7 +220,7 @@ public class Entity {
 																	// errors
 					switch (i) {
 					case 0: // down
-						falldamage(entity);
+						falldamage();
 						vel.y = Math.min(vel.y, 0);
 						break;
 					case 1: // right
@@ -244,12 +244,7 @@ public class Entity {
 		}
 	}
 
-	public void falldamage(Entity entity) {
-		if (entity.vel.getY() > 0.03) {
-			if (entity instanceof Creature) {
-				((Creature) entity).doHit((int) (entity.vel.getY() * 300));
-			}
-		}
+	protected void falldamage() {
 	}
 
 	/**
