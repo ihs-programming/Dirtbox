@@ -15,7 +15,7 @@ import org.newdawn.slick.gui.GUIContext;
 import org.newdawn.slick.gui.MouseOverArea;
 
 public class GameUI {
-	public final static float DEFAULT_BLOCKBUTTON_SIZE = 4;
+	public final static float DEFAULT_BLOCKBUTTON_SIZE = 8;
 	private GameContainer context;
 	private List<AbstractComponent> components = new ArrayList<>();
 
@@ -23,15 +23,17 @@ public class GameUI {
 		this.context = context;
 
 		LabelButton exitButton = generateStoneCoalButton(
-				new Vector2f(context.getWidth(), context.getHeight()).scale(.5f));
-		exitButton.setText("Exit game");
+				new Vector2f(context.getWidth(), context.getHeight()).scale(.5f), 0, 0);
+		exitButton.setText("");
 		exitButton.addListener(source -> {
 			context.exit();
 		});
 		components.add(exitButton);
 
-		LabelButton returnButton = generateStoneCoalButton(new Vector2f(100, 100));
-		returnButton.setText("Return to game");
+		LabelButton returnButton = generateStoneCoalButton(
+				new Vector2f(context.getWidth(), context.getHeight() + 300).scale(.5f), 0,
+				1);
+		returnButton.setText("");
 		returnButton.addListener(returnCallback);
 		components.add(returnButton);
 	}
@@ -58,11 +60,11 @@ public class GameUI {
 		}
 	}
 
-	private LabelButton generateStoneCoalButton(Vector2f location) {
+	private LabelButton generateStoneCoalButton(Vector2f location, int x, int y) {
 		LabelButton button = generateButton(location,
-				getBlockImg(0, 0, DEFAULT_BLOCKBUTTON_SIZE),
+				getBlockImg(x, y, DEFAULT_BLOCKBUTTON_SIZE),
 				null);
-		button.setMouseOverImage(getBlockImg(1, 0, DEFAULT_BLOCKBUTTON_SIZE));
+		button.setMouseOverImage(getBlockImg(x + 1, y, DEFAULT_BLOCKBUTTON_SIZE));
 		return button;
 	}
 
