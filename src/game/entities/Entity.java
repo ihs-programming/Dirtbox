@@ -2,7 +2,6 @@ package game.entities;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Polygon;
@@ -23,7 +22,6 @@ public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
 	private static final boolean DEBUG_COLLISION = true;
 
-	private SpriteSheet spritesheet;
 	private Shape hitbox;
 	protected Sprite sprite;
 	protected Vector2f pos = new Vector2f();
@@ -36,25 +34,10 @@ public class Entity {
 	private Shape intersectionEdge;
 	private Point scalefactor;
 
-	public Entity(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		this(getSpriteSheet(spritesheet, sheetwidth, sheetheight), pos);
-	}
-
-	public Entity(SpriteSheet sheet, Vector2f pos) {
+	public Entity(Image img, Vector2f pos) {
 		this.pos = pos.copy();
-		this.setSpriteSheet(sheet);
+		sprite.img = img;
 		generateHitbox();
-	}
-
-	public void setSpriteSheet(SpriteSheet sheet) {
-		this.spritesheet = sheet;
-		this.sprite = new Sprite(this.spritesheet.getSprite(0, 0));
-		this.sprite.loc = pos;
-	}
-
-	private static SpriteSheet getSpriteSheet(Image sheet, int width, int height) {
-		return new SpriteSheet(sheet, sheet.getWidth() / width,
-				sheet.getHeight() / height);
 	}
 
 	public Shape getHitbox() {
@@ -68,17 +51,14 @@ public class Entity {
 	}
 
 	private void generateHitbox() {
-		float width = 0.95f * this.spritesheet.getWidth()
-				/ this.spritesheet.getHorizontalCount();
-		float height = 0.99f * this.spritesheet.getHeight()
-				/ this.spritesheet.getVerticalCount();
+		float width = 0.95f * sprite.img.getWidth();
+		float height = 0.99f * sprite.img.getHeight();
 		this.hitbox = new Rectangle(
 				pos.x + 0.025f * width, pos.y + 0.01f * height, width, height);
 		this.scalefactor = new Point(0.95f, 0.99f);
 	}
 
 	public void draw(Viewport vp) {
-		this.sprite.img = this.spritesheet.getSprite(0, 0).getScaledCopy(scale);
 		vp.draw(this.sprite);
 		if (Viewport.DEBUG_MODE && Entity.DEBUG_COLLISION) {
 			renderMovement(vp);
@@ -121,8 +101,8 @@ public class Entity {
 	}
 
 	public Vector2f getLocation() {
-		float width = spritesheet.getWidth();
-		float height = spritesheet.getWidth();
+		float width = sprite.img.getWidth();
+		float height = sprite.img.getHeight();
 		return pos.copy().add(new Vector2f(width / 2, height / 2));
 	}
 
