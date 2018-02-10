@@ -1,7 +1,6 @@
 package game.items;
 
-import org.newdawn.slick.Image;
-
+import game.Sprite;
 import game.blocks.Block;
 import game.blocks.BlockType;
 
@@ -18,8 +17,8 @@ public class BlockItem extends Item {
 	}
 
 	@Override
-	public Image getIcon() {
-		return block.getImage().getScaledCopy(ICON_SIZE);
+	public Sprite getIcon() {
+		return block.getSprite().scale(ICON_SIZE);
 	}
 
 	@Override

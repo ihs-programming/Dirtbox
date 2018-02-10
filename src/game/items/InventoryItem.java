@@ -1,6 +1,6 @@
 package game.items;
 
-import org.newdawn.slick.Image;
+import game.Sprite;
 
 /**
  * Specific details about the item that the inventory keeps track of
@@ -34,7 +34,7 @@ public class InventoryItem {
 		number++;
 	}
 
-	public Image getIcon() {
+	public Sprite getIcon() {
 		return item.getIcon();
 	}
 

@@ -24,13 +24,11 @@ import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.SolidBlock;
-import game.entities.CollectibleItem;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
 import game.entities.creature.Bunny;
 import game.entities.creature.Wolf;
 import game.generation.RegionGenerator;
-import game.items.BlockItem;
 import game.utils.Geometry;
 
 public class World {
@@ -83,10 +81,6 @@ public class World {
 			wolf = wolf.getScaledCopy(1, 1);
 			addEntity(new Wolf(wolf, new Vector2f(0, 0)));
 			controlledCharacter = stalin;
-
-			addEntity(new CollectibleItem(new BlockItem(BlockType.BEDROCK),
-					new Vector2f()));
-			System.out.println("Entity added");
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}

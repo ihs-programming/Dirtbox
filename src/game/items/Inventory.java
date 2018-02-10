@@ -105,7 +105,7 @@ public class Inventory {
 				g.fill(itemBackground);
 
 				if (items[i][j] != null) {
-					Image icon = items[i][j].getIcon();
+					Image icon = items[i][j].getIcon().getImage();
 					icon = icon.getScaledCopy((int) config.iconDimensions.x + 1,
 							(int) config.iconDimensions.y + 1);
 					Vector2f trueCenter = new Vector2f(config.slotSize, config.slotSize)

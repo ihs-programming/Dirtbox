@@ -37,7 +37,7 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 			inventory.draw(vp);
 			if (heldItem != null) {
 				g.drawImage(
-						heldItem.getIcon().getScaledCopy(heldItemSize.x, heldItemSize.y),
+						heldItem.getIcon().getScaledImage(heldItemSize.x, heldItemSize.y),
 						userInput.getMouseX(),
 						userInput.getMouseY());
 			}

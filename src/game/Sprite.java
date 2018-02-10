@@ -23,12 +23,13 @@ public class Sprite {
 		return new Rectangle(loc.x, loc.y, img.getWidth(), img.getHeight());
 	}
 
-	public void scale(float amount) {
+	public Sprite scale(float amount) {
 		// note that negative scales invert the image
 		scaleFactor *= amount;
+		return this;
 	}
 
-	public Sprite getScaledCopy() {
+	public Sprite getCopy() {
 		Sprite copy = new Sprite(img);
 		copy.scale(scaleFactor);
 		return copy;
@@ -44,5 +45,9 @@ public class Sprite {
 
 	public float getHeight() {
 		return img.getHeight() * scaleFactor;
+	}
+
+	public Image getScaledImage(int w, int h) {
+		return img.getScaledCopy(w, h);
 	}
 }

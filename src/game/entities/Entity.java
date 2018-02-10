@@ -34,10 +34,14 @@ public class Entity {
 	private Shape intersectionEdge;
 	private Point scalefactor;
 
-	public Entity(Image img, Vector2f pos) {
+	public Entity(Sprite sprite, Vector2f pos) {
 		this.pos = pos.copy();
-		sprite = new Sprite(img);
+		this.sprite = sprite.getCopy();
 		generateHitbox();
+	}
+
+	public Entity(Image img, Vector2f pos) {
+		this(new Sprite(img), pos);
 	}
 
 	public Shape getHitbox() {
@@ -51,8 +55,8 @@ public class Entity {
 	}
 
 	private void generateHitbox() {
-		float width = 0.95f * sprite.img.getWidth();
-		float height = 0.99f * sprite.img.getHeight();
+		float width = 0.95f * sprite.getWidth();
+		float height = 0.99f * sprite.getHeight();
 		this.hitbox = new Rectangle(
 				pos.x + 0.025f * width, pos.y + 0.01f * height, width, height);
 		this.scalefactor = new Point(0.95f, 0.99f);
@@ -102,8 +106,8 @@ public class Entity {
 	}
 
 	public Vector2f getLocation() {
-		float width = sprite.img.getWidth();
-		float height = sprite.img.getHeight();
+		float width = sprite.getWidth();
+		float height = sprite.getHeight();
 		return pos.copy().add(new Vector2f(width / 2, height / 2));
 	}
 
