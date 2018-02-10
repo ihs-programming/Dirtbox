@@ -145,7 +145,7 @@ public class ControllableCharacter extends Creature {
 		if (currentBlock != null) {
 			mineTime += frametime;
 			if (mineTime > ControllableCharacter.BLOCK_MINE_TIME) {
-				w.removeBlock(currentBlock);
+				w.breakBlock(currentBlock.getPointPos());
 				stopMining();
 			}
 		}

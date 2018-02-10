@@ -1,5 +1,7 @@
 package game.blocks;
 
+import java.awt.Point;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
@@ -63,6 +65,10 @@ public abstract class Block {
 
 	public Vector2f getPos() {
 		return pos;
+	}
+
+	public Point getPointPos() {
+		return new Point(Math.round(pos.x), Math.round(pos.y));
 	}
 
 	public Shape getHitbox() {

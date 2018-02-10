@@ -25,11 +25,13 @@ import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.SolidBlock;
+import game.entities.CollectibleItem;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
 import game.entities.creature.Bunny;
 import game.entities.creature.Wolf;
 import game.generation.RegionGenerator;
+import game.items.BlockItem;
 import game.utils.Geometry;
 
 public class World {
@@ -41,7 +43,7 @@ public class World {
 		return p1.x - p2.x;
 	};
 
-	public static ArrayList<Entity> characters;
+	public static List<Entity> characters;
 	public static ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
@@ -162,8 +164,10 @@ public class World {
 		for (Point p : visibleBlocks) {
 			blocks.get(p).drawShading(vp);
 		}
-		for (Entity e : World.characters) {
-			e.draw(vp);
+		synchronized (characters) {
+			for (Entity e : characters) {
+				e.draw(vp);
+			}
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf("%d ms for shading\n",
@@ -291,6 +295,7 @@ public class World {
 	}
 
 	public void update(int delta) {
+		BlockUpdates.propagateLiquids(changedBlocks, blocks);
 		Iterator<Entity> iter = characters.iterator();
 		while (iter.hasNext()) {
 			Entity e = iter.next();
@@ -300,8 +305,6 @@ public class World {
 				iter.remove();
 			}
 		}
-
-		BlockUpdates.propagateLiquids(changedBlocks, blocks);
 
 		// collision detection for main character
 		for (Entity e : characters) {
@@ -363,12 +366,14 @@ public class World {
 		return ret;
 	}
 
-	public void removeBlock(Block b) {
-		Vector2f bpos = b.getPos();
-		Point blockLoc = new Point(Math.round(bpos.x), Math.round(bpos.y));
-		blocks.put(blockLoc, Block.createBlock(BlockType.EMPTY, bpos.x, bpos.y));
+	public void breakBlock(Point pos) {
+		Block prevBlock = blocks.get(pos);
+		blocks.put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
 
-		changedBlocks.add(blockLoc);
+		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), prevBlock.getPos()));
+		}
+		changedBlocks.add(pos);
 	}
 
 	public List<Entity> getEntities() {
