@@ -22,16 +22,17 @@ public class GameUI {
 	public GameUI(GameContainer context, ComponentListener returnCallback) {
 		this.context = context;
 
-		LabelButton exitButton = generateStoneCoalButton(
-				new Vector2f(context.getWidth(), context.getHeight()).scale(.5f), 0, 0);
+		LabelButton exitButton = generateGuiButton(
+				new Vector2f(context.getWidth(), context.getHeight() + 200).scale(.5f), 0,
+				0);
 		exitButton.setText("");
 		exitButton.addListener(source -> {
 			context.exit();
 		});
 		components.add(exitButton);
 
-		LabelButton returnButton = generateStoneCoalButton(
-				new Vector2f(context.getWidth(), context.getHeight() + 300).scale(.5f), 0,
+		LabelButton returnButton = generateGuiButton(
+				new Vector2f(context.getWidth(), context.getHeight() + 500).scale(.5f), 0,
 				1);
 		returnButton.setText("");
 		returnButton.addListener(returnCallback);
@@ -60,7 +61,7 @@ public class GameUI {
 		}
 	}
 
-	private LabelButton generateStoneCoalButton(Vector2f location, int x, int y) {
+	private LabelButton generateGuiButton(Vector2f location, int x, int y) {
 		LabelButton button = generateButton(location,
 				getBlockImg(x, y, DEFAULT_BLOCKBUTTON_SIZE),
 				null);

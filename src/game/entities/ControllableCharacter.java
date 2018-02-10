@@ -5,11 +5,12 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.world.World;
 
-public class ControllableCharacter extends Entity {
+public class ControllableCharacter extends Creature {
 	public static boolean flying = false;
 	private static final float SPEED = 0.0085f;
 	private static final float JUMP = 0.012f;
@@ -35,7 +36,7 @@ public class ControllableCharacter extends Entity {
 	protected World world;
 
 	public ControllableCharacter(World w, Image img, Vector2f pos) {
-		super(img, pos);
+		super(new Sprite(img), pos);
 
 		accel.y = GRAVITY;
 		world = w;

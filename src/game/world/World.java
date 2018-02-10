@@ -20,6 +20,7 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
@@ -75,10 +76,12 @@ public class World {
 			addEntity(stalin);
 
 			for (int i = 0; i < 10; i++) {
-				addEntity(new Bunny(stalinsprite, new Vector2f(10 * i, 0)));
+				Image bunny = new Image("data/characters/rabbit.png");
+				addEntity(new Bunny(new Sprite(bunny).scale(1f / bunny.getWidth()),
+						new Vector2f(10 * i, 0)));
 			}
-			Image wolf = new Image("data/characters/woof.png");
-			wolf = wolf.getScaledCopy(1, 1);
+			Sprite wolf = new Sprite("data/characters/woof.png");
+			wolf.scale(2f / wolf.getWidth());
 			addEntity(new Wolf(wolf, new Vector2f(0, 0)));
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
@@ -308,7 +311,7 @@ public class World {
 			for (Point p : collidingBlocks) {
 				Block b = blocks.get(p);
 				if (b instanceof SolidBlock) {
-					e.collide(b.getHitbox(), e);
+					e.collide(b.getHitbox());
 				}
 			}
 		}

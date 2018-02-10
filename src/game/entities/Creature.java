@@ -1,11 +1,11 @@
 package game.entities;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.world.World;
 
@@ -17,8 +17,8 @@ public abstract class Creature extends Entity {
 	protected int health;
 	private float timeSinceLastHit;
 
-	public Creature(Image img, Vector2f pos) {
-		super(img, pos);
+	public Creature(Sprite sprite, Vector2f pos) {
+		super(sprite, pos);
 		accel.y = GRAVITY;
 		health = totalHealth;
 	}
@@ -67,5 +67,12 @@ public abstract class Creature extends Entity {
 	public void update(World w, float frametime) {
 		super.update(w, frametime);
 		timeSinceLastHit += frametime;
+	}
+
+	@Override
+	protected void falldamage() {
+		if (vel.getY() > 0.03) {
+			doHit((int) (vel.getY() * 300));
+		}
 	}
 }

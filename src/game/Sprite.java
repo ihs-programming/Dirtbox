@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -14,13 +15,18 @@ public class Sprite {
 
 	private HashMap<Point, Image> cache = new HashMap<>();
 
+	public Sprite(String ref) throws SlickException {
+		this(new Image(ref));
+	}
+
 	public Sprite(Image img) {
 		this.img = img;
 		scaleFactor = 1;
 	}
 
 	public Rectangle getBoundingBox() {
-		return new Rectangle(loc.x, loc.y, img.getWidth(), img.getHeight());
+		return new Rectangle(loc.x, loc.y, img.getWidth() * scaleFactor,
+				img.getHeight() * scaleFactor);
 	}
 
 	public Sprite scale(float amount) {

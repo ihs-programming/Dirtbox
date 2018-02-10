@@ -1,8 +1,8 @@
 package game.entities.creature;
 
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.entities.Creature;
 import game.utils.ImprovedNoise;
 import game.world.World;
@@ -12,8 +12,8 @@ public class Bunny extends Creature {
 
 	int count = 0;
 
-	public Bunny(Image spritesheet, Vector2f pos) {
-		super(spritesheet, pos);
+	public Bunny(Sprite sprite, Vector2f pos) {
+		super(sprite, pos);
 	}
 
 	@Override
