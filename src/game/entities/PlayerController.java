@@ -86,6 +86,16 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 		}
 	}
 
+	private void dropHeldItem() {
+		if (heldItem == null) {
+			return;
+		}
+		CollectibleItem dropped = new CollectibleItem(heldItem,
+				character.getLocation().add(new Vector2f(-4, -4)));
+		world.addEntity(dropped);
+		heldItem = null;
+	}
+
 	private Vector2f convertMousePos(int x, int y) {
 		return vp.getInverseDrawTransform().transform(new Vector2f(x, y));
 	}
@@ -96,6 +106,9 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 			switch (key) {
 			case Input.KEY_I:
 				showInventory = !showInventory;
+				if (!showInventory) {
+					dropHeldItem();
+				}
 				break;
 			case Input.KEY_W:
 				if (!showInventory) {

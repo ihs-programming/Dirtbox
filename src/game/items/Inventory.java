@@ -10,8 +10,6 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.Viewport;
-import game.blocks.Block;
-import game.blocks.BlockType;
 
 public class Inventory {
 	// number of slots wide and high the inventory display will be
@@ -19,7 +17,6 @@ public class Inventory {
 	private InventoryItem items[][] = new InventoryItem[config.numSlotsWide][config.numSlotsHigh];
 
 	public Inventory() {
-		addItem(new BlockItem(Block.createBlock(BlockType.COAL_ORE, 0, 0)));
 	}
 
 	public void addItem(Item item) {
