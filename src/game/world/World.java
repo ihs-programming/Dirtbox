@@ -20,15 +20,18 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.SolidBlock;
+import game.entities.CollectibleItem;
 import game.entities.ControllableCharacter;
 import game.entities.Entity;
 import game.entities.creature.Bunny;
 import game.entities.creature.Wolf;
 import game.generation.RegionGenerator;
+import game.items.BlockItem;
 import game.utils.Geometry;
 
 public class World {
@@ -40,7 +43,8 @@ public class World {
 		return p1.x - p2.x;
 	};
 
-	public static ArrayList<Entity> characters;
+	public ArrayList<Entity> entitiesToAdd;
+	public static ArrayList<Entity> entities;
 	public static ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
@@ -57,8 +61,13 @@ public class World {
 	private Set<Point> changedBlocks = new HashSet<>();
 
 	public World() {
-		characters = new ArrayList<>();
+		entities = new ArrayList<>();
+		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
+		addDefaultEntities();
+	}
+
+	private void addDefaultEntities() {
 		try {
 			sunsprite = new Image("data/characters/sunsprite.png");
 			sunsprite.setFilter(Image.FILTER_NEAREST);
@@ -67,19 +76,17 @@ public class World {
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
 			ControllableCharacter stalin = new ControllableCharacter(this, stalinsprite,
-					1, 1, new Vector2f(0, 0));
+					new Vector2f(0, 0));
 			addEntity(stalin);
 
 			for (int i = 0; i < 10; i++) {
 				Image bunny = new Image("data/characters/rabbit.png");
-				bunny = bunny.getScaledCopy(1, 1);
-				addEntity(new Bunny(bunny, 1, 1,
-						new Vector2f(0, 0)));
+				addEntity(new Bunny(new Sprite(bunny).scale(1f / bunny.getWidth()),
+						new Vector2f(10 * i, 0)));
 			}
-			Image wolf = new Image("data/characters/woof.png");
-			wolf = wolf.getScaledCopy(2, 2);
-			addEntity(new Wolf(wolf, 1, 1,
-					new Vector2f(0, 0)));
+			Sprite wolf = new Sprite("data/characters/woof.png");
+			wolf.scale(2f / wolf.getWidth());
+			addEntity(new Wolf(wolf, new Vector2f(0, 0)));
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
@@ -97,11 +104,16 @@ public class World {
 	}
 
 	public void addEntity(Entity e) {
-		characters.add(e);
+		entitiesToAdd.add(e);
+	}
+
+	private void updateEntityList() {
+		entities.addAll(entitiesToAdd);
+		entitiesToAdd.clear();
 	}
 
 	private void updateSun(Viewport vp) {
-		sun = new Entity(World.sunsprite, 1, 1, new Vector2f(
+		sun = new Entity(World.sunsprite, new Vector2f(
 				(float) -(Math
 						.cos(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
@@ -159,8 +171,10 @@ public class World {
 		for (Point p : visibleBlocks) {
 			blocks.get(p).drawShading(vp);
 		}
-		for (Entity e : World.characters) {
-			e.draw(vp);
+		synchronized (entities) {
+			for (Entity e : entities) {
+				e.draw(vp);
+			}
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf("%d ms for shading\n",
@@ -288,7 +302,9 @@ public class World {
 	}
 
 	public void update(int delta) {
-		Iterator<Entity> iter = characters.iterator();
+		BlockUpdates.propagateLiquids(changedBlocks, blocks);
+		updateEntityList();
+		Iterator<Entity> iter = entities.iterator();
 		while (iter.hasNext()) {
 			Entity e = iter.next();
 			e.update(this, delta);
@@ -298,10 +314,8 @@ public class World {
 			}
 		}
 
-		BlockUpdates.propagateLiquids(changedBlocks, blocks);
-
-		// collision detection for main character
-		for (Entity e : characters) {
+		// Collision Detection with surroundings
+		for (Entity e : entities) {
 			Shape hitbox = e.getHitbox();
 			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
 			List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
@@ -352,7 +366,7 @@ public class World {
 
 	public Set<Entity> getEntities(Vector2f pos, float radius) {
 		HashSet<Entity> ret = new HashSet<>();
-		for (Entity e : characters) {
+		for (Entity e : entities) {
 			if (e.getLocation().distance(pos) < radius) {
 				ret.add(e);
 			}
@@ -360,15 +374,21 @@ public class World {
 		return ret;
 	}
 
-	public void removeBlock(Block b) {
-		Vector2f bpos = b.getPos();
-		Point blockLoc = new Point(Math.round(bpos.x), Math.round(bpos.y));
-		blocks.put(blockLoc, Block.createBlock(BlockType.EMPTY, bpos.x, bpos.y));
+	public void breakBlock(Point pos) {
+		Block prevBlock = blocks.get(pos);
+		blocks.put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
 
-		changedBlocks.add(blockLoc);
+		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), prevBlock.getPos()));
+		}
+		changedBlocks.add(pos);
+	}
+
+	public void removeEntity(Entity e) {
+		entities.remove(e);
 	}
 
 	public List<Entity> getEntities() {
-		return characters;
+		return entities;
 	}
 }

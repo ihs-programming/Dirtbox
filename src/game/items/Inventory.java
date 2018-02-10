@@ -8,9 +8,8 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
-import game.blocks.Block;
-import game.blocks.BlockType;
 
 public class Inventory {
 	// number of slots wide and high the inventory display will be
@@ -18,7 +17,6 @@ public class Inventory {
 	private InventoryItem items[][] = new InventoryItem[config.numSlotsWide][config.numSlotsHigh];
 
 	public Inventory() {
-		addItem(new BlockItem(Block.createBlock(BlockType.COAL_ORE, 0, 0)));
 	}
 
 	public void addItem(Item item) {
@@ -105,8 +103,8 @@ public class Inventory {
 				g.fill(itemBackground);
 
 				if (items[i][j] != null) {
-					Image icon = items[i][j].getIcon();
-					icon = icon.getScaledCopy((int) config.iconDimensions.x + 1,
+					Sprite sprite = items[i][j].getIcon();
+					Image icon = sprite.getScaledImage((int) config.iconDimensions.x + 1,
 							(int) config.iconDimensions.y + 1);
 					Vector2f trueCenter = new Vector2f(config.slotSize, config.slotSize)
 							.scale(.5f).add(topLeft);

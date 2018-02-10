@@ -2,17 +2,17 @@ package game.entities.creature;
 
 import java.util.Set;
 
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.entities.Creature;
 import game.entities.Entity;
 import game.world.World;
 
 public class Wolf extends Creature {
 
-	public Wolf(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public Wolf(Sprite sprite, Vector2f pos) {
+		super(sprite, pos);
 	}
 
 	@Override

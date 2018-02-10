@@ -5,6 +5,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.world.World;
@@ -34,10 +35,8 @@ public class ControllableCharacter extends Creature {
 
 	protected World world;
 
-	public ControllableCharacter(World w, Image spritesheet, int sheetwidth,
-			int sheetheight,
-			Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public ControllableCharacter(World w, Image img, Vector2f pos) {
+		super(new Sprite(img), pos);
 
 		accel.y = GRAVITY;
 		world = w;
@@ -146,7 +145,7 @@ public class ControllableCharacter extends Creature {
 		if (currentBlock != null) {
 			mineTime += frametime;
 			if (mineTime > ControllableCharacter.BLOCK_MINE_TIME) {
-				w.removeBlock(currentBlock);
+				w.breakBlock(currentBlock.getPointPos());
 				stopMining();
 			}
 		}

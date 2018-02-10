@@ -1,11 +1,11 @@
 package game.entities;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.world.World;
 
@@ -17,8 +17,8 @@ public abstract class Creature extends Entity {
 	protected int health;
 	private float timeSinceLastHit;
 
-	public Creature(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public Creature(Sprite sprite, Vector2f pos) {
+		super(sprite, pos);
 		accel.y = GRAVITY;
 		health = totalHealth;
 	}

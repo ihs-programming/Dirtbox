@@ -53,9 +53,9 @@ public class Viewport {
 
 		Vector2f res = t.transform(s.loc.copy());
 		// Cheap hack? removes a Math.ceil
-		int nw = (int) (0.999999 + s.img.getWidth() * scaleFactor);
-		int nh = (int) (0.999999 + s.img.getHeight() * scaleFactor);
-		graphics.drawImage(s.getCachedImage(nw, nh), (int) res.x, (int) res.y);
+		int nw = (int) (0.999999 + s.getWidth() * scaleFactor);
+		int nh = (int) (0.999999 + s.getHeight() * scaleFactor);
+		graphics.drawImage(s.getScaledImage(nw, nh), (int) res.x, (int) res.y);
 	}
 
 	public void draw(Shape s, Color c) {

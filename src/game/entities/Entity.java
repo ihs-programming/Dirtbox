@@ -2,7 +2,6 @@ package game.entities;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Polygon;
@@ -16,54 +15,32 @@ import game.Viewport;
 import game.utils.Geometry;
 import game.world.World;
 
+/**
+ * Represents anything that is in the world
+ */
 public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
 	private static final boolean DEBUG_COLLISION = true;
 
-	private SpriteSheet spritesheet;
 	private Shape hitbox;
 	protected Sprite sprite;
 	protected Vector2f pos = new Vector2f();
 	protected Vector2f prevPos = new Vector2f();
 	protected Vector2f vel = new Vector2f();
 	protected Vector2f accel = new Vector2f();
-	private float scale = 1f;
 
 	protected Polygon[] lastMovement = new Polygon[4];
 	private Shape intersectionEdge;
 	private Point scalefactor;
 
-	public Entity(Image spritesheet, int sheetwidth, int sheetheight, float hitwidth,
-			float hitheight, Vector2f pos) {
+	public Entity(Sprite sprite, Vector2f pos) {
 		this.pos = pos.copy();
-		setSpriteSheet(spritesheet, sheetwidth, sheetheight);
-		this.hitbox = new Rectangle(0, 0, hitwidth, hitheight);
-		this.hitbox.setCenterX(this.pos.x);
-		this.hitbox.setCenterY(this.pos.y);
+		this.sprite = sprite.getCopy();
+		generateHitbox();
 	}
 
-	public Entity(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		this.pos = pos.copy();
-		this.setSpriteSheet(spritesheet, sheetwidth, sheetheight);
-		this.generateHitbox();
-		this.hitbox.setCenterX(this.pos.x);
-		this.hitbox.setCenterY(this.pos.y);
-	}
-
-	public Entity(SpriteSheet sheet, Vector2f pos) {
-		this.pos = pos.copy();
-		this.setSpriteSheet(sheet);
-	}
-
-	public void setSpriteSheet(SpriteSheet sheet) {
-		this.spritesheet = sheet;
-		this.sprite = new Sprite(this.spritesheet.getSprite(0, 0));
-		this.sprite.loc = pos;
-	}
-
-	public void setSpriteSheet(Image sheet, int width, int height) {
-		setSpriteSheet(new SpriteSheet(sheet, sheet.getWidth() / width,
-				sheet.getHeight() / height));
+	public Entity(Image img, Vector2f pos) {
+		this(new Sprite(img), pos);
 	}
 
 	public Shape getHitbox() {
@@ -77,29 +54,16 @@ public class Entity {
 	}
 
 	private void generateHitbox() {
-		float width = 0.95f * this.spritesheet.getWidth()
-				/ this.spritesheet.getHorizontalCount();
-		float height = 0.99f * this.spritesheet.getHeight()
-				/ this.spritesheet.getVerticalCount();
+		float width = 0.95f * sprite.getWidth();
+		float height = 0.99f * sprite.getHeight();
 		this.hitbox = new Rectangle(
 				pos.x + 0.025f * width, pos.y + 0.01f * height, width, height);
 		this.scalefactor = new Point(0.95f, 0.99f);
 	}
 
-	private void generateHitbox(float widthscale, float heightscale) {
-		float width = widthscale * this.spritesheet.getWidth()
-				/ this.spritesheet.getHorizontalCount();
-		float height = heightscale * this.spritesheet.getHeight()
-				/ this.spritesheet.getVerticalCount();
-		this.hitbox = new Rectangle(
-				pos.x + (1 - widthscale) / 2 * width, pos.y + (1 - heightscale) * height,
-				width, height);
-		this.scalefactor = new Point(widthscale, heightscale);
-	}
-
 	public void draw(Viewport vp) {
-		this.sprite.img = this.spritesheet.getSprite(0, 0).getScaledCopy(scale);
-		vp.draw(this.sprite);
+		sprite.loc.set(pos);
+		vp.draw(sprite);
 		if (Viewport.DEBUG_MODE && Entity.DEBUG_COLLISION) {
 			renderMovement(vp);
 		}
@@ -136,13 +100,9 @@ public class Entity {
 		hitbox.setCenterY(pos.y);
 	}
 
-	public void magnify(float factor) {
-		this.scale *= factor;
-	}
-
 	public Vector2f getLocation() {
-		float width = spritesheet.getWidth();
-		float height = spritesheet.getWidth();
+		float width = sprite.getWidth();
+		float height = sprite.getHeight();
 		return pos.copy().add(new Vector2f(width / 2, height / 2));
 	}
 
