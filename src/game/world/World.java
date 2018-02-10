@@ -314,7 +314,7 @@ public class World {
 			}
 		}
 
-		// collision detection for main character
+		// Collision Detection with surroundings
 		for (Entity e : entities) {
 			Shape hitbox = e.getHitbox();
 			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
@@ -382,6 +382,10 @@ public class World {
 			addEntity(new CollectibleItem(new BlockItem(prevBlock), prevBlock.getPos()));
 		}
 		changedBlocks.add(pos);
+	}
+
+	public void removeEntity(Entity e) {
+		entities.remove(e);
 	}
 
 	public List<Entity> getEntities() {

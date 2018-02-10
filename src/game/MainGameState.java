@@ -29,7 +29,8 @@ public class MainGameState implements DefaultGameState {
 		Input gcInput = gc.getInput();
 		vpc = new ViewportController(gcInput, vp);
 		world = new World(gcInput);
-		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp);
+		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp,
+				world);
 	}
 
 	@Override

@@ -18,7 +18,7 @@ public class BlockItem extends Item {
 
 	@Override
 	public Sprite getIcon() {
-		return block.getSprite().scale(ICON_SIZE);
+		return block.getSprite().getCopy().scale(ICON_SIZE);
 	}
 
 	@Override

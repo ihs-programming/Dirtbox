@@ -8,6 +8,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
@@ -105,8 +106,8 @@ public class Inventory {
 				g.fill(itemBackground);
 
 				if (items[i][j] != null) {
-					Image icon = items[i][j].getIcon().getImage();
-					icon = icon.getScaledCopy((int) config.iconDimensions.x + 1,
+					Sprite sprite = items[i][j].getIcon();
+					Image icon = sprite.getScaledImage((int) config.iconDimensions.x + 1,
 							(int) config.iconDimensions.y + 1);
 					Vector2f trueCenter = new Vector2f(config.slotSize, config.slotSize)
 							.scale(.5f).add(topLeft);

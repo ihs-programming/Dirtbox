@@ -22,4 +22,8 @@ public class CollectibleItem extends Entity {
 	public void draw(Viewport vp) {
 		super.draw(vp);
 	}
+
+	public Item getItem() {
+		return item;
+	}
 }

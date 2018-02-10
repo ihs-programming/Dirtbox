@@ -28,7 +28,6 @@ public class Entity {
 	protected Vector2f prevPos = new Vector2f();
 	protected Vector2f vel = new Vector2f();
 	protected Vector2f accel = new Vector2f();
-	private float scale = 1f;
 
 	protected Polygon[] lastMovement = new Polygon[4];
 	private Shape intersectionEdge;
@@ -99,10 +98,6 @@ public class Entity {
 		vel.add(accel.copy().scale(frametime));
 		hitbox.setCenterX(pos.x);
 		hitbox.setCenterY(pos.y);
-	}
-
-	public void magnify(float factor) {
-		this.scale *= factor;
 	}
 
 	public Vector2f getLocation() {

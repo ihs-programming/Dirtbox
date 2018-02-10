@@ -1,6 +1,7 @@
 package game.entities;
 
 import java.awt.Point;
+import java.util.List;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -12,23 +13,28 @@ import game.items.Inventory;
 import game.items.Item;
 import game.utils.DefaultKeyListener;
 import game.utils.DefaultMouseListener;
+import game.world.World;
 
 public class PlayerController implements DefaultKeyListener, DefaultMouseListener {
 	private ControllableCharacter character;
 	private Inventory inventory = new Inventory();
 	private Input userInput;
 	private Viewport vp;
+	private World world;
 
 	private boolean showInventory = false;
 	private Item heldItem;
 	private final Point heldItemSize = new Point(25, 25);
+	private float pickupRange = 2f;
 
-	public PlayerController(ControllableCharacter character, Input inp, Viewport vp) {
+	public PlayerController(ControllableCharacter character, Input inp, Viewport vp,
+			World w) {
 		this.character = character;
 		userInput = inp;
 		userInput.addKeyListener(this);
 		userInput.addMouseListener(this);
 		this.vp = vp;
+		world = w;
 	}
 
 	public void draw(Viewport vp) {
@@ -63,6 +69,20 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 			character.interact(mousePos);
 		} else {
 			character.stopInteracting();
+		}
+
+		// pick up blocks
+		List<Entity> entities = world.getEntities();
+		for (int i = 0; i < entities.size(); i++) {
+			Entity e = entities.get(i);
+			if (e instanceof CollectibleItem) {
+				if (e.getLocation().distance(character.getLocation()) > pickupRange) {
+					continue;
+				}
+				world.removeEntity(e);
+				CollectibleItem item = (CollectibleItem) e;
+				inventory.addItem(item.getItem());
+			}
 		}
 	}
 
