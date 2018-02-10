@@ -43,7 +43,8 @@ public class World {
 		return p1.x - p2.x;
 	};
 
-	public static List<Entity> characters;
+	public ArrayList<Entity> entitiesToAdd;
+	public static ArrayList<Entity> entities;
 	public static ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
@@ -60,7 +61,8 @@ public class World {
 	private Set<Point> changedBlocks = new HashSet<>();
 
 	public World() {
-		characters = new ArrayList<>();
+		entities = new ArrayList<>();
+		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
 		addDefaultEntities();
 	}
@@ -102,7 +104,12 @@ public class World {
 	}
 
 	public void addEntity(Entity e) {
-		characters.add(e);
+		entitiesToAdd.add(e);
+	}
+
+	private void updateEntityList() {
+		entities.addAll(entitiesToAdd);
+		entitiesToAdd.clear();
 	}
 
 	private void updateSun(Viewport vp) {
@@ -164,8 +171,8 @@ public class World {
 		for (Point p : visibleBlocks) {
 			blocks.get(p).drawShading(vp);
 		}
-		synchronized (characters) {
-			for (Entity e : characters) {
+		synchronized (entities) {
+			for (Entity e : entities) {
 				e.draw(vp);
 			}
 		}
@@ -296,7 +303,8 @@ public class World {
 
 	public void update(int delta) {
 		BlockUpdates.propagateLiquids(changedBlocks, blocks);
-		Iterator<Entity> iter = characters.iterator();
+		updateEntityList();
+		Iterator<Entity> iter = entities.iterator();
 		while (iter.hasNext()) {
 			Entity e = iter.next();
 			e.update(this, delta);
@@ -307,7 +315,7 @@ public class World {
 		}
 
 		// collision detection for main character
-		for (Entity e : characters) {
+		for (Entity e : entities) {
 			Shape hitbox = e.getHitbox();
 			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
 			List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
@@ -358,7 +366,7 @@ public class World {
 
 	public Set<Entity> getEntities(Vector2f pos, float radius) {
 		HashSet<Entity> ret = new HashSet<>();
-		for (Entity e : characters) {
+		for (Entity e : entities) {
 			if (e.getLocation().distance(pos) < radius) {
 				ret.add(e);
 			}
@@ -377,6 +385,6 @@ public class World {
 	}
 
 	public List<Entity> getEntities() {
-		return characters;
+		return entities;
 	}
 }

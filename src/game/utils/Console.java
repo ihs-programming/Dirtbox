@@ -91,8 +91,8 @@ public class Console extends Thread {
 
 		// "!characters" command, returns number of characters
 		case "!characters":
-			synchronized (World.characters) {
-				Chat.chatAddLine("Number of characters: " + World.characters.size());
+			synchronized (World.entities) {
+				Chat.chatAddLine("Number of characters: " + World.entities.size());
 			}
 			break;
 
