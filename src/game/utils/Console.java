@@ -12,6 +12,13 @@ import game.entities.ControllableCharacter;
 import game.world.World;
 
 public class Console extends Thread {
+	private ControllableCharacter character;
+	private World world;
+
+	public Console(ControllableCharacter character, World world) {
+		this.character = character;
+		this.world = world;
+	}
 
 	@Override
 	public void run() {
@@ -35,7 +42,7 @@ public class Console extends Thread {
 		frame.pack();
 	}
 
-	public static void doCommand(String input) {
+	public String doCommand(String input) {
 
 		// List of all commands and what they do
 		ArrayList<String> commandhelp = new ArrayList<>();
@@ -46,20 +53,21 @@ public class Console extends Thread {
 		commandhelp.add("!fly : increases movement speed tenfold");
 		if (input.startsWith("!")) {
 			String command[] = input.split(" ");
-			executeCommand(command, commandhelp);
+			return executeCommand(command, commandhelp);
 		}
+		return "";
 	}
 
-	public static void executeCommand(String command[], ArrayList<String> commandhelp) {
-
+	public String executeCommand(String command[], ArrayList<String> commandhelp) {
+		String output = "";
 		// return help value
 		if (command.length > 1 && command[1].equals("?")) {
 			for (int i = 0; i < commandhelp.size(); i++) {
 				if (commandhelp.get(i).startsWith(command[0])) {
-					Chat.chatAddLine(commandhelp.get(i));
+					output += commandhelp.get(i) + "\n";
 				}
 			}
-			return;
+			return output;
 		}
 
 		switch (command[0]) {
@@ -68,22 +76,22 @@ public class Console extends Thread {
 		case "!help":
 		case "!?":
 			for (int i = 0; i < commandhelp.size(); i++) {
-				Chat.chatAddLine(commandhelp.get(i));
+				output += commandhelp.get(i) + "\n";
 			}
 			break;
 
 		// "!time" command, sets and returns time
 		case "!time":
 			if (command.length < 1) {
-				Chat.chatAddLine("Time is: " + Viewport.globaltimer);
+				output += "Time is: " + Viewport.globaltimer + "\n";
 			} else {
 				if (command[1].equals("set")) {
 					try {
 						Viewport.globaltimer = Long.parseLong(command[2]);
-						Chat.chatAddLine("Time set to " + Viewport.globaltimer);
+						output += "Time set to " + Viewport.globaltimer + "\n";
 					} catch (NumberFormatException e) {
-						Chat.chatAddLine("\"" + command[2]
-								+ "\" is not a valid time. Use \"!time ?\" for help");
+						output += "\"" + command[2]
+								+ "\" is not a valid time. Use \"!time ?\" for help\n";
 					}
 				}
 			}
@@ -91,9 +99,7 @@ public class Console extends Thread {
 
 		// "!characters" command, returns number of characters
 		case "!characters":
-			synchronized (World.entities) {
-				Chat.chatAddLine("Number of characters: " + World.entities.size());
-			}
+			output += "Number of characters: " + World.entities.size() + "\n";
 			break;
 
 		// "!fly" command, changes flying state
@@ -103,10 +109,11 @@ public class Console extends Thread {
 			break;
 		// if command doesn't work, return this
 		default:
-			Chat.chatAddLine("\"" + command[0]
-					+ "\" is not a recognized command. Use \"!help\" for help");
+			output += "\"" + command[0]
+					+ "\" is not a recognized command. Use \"!help\" for help\n";
 			break;
 		}
+		return output;
 	}
 
 }

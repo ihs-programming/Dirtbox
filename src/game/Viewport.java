@@ -7,7 +7,6 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
-import game.utils.Chat;
 import game.world.World;
 
 /**
@@ -38,8 +37,6 @@ public class Viewport {
 
 	public static boolean day = true;
 	public static boolean DEBUG_MODE = false;
-
-	public final Chat chat = new Chat();
 
 	public Viewport() {
 	}
@@ -105,20 +102,6 @@ public class Viewport {
 		}
 		resetTransformCache = true;
 		timerupdate = System.currentTimeMillis();
-	}
-
-	public void renderChat() {
-		int chatlength = Chat.chat.size();
-		for (int i = 1; i <= 10; i++) {
-			if (i <= chatlength
-					&& (System.currentTimeMillis()
-							- Chat.timeofmessage.get(chatlength - i) <= 5000
-							|| Chat.displaychat)) {
-				draw(Chat.chat.get(chatlength - i), 5,
-						(int) screenDimensions.getY() - 25 - 20 * i, Color.white);
-			}
-		}
-		draw(chat.getMessage(), 5, (int) screenDimensions.getY() - 25, Color.white);
 	}
 
 	public void setScreenCenter(Vector2f center) {

@@ -2,15 +2,23 @@ package game.utils;
 
 import java.util.ArrayList;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Input;
+
+import game.Viewport;
 
 public class Chat {
 	private String curr = "";
-	public static ArrayList<String> chat = new ArrayList<>();
-	public static ArrayList<Long> timeofmessage = new ArrayList<>();
-	public static boolean displaychat = false;
+	public ArrayList<String> chat = new ArrayList<>();
+	public ArrayList<Long> timeofmessage = new ArrayList<>();
+	public boolean displaychat = false;
+	public Console console;
 
-	public static void chatAddLine(String chatstring) {
+	public Chat(Console console) {
+		this.console = console;
+	}
+
+	public void chatAddLine(String chatstring) {
 		chat.add(chatstring);
 		timeofmessage.add(System.currentTimeMillis());
 	}
@@ -25,7 +33,8 @@ public class Chat {
 		switch (key) {
 		case Input.KEY_ENTER:
 			chatAddLine(curr);
-			Console.doCommand(curr);
+			String result = console.doCommand(curr);
+			chatAddLine(result);
 			displaychat = false;
 			curr = "";
 			return false;
@@ -45,5 +54,19 @@ public class Chat {
 
 	public String getMessage() {
 		return curr;
+	}
+
+	public void draw(Viewport vp) {
+		int chatlength = chat.size();
+		for (int i = 1; i <= 10; i++) {
+			if (i <= chatlength
+					&& (System.currentTimeMillis()
+							- timeofmessage.get(chatlength - i) <= 5000
+							|| displaychat)) {
+				vp.draw(chat.get(chatlength - i), 5,
+						(int) vp.getViewShape().getWidth() - 25 - 20 * i, Color.white);
+			}
+		}
+		vp.draw(getMessage(), 5, (int) vp.getViewShape().getHeight() - 25, Color.white);
 	}
 }
