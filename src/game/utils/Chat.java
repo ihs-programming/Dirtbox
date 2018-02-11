@@ -3,6 +3,7 @@ package game.utils;
 import java.util.ArrayList;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 
 import game.Viewport;
@@ -58,13 +59,18 @@ public class Chat {
 
 	public void draw(Viewport vp) {
 		int chatlength = chat.size();
+		Graphics g = vp.getGraphics();
+		int totalDisp = 0;
 		for (int i = 1; i <= 10; i++) {
 			if (i <= chatlength
 					&& (System.currentTimeMillis()
 							- timeofmessage.get(chatlength - i) <= 5000
 							|| displaychat)) {
+				int lines = chat.get(chatlength - i).split("\n").length;
+				totalDisp += lines;
 				vp.draw(chat.get(chatlength - i), 5,
-						(int) vp.getViewShape().getWidth() - 25 - 20 * i, Color.white);
+						(int) vp.getViewShape().getHeight() - 25 - 20 * totalDisp,
+						Color.white);
 			}
 		}
 		vp.draw(getMessage(), 5, (int) vp.getViewShape().getHeight() - 25, Color.white);

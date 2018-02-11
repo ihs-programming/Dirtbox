@@ -82,10 +82,10 @@ public class Console extends Thread {
 
 		// "!time" command, sets and returns time
 		case "!time":
-			if (command.length < 1) {
+			if (command.length < 2) {
 				output += "Time is: " + Viewport.globaltimer + "\n";
 			} else {
-				if (command[1].equals("set")) {
+				if (command.length > 1 && command[1].equals("set")) {
 					try {
 						Viewport.globaltimer = Long.parseLong(command[2]);
 						output += "Time set to " + Viewport.globaltimer + "\n";
