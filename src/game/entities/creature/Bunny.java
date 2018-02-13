@@ -23,8 +23,12 @@ public class Bunny extends Creature {
 		vel.x *= 0.9f;
 
 		if (Math.random() < 0.01) {
-			vel.y = -JUMP_STRENGTH;
-			vel.x = 0.1f * (float) ImprovedNoise.noise(-0.1, count++ / 1000.0, 1);
+			jump(ImprovedNoise.noise(-0.1, count++ / 10.0, 1) > 0);
 		}
+	}
+
+	public void jump(boolean forward) {
+		vel.y = -JUMP_STRENGTH;
+		vel.x = JUMP_STRENGTH * (forward ? 1 : -1);
 	}
 }
