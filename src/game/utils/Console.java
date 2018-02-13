@@ -51,6 +51,7 @@ public class Console extends Thread {
 		commandhelp.add("!time set [time] : sets the current time to [time]");
 		commandhelp.add("!characters : returns the total number of chracters");
 		commandhelp.add("!fly : increases movement speed tenfold");
+		commandhelp.add("!listservers : lists availible servers");
 		if (input.startsWith("!")) {
 			String command[] = input.split(" ");
 			return executeCommand(command, commandhelp);
@@ -107,7 +108,11 @@ public class Console extends Thread {
 		case "!fly":
 			ControllableCharacter.flying = !ControllableCharacter.flying;
 			break;
-		// if command doesn't work, return this
+		case "!addhealth":
+			character.doHit(-10000);
+			break;
+		case "!listservers":
+			break;
 		default:
 			output += "\"" + command[0]
 					+ "\" is not a recognized command. Use \"!help\" for help\n";
