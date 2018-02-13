@@ -374,6 +374,10 @@ public class World {
 
 	public void breakBlock(Point pos) {
 		Block prevBlock = blocks.get(pos);
+		if (prevBlock == null) {
+			return;
+		}
+
 		blocks.put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
@@ -382,6 +386,17 @@ public class World {
 			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos));
 		}
 		changedBlocks.add(pos);
+	}
+
+	public void explode(Point pos, int str) {
+		for (int i = -str; i <= str; i++) {
+			for (int z = -str; z <= str; z++) {
+				if (i * i + z * z > str * str) {
+					continue;
+				}
+				breakBlock(new Point(pos.x + i, pos.y + z));
+			}
+		}
 	}
 
 	public void removeEntity(Entity e) {

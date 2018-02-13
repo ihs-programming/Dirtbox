@@ -1,6 +1,7 @@
 package game.utils;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -106,6 +107,11 @@ public class Console extends Thread {
 		case "!f":
 		case "!fly":
 			ControllableCharacter.flying = !ControllableCharacter.flying;
+			break;
+		case "!explode":
+			Point p = new Point((int) character.getHitbox().getX(),
+					(int) character.getHitbox().getY());
+			world.explode(p, 20);
 			break;
 		// if command doesn't work, return this
 		default:
