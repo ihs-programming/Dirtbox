@@ -377,7 +377,9 @@ public class World {
 		blocks.put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
-			addEntity(new CollectibleItem(new BlockItem(prevBlock), prevBlock.getPos()));
+			Vector2f newPos = prevBlock.getPos();
+			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos));
 		}
 		changedBlocks.add(pos);
 	}
