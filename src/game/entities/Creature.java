@@ -79,8 +79,7 @@ public abstract class Creature extends Entity {
 	}
 
 	protected void jump(float JUMP, int jumplimit) {
-		System.out.println(World.getBlock(World.getCoordinates(super.pos)).type);
-		if (numberOfJumps < jumplimit) {
+		if (isInWater() || numberOfJumps < jumplimit) {
 			vel.y = -JUMP;
 			numberOfJumps++;
 		}
