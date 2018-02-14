@@ -29,6 +29,7 @@ public class ControllableCharacter extends Creature {
 	private float mineTime = 0;
 	private Block currentBlock;
 	private int damage = 1;
+	private int jumplimit = 1;
 
 	private float totalAttackTime = 250;
 	private float attackCharge = 0f;
@@ -64,7 +65,7 @@ public class ControllableCharacter extends Creature {
 	}
 
 	public void jump() {
-		vel.y = -JUMP;
+		this.jump(JUMP, jumplimit);
 	}
 
 	public void interact(Vector2f position) {

@@ -16,6 +16,7 @@ public abstract class Creature extends Entity {
 	protected int totalHealth = 20;
 	protected int health;
 	private float timeSinceLastHit;
+	protected int numberOfJumps = 0;
 
 	public Creature(Sprite sprite, Vector2f pos) {
 		super(sprite, pos);
@@ -69,8 +70,18 @@ public abstract class Creature extends Entity {
 		timeSinceLastHit += frametime;
 	}
 
+	protected void jump(float JUMP, int jumplimit) {
+		if (numberOfJumps < jumplimit) {
+			vel.y = -JUMP;
+			numberOfJumps++;
+		}
+	}
+
 	@Override
 	protected void falldamage() {
+		if (numberOfJumps != 0) {
+			numberOfJumps = 0;
+		}
 		if (vel.getY() > 0.03) {
 			doHit((int) (vel.getY() * 300));
 		}
