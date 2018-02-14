@@ -53,7 +53,7 @@ public class World {
 
 	private Input userInp = null; // used only for debugging purposes currently
 
-	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
+	private static TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
 
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
@@ -65,6 +65,16 @@ public class World {
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
 		addDefaultEntities();
+	}
+
+	public static Block getBlock(Point location) {
+		return blocks.get(location);
+	}
+
+	public static Point getCoordinates(Vector2f position) {
+		Point coordinate = new Point();
+		coordinate.setLocation(position.getX(), position.getY());
+		return coordinate;
 	}
 
 	private void addDefaultEntities() {

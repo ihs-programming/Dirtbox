@@ -7,6 +7,7 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.Viewport;
+import game.blocks.BlockType;
 import game.world.World;
 
 public abstract class Creature extends Entity {
@@ -70,7 +71,15 @@ public abstract class Creature extends Entity {
 		timeSinceLastHit += frametime;
 	}
 
+	private boolean isInWater() {
+		if (World.getBlock(World.getCoordinates(super.pos)).type == BlockType.WATER) {
+			return true;
+		}
+		return false;
+	}
+
 	protected void jump(float JUMP, int jumplimit) {
+		System.out.println(World.getBlock(World.getCoordinates(super.pos)).type);
 		if (numberOfJumps < jumplimit) {
 			vel.y = -JUMP;
 			numberOfJumps++;
