@@ -17,6 +17,7 @@ public class Client {
 	public Client() {
 		try {
 			socket = new DatagramSocket();
+			socket.setBroadcast(true);
 			listenerThread = new HostAccepterThread();
 			listenerThread.start();
 		} catch (SocketException e) {
