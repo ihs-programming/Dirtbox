@@ -40,7 +40,11 @@ public class Server {
 		public void run() {
 			while (!socket.isClosed()) {
 				DatagramPacket packet = Protocol.createMessage(MessageType.HEARTBEAT);
-				Protocol.broadcast(socket, packet);
+				try {
+					Protocol.broadcast(socket, packet);
+				} catch (IOException e) {
+					System.out.println("Unable to send message");
+				}
 			}
 		}
 	}

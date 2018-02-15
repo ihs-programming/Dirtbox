@@ -44,34 +44,31 @@ public class Protocol {
 		return null;
 	}
 
-	public static void broadcast(DatagramSocket socket, DatagramPacket packet) {
-		try {
-			packet.setAddress(InetAddress.getByName("255.255.255.255"));
-			packet.setPort(Protocol.DEFAULT_PORT);
-			socket.send(packet);
-			Enumeration<NetworkInterface> interfaces = NetworkInterface
-					.getNetworkInterfaces();
-			while (interfaces.hasMoreElements()) {
-				NetworkInterface networkInterface = interfaces.nextElement();
-				if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+	public static void broadcast(DatagramSocket socket, DatagramPacket packet)
+			throws IOException {
+		packet.setAddress(InetAddress.getByName("255.255.255.255"));
+		packet.setPort(Protocol.DEFAULT_PORT);
+		socket.send(packet);
+		Enumeration<NetworkInterface> interfaces = NetworkInterface
+				.getNetworkInterfaces();
+		while (interfaces.hasMoreElements()) {
+			NetworkInterface networkInterface = interfaces.nextElement();
+			if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+				continue;
+			}
+			for (InterfaceAddress interfaceAddr : networkInterface
+					.getInterfaceAddresses()) {
+				InetAddress broadcastAddr = interfaceAddr.getBroadcast();
+				if (broadcastAddr == null) {
 					continue;
 				}
-				for (InterfaceAddress interfaceAddr : networkInterface
-						.getInterfaceAddresses()) {
-					InetAddress broadcastAddr = interfaceAddr.getBroadcast();
-					if (broadcastAddr == null) {
-						continue;
-					}
 
-					DatagramPacket pkt = Protocol
-							.createMessage(MessageType.HEARTBEAT);
-					pkt.setAddress(broadcastAddr);
-					pkt.setPort(Protocol.DEFAULT_PORT);
-					socket.send(pkt);
-				}
+				DatagramPacket pkt = Protocol
+						.createMessage(MessageType.HEARTBEAT);
+				pkt.setAddress(broadcastAddr);
+				pkt.setPort(Protocol.DEFAULT_PORT);
+				socket.send(pkt);
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 }

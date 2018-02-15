@@ -6,12 +6,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Client {
 	private DatagramSocket socket;
-	private Set<InetAddress> knownHosts = new HashSet<>();
+	private Map<InetAddress, HostInformation> knownHosts = new HashMap<>();
 	private Thread listenerThread;
 
 	public Client() {
@@ -27,8 +27,11 @@ public class Client {
 
 	public ArrayList<String> getHosts() {
 		ArrayList<String> hostnames = new ArrayList<>();
-		for (InetAddress addr : knownHosts) {
-			hostnames.add(addr.getHostName());
+		for (Map.Entry<InetAddress, HostInformation> host : knownHosts.entrySet()) {
+			String hostname = host.getKey().getHostName();
+			String hostinfo = host.getValue().toString();
+			String info = String.format("%s: %s\n", hostname, hostinfo);
+			hostnames.add(info);
 		}
 		return hostnames;
 	}
@@ -42,7 +45,10 @@ public class Client {
 				try {
 					socket.receive(packet);
 					if (Protocol.parseMessage(packet) == MessageType.HEARTBEAT) {
-						knownHosts.add(packet.getAddress());
+						HostInformation info = knownHosts
+								.getOrDefault(packet.getAddress(), new HostInformation());
+						info.update();
+						knownHosts.put(packet.getAddress(), info);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
