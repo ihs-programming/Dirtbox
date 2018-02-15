@@ -8,6 +8,7 @@ import org.newdawn.slick.geom.Vector2f;
 import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
+import game.blocks.BlockType;
 import game.world.World;
 
 public class ControllableCharacter extends Creature {
@@ -21,8 +22,6 @@ public class ControllableCharacter extends Creature {
 	// 9.8m/s^2
 	// = 9.8*16px/60frames, gravity =
 	// -2.613px/frame
-
-	public static final float BLOCK_MINE_TIME = 10.0f;
 	private float reach = 5f; // distance (in game units) in which the player
 								// can interact
 								// with items in the game
@@ -35,6 +34,25 @@ public class ControllableCharacter extends Creature {
 	private float attackCharge = 0f;
 
 	protected World world;
+	// Break times for different blocks
+	public static float BlockMineTime = 100.0f;
+	BlockType[] BreakTimeThree = { // 800f
+			BlockType.COAL_ORE,
+			BlockType.DIAMOND_ORE,
+			BlockType.GOLD_ORE,
+			BlockType.IRON_ORE,
+			BlockType.REDSTONE_ORE
+	};
+	BlockType[] BreakTimeTwo = { // 400f
+			BlockType.STONE,
+			BlockType.GRAVEL,
+			BlockType.SANDSTONE
+	};
+	BlockType[] BreakTimeOne = { // 200f
+			BlockType.DIRT,
+			BlockType.GRASS,
+			BlockType.SAND
+	};
 
 	public ControllableCharacter(World w, Image img, Vector2f pos) {
 		super(new Sprite(img), pos);
@@ -121,12 +139,39 @@ public class ControllableCharacter extends Creature {
 		if (newBlock != currentBlock) {
 			mineTime = 0;
 		}
+		BlockType type = newBlock.getBlockType();
+		updateMineTime(type);
 		currentBlock = newBlock;
 	}
 
 	public void stopMining() {
 		currentBlock = null;
 		mineTime = 0;
+	}
+
+	public boolean checkBlockType(BlockType[] b, BlockType block) {
+		for (BlockType element : b) {
+			if (element == block) {
+				return true;
+			}
+		}
+		return false;
+	}
+	//Checks what kind of block is being mined and changes how quickly it mines
+	public void updateMineTime(BlockType block) {
+		if (!flying) {
+			if (checkBlockType(BreakTimeOne, block)) {
+				BlockMineTime = 200.0f;
+			} else if (checkBlockType(BreakTimeTwo, block)) {
+				BlockMineTime = 400.0f;
+			} else if (checkBlockType(BreakTimeThree, block)) {
+				BlockMineTime = 800.0f;
+			} else if (block == BlockType.BEDROCK) {
+				BlockMineTime = Float.MAX_VALUE;
+			}
+		} else {
+			BlockMineTime = 10.0f;
+		}
 	}
 
 	@Override
@@ -145,7 +190,7 @@ public class ControllableCharacter extends Creature {
 
 		if (currentBlock != null) {
 			mineTime += frametime;
-			if (mineTime > ControllableCharacter.BLOCK_MINE_TIME) {
+			if (mineTime > ControllableCharacter.BlockMineTime) {
 				w.breakBlock(currentBlock.getPointPos());
 				stopMining();
 			}
