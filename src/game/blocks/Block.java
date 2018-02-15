@@ -62,7 +62,9 @@ public abstract class Block {
 							255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 63.0)));
 		}
 	}
-
+	public BlockType getBlockType() {
+		return this.type;
+	}
 	public Vector2f getPos() {
 		return pos;
 	}

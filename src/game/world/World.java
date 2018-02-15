@@ -53,7 +53,7 @@ public class World {
 
 	private Input userInp = null; // used only for debugging purposes currently
 
-	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
+	private static TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
 
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
@@ -65,6 +65,16 @@ public class World {
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
 		addDefaultEntities();
+	}
+
+	public static Block getBlock(Point location) {
+		return blocks.get(location);
+	}
+
+	public static Point getCoordinates(Vector2f position) {
+		Point coordinate = new Point();
+		coordinate.setLocation(position.getX(), position.getY());
+		return coordinate;
 	}
 
 	private void addDefaultEntities() {
@@ -374,12 +384,29 @@ public class World {
 
 	public void breakBlock(Point pos) {
 		Block prevBlock = blocks.get(pos);
+		if (prevBlock == null) {
+			return;
+		}
+
 		blocks.put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
-			addEntity(new CollectibleItem(new BlockItem(prevBlock), prevBlock.getPos()));
+			Vector2f newPos = prevBlock.getPos();
+			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos));
 		}
 		changedBlocks.add(pos);
+	}
+
+	public void explode(Point pos, int str) {
+		for (int i = -str; i <= str; i++) {
+			for (int z = -str; z <= str; z++) {
+				if (i * i + z * z > str * str) {
+					continue;
+				}
+				breakBlock(new Point(pos.x + i, pos.y + z));
+			}
+		}
 	}
 
 	public void removeEntity(Entity e) {
