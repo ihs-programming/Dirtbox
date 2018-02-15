@@ -10,11 +10,15 @@ import javax.swing.WindowConstants;
 
 import game.Viewport;
 import game.entities.ControllableCharacter;
+import game.network.Client;
+import game.network.Server;
 import game.world.World;
 
 public class Console extends Thread {
 	private ControllableCharacter character;
 	private World world;
+	private Client client = new Client();
+	private Server server;
 
 	public Console(ControllableCharacter character, World world) {
 		this.character = character;
@@ -112,12 +116,28 @@ public class Console extends Thread {
 		case "!addhealth":
 			character.doHit(-10000);
 			break;
-		case "!listservers":
-			break;
 		case "!explode":
 			Point p = new Point((int) character.getHitbox().getX(),
 					(int) character.getHitbox().getY());
 			world.explode(p, 20);
+			break;
+		case "!listservers":
+			ArrayList<String> hosts = client.getHosts();
+			if (hosts.isEmpty()) {
+				output += "No hosts found...";
+			} else {
+				output += String.join("\n", hosts);
+			}
+			break;
+		case "!host":
+			server = new Server();
+			break;
+		case "!hoststatus":
+			if (server == null) {
+				output += "Not currently hosting a server";
+			} else {
+				output += "Server is currently active";
+			}
 			break;
 		// if command doesn't work, return this
 		default:
