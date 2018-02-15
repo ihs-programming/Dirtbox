@@ -384,7 +384,7 @@ public class World {
 
 	public void breakBlock(Point pos) {
 		Block prevBlock = blocks.get(pos);
-		if (prevBlock == null) {
+		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
 			return;
 		}
 
