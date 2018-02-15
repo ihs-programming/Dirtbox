@@ -3,6 +3,7 @@ package game.utils;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -127,7 +128,7 @@ public class Console extends Thread {
 			world.explode(p, 20);
 			break;
 		case "!listservers":
-			ArrayList<String> hosts = client.getHosts();
+			Collection<String> hosts = client.getHostInfo().values();
 			if (hosts.isEmpty()) {
 				output += "No hosts found...";
 			} else {
@@ -149,6 +150,8 @@ public class Console extends Thread {
 				server.stop();
 				server = null;
 			}
+			break;
+		case "!connect":
 			break;
 		// if command doesn't work, return this
 		default:

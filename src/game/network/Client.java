@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,15 +24,15 @@ public class Client {
 		}
 	}
 
-	public ArrayList<String> getHosts() {
-		ArrayList<String> hostnames = new ArrayList<>();
+	public Map<InetAddress, String> getHostInfo() {
+		Map<InetAddress, String> hostmap = new HashMap<>();
 		for (Map.Entry<InetAddress, HostInformation> host : knownHosts.entrySet()) {
 			String hostname = host.getKey().getHostName();
 			String hostinfo = host.getValue().toString();
 			String info = String.format("%s: %s\n", hostname, hostinfo);
-			hostnames.add(info);
+			hostmap.put(host.getKey(), info);
 		}
-		return hostnames;
+		return hostmap;
 	}
 
 	private class HostAccepterThread extends Thread {
