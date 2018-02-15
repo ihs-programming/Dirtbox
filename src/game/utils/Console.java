@@ -14,6 +14,9 @@ import game.network.Client;
 import game.network.Server;
 import game.world.World;
 
+/**
+ * Handles various commands in the game
+ */
 public class Console extends Thread {
 	private ControllableCharacter character;
 	private World world;
@@ -57,6 +60,8 @@ public class Console extends Thread {
 		commandhelp.add("!characters : returns the total number of chracters");
 		commandhelp.add("!fly : increases movement speed tenfold");
 		commandhelp.add("!listservers : lists availible servers");
+		commandhelp.add("!host : starts hosting server on computer");
+		commandhelp.add("!stophosting: stops the current server (if running)");
 		if (input.startsWith("!")) {
 			String command[] = input.split(" ");
 			return executeCommand(command, commandhelp);
@@ -137,6 +142,12 @@ public class Console extends Thread {
 				output += "Not currently hosting a server";
 			} else {
 				output += "Server is currently active";
+			}
+			break;
+		case "!stophosting":
+			if (server != null) {
+				server.stop();
+				server = null;
 			}
 			break;
 		// if command doesn't work, return this

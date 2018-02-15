@@ -16,7 +16,7 @@ public class Client {
 
 	public Client() {
 		try {
-			socket = new DatagramSocket();
+			socket = new DatagramSocket(Protocol.DEFAULT_PORT);
 			socket.setBroadcast(true);
 			listenerThread = new HostAccepterThread();
 			listenerThread.start();
@@ -38,7 +38,6 @@ public class Client {
 		public void run() {
 			while (!socket.isClosed()) {
 				byte[] buffer = new byte[8];
-				System.out.println("Waiting for connections");
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				try {
 					socket.receive(packet);

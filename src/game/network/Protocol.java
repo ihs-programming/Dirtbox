@@ -1,6 +1,12 @@
 package game.network;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 /**
  * Several helper functions dealing with the network protocol that the game uses
@@ -8,6 +14,7 @@ import java.net.DatagramPacket;
  */
 public class Protocol {
 	private final static int HEADER_SIZE = 8;
+
 	public final static int DEFAULT_PORT = 8838;
 
 	/**
@@ -17,7 +24,7 @@ public class Protocol {
 	 * @return
 	 */
 	public static MessageType parseMessage(DatagramPacket p) {
-		if (p.getLength() < HEADER_SIZE || p.getPort() != DEFAULT_PORT) {
+		if (p.getLength() < HEADER_SIZE) {
 			// packet must at least contain HEADER_SIZE bytes
 			return MessageType.UNKNOWN;
 		}
@@ -35,5 +42,36 @@ public class Protocol {
 			return new DatagramPacket(buffer, 1);
 		}
 		return null;
+	}
+
+	public static void broadcast(DatagramSocket socket, DatagramPacket packet) {
+		try {
+			packet.setAddress(InetAddress.getByName("255.255.255.255"));
+			packet.setPort(Protocol.DEFAULT_PORT);
+			socket.send(packet);
+			Enumeration<NetworkInterface> interfaces = NetworkInterface
+					.getNetworkInterfaces();
+			while (interfaces.hasMoreElements()) {
+				NetworkInterface networkInterface = interfaces.nextElement();
+				if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+					continue;
+				}
+				for (InterfaceAddress interfaceAddr : networkInterface
+						.getInterfaceAddresses()) {
+					InetAddress broadcastAddr = interfaceAddr.getBroadcast();
+					if (broadcastAddr == null) {
+						continue;
+					}
+
+					DatagramPacket pkt = Protocol
+							.createMessage(MessageType.HEARTBEAT);
+					pkt.setAddress(broadcastAddr);
+					pkt.setPort(Protocol.DEFAULT_PORT);
+					socket.send(pkt);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
