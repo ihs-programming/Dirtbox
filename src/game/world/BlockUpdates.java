@@ -4,7 +4,6 @@ import java.awt.Point;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
@@ -58,10 +57,9 @@ public class BlockUpdates {
 			if (b instanceof LiquidBlock) {
 				// Hmm.. Might as well use it? This probably isn't how you're
 				// supposed to tho.
-				Optional<Block> under = Optional.of(blocks.get(new Point(p.x, p.y + 1)))
-						.filter(block -> block.type == BlockType.EMPTY);
+				Block under = blocks.get(new Point(p.x, p.y + 1));
 				// First try flowing under
-				if (under.isPresent()) {
+				if (under != null && under.type == BlockType.EMPTY) {
 					swapBlocks(blocks, p, new Point(p.x, p.y + 1));
 					addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 				} else {
