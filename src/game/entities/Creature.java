@@ -100,9 +100,9 @@ public abstract class Creature extends Entity {
 		return false;
 	}
 
-	protected void jump(float JUMP, int jumplimit) {
+	protected void jump(float jumpStrength, int jumplimit) {
 		if (isInWater() || numberOfJumps < jumplimit) {
-			vel.y = -JUMP;
+			vel.y = -jumpStrength;
 			numberOfJumps++;
 		}
 	}

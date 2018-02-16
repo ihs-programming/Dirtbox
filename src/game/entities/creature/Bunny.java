@@ -28,7 +28,7 @@ public class Bunny extends Creature {
 	}
 
 	public void jump(boolean forward) {
-		vel.y = -JUMP_STRENGTH;
+		jump(Bunny.JUMP_STRENGTH, 1);
 		vel.x = JUMP_STRENGTH * (forward ? 1 : -1);
 	}
 }
