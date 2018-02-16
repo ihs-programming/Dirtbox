@@ -28,17 +28,28 @@ public class RegionGenerator {
 	 * The seed that region generators use. This is static because multiple
 	 * instances of RegionGenerator are created.
 	 */
-	private final static double seed = 1000 * Math.random();
+	private final double seed = 1000 * Math.random();
 	/**
 	 * Limits generation to 10 thousand chunks for now.
 	 */
-	private final static BiomeType[] biomes = new BiomeType[10000];
+	private final BiomeType[] biomes = new BiomeType[10000];
+
+	/**
+	 * This rectangle contains the coordinates of all generated blocks
+	 */
+	public Rectangle generatedblocks = new Rectangle(0, 0, 0, CHUNK_HEIGHT);
 
 	/*
 	 * Block object that the regiongenerator will operate on
 	 */
 	private TreeMap<Point, Block> blocks;
-	static {
+
+	public RegionGenerator(TreeMap<Point, Block> blocks) {
+		initializeBiomes();
+		this.blocks = blocks;
+	}
+
+	private void initializeBiomes() {
 		biomes[0] = randombiome();
 		for (int i = 1; i < biomes.length; i++) {
 			// Switch biome type
@@ -56,8 +67,7 @@ public class RegionGenerator {
 		}
 	}
 
-	public RegionGenerator(Rectangle s, TreeMap<Point, Block> blocks) {
-		this.blocks = blocks;
+	public void generate(Rectangle s) {
 		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
 			for (int j = Math.max(0, (int) (s.getMinY() - 1)); j <= s.getMaxY()
 					+ 1; j++) {
@@ -70,6 +80,14 @@ public class RegionGenerator {
 		Point curpos = new Point(x, y);
 		if (blocks.containsKey(curpos)) {
 			return;
+		} else {
+			if (curpos.getX() < generatedblocks.getMinX()) {
+				generatedblocks.setX((float) curpos.getX());
+			} else if (curpos.getX() > generatedblocks.getMaxX()) {
+				generatedblocks
+						.setWidth(
+								(float) (curpos.getX() - generatedblocks.getMinX()));
+			}
 		}
 		if (y >= BEDROCK_LAYER) {
 			blocks.put(curpos, Block.createBlock(BlockType.BEDROCK, x, y));
@@ -95,14 +113,14 @@ public class RegionGenerator {
 		}
 	}
 
-	private Block[][] generateChunk(int x, int y, double seed) {
+	private Block[][] generateChunk(int x, int y, double customSeed) {
 		int chunkNumber = biomes.length / 2 + x / CHUNK_SIZE;
-		seed = SEED_STEP * chunkNumber + RegionGenerator.seed;
+		customSeed = SEED_STEP * chunkNumber + this.seed;
 
 		long chunkgenerationtime = System.nanoTime();
 		BiomeType biometype = biomes[chunkNumber];
 
-		int[] heightMap = generateHeightMap(biometype, chunkNumber, seed);
+		int[] heightMap = generateHeightMap(biometype, chunkNumber, customSeed);
 		// Generate the underlying blocks
 		Block[][] blocks = new Block[CHUNK_SIZE][CHUNK_HEIGHT];
 		BlockType blocksenum[][] = new BlockType[CHUNK_SIZE][CHUNK_HEIGHT];
@@ -169,18 +187,19 @@ public class RegionGenerator {
 		return blocks;
 	}
 
-	private int[] generateHeightMap(BiomeType biometype, int chunkNumber, double seed) {
+	private int[] generateHeightMap(BiomeType biometype, int chunkNumber,
+			double customSeed) {
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
 			if (biometype != BiomeType.BUFFER) {
 				heightMap[i] = (int) (getAmplitude(biometype)
-						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
-								RegionGenerator.seed, RegionGenerator.seed)
+						* ImprovedNoise.noise(customSeed + SEED_STEP * i / CHUNK_SIZE,
+								this.seed, this.seed)
 						+ CHUNK_HEIGHT * 0.25);
 			} else {
 				heightMap[i] = (int) (getAmplitude(biomes, chunkNumber, i)
-						* ImprovedNoise.noise(seed + SEED_STEP * i / CHUNK_SIZE,
-								RegionGenerator.seed, RegionGenerator.seed)
+						* ImprovedNoise.noise(customSeed + SEED_STEP * i / CHUNK_SIZE,
+								this.seed, this.seed)
 						+ CHUNK_HEIGHT * 0.25);
 			}
 		}

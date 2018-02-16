@@ -13,6 +13,7 @@ import game.Viewport;
 import game.entities.ControllableCharacter;
 import game.network.Client;
 import game.network.Server;
+import game.save.Saver;
 import game.world.World;
 
 /**
@@ -23,6 +24,7 @@ public class Console extends Thread {
 	private World world;
 	private Client client = new Client();
 	private Server server;
+	private Saver saver = new Saver();
 
 	public Console(ControllableCharacter character, World world) {
 		this.character = character;
@@ -63,6 +65,8 @@ public class Console extends Thread {
 		commandhelp.add("!listservers : lists availible servers");
 		commandhelp.add("!host : starts hosting server on computer");
 		commandhelp.add("!stophosting: stops the current server (if running)");
+		commandhelp.add(
+				"!explode : Breaks all blocks in a large radius around the player");
 		if (input.startsWith("!")) {
 			String command[] = input.split(" ");
 			return executeCommand(command, commandhelp);
@@ -111,17 +115,22 @@ public class Console extends Thread {
 
 		// "!characters" command, returns number of characters
 		case "!characters":
-			output += "Number of characters: " + World.entities.size() + "\n";
+			output += "Number of characters: " + world.entities.size() + "\n";
+			break;
+
+		case "!save":
+			saver.save(world, world.regionGenerator);
 			break;
 
 		// "!fly" command, changes flying state
 		case "!f":
 		case "!fly":
-			ControllableCharacter.flying = !ControllableCharacter.flying;
+			character.flying = !character.flying;
 			break;
 		case "!addhealth":
 			character.doHit(-10000);
 			break;
+
 		case "!explode":
 			Point p = new Point((int) character.getHitbox().getX(),
 					(int) character.getHitbox().getY());
@@ -153,6 +162,7 @@ public class Console extends Thread {
 			break;
 		case "!connect":
 			break;
+
 		// if command doesn't work, return this
 		default:
 			output += "\"" + command[0]

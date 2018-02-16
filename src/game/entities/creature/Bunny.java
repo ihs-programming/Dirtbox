@@ -12,8 +12,8 @@ public class Bunny extends Creature {
 
 	int count = 0;
 
-	public Bunny(Sprite sprite, Vector2f pos) {
-		super(sprite, pos);
+	public Bunny(Sprite sprite, Vector2f pos, World w) {
+		super(sprite, pos, w);
 	}
 
 	@Override

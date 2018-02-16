@@ -81,6 +81,16 @@ public class Inventory {
 		drawItems(g);
 	}
 
+	public void drawHotbar(Viewport vp) {
+		Graphics g = vp.getGraphics();
+		drawHotbar(g);
+	}
+
+	private void drawHotbar(Graphics g) {
+		g.fillRect(0, 0, 5000f, 5000f);
+
+	}
+
 	private void drawOverlay(Graphics g) {
 		g.setColor(new Color(0, 0, 0, .5f));
 		g.fillRect(0, 0, 5000f, 5000f); // 5000 is the max dimension of a screen (I hope)

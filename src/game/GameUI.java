@@ -85,6 +85,7 @@ public class GameUI {
 	}
 
 	public void draw(Graphics g) {
+
 		g.setColor(Color.white);
 		for (AbstractComponent comp : components) {
 			try {

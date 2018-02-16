@@ -7,6 +7,7 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.Viewport;
+import game.blocks.Block;
 import game.blocks.BlockType;
 import game.world.World;
 
@@ -18,9 +19,14 @@ public abstract class Creature extends Entity {
 	protected int health;
 	private float timeSinceLastHit;
 	protected int numberOfJumps = 0;
+	private float framesUnderWater = 0;
+	private float timeTillDamageUnderWater = 7500f;
+	private float timeSinceLastDrownDamage = 0f;
+	private int drownDamage = 3;
+	private float drownDamageRate = 1500f;
 
-	public Creature(Sprite sprite, Vector2f pos) {
-		super(sprite, pos);
+	public Creature(Sprite sprite, Vector2f pos, World w) {
+		super(sprite, pos, w);
 		accel.y = GRAVITY;
 		health = totalHealth;
 	}
@@ -69,10 +75,26 @@ public abstract class Creature extends Entity {
 	public void update(World w, float frametime) {
 		super.update(w, frametime);
 		timeSinceLastHit += frametime;
+
+		if (Viewport.globaltimer >= 1000) {
+
+			if (isInWater()) {
+				this.framesUnderWater += frametime;
+				timeSinceLastDrownDamage += frametime;
+				if (this.framesUnderWater >= this.timeTillDamageUnderWater
+						&& timeSinceLastDrownDamage >= drownDamageRate) {
+					timeSinceLastDrownDamage = 0f;
+					doHit(drownDamage);
+				}
+			} else {
+				this.framesUnderWater = 0;
+			}
+		}
 	}
 
 	private boolean isInWater() {
-		if (World.getBlock(World.getCoordinates(super.pos)).type == BlockType.WATER) {
+		Block testBlock = world.getBlock(World.getCoordinates(super.pos));
+		if (testBlock != null && testBlock.type == BlockType.WATER) {
 			return true;
 		}
 		return false;

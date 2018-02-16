@@ -91,7 +91,7 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 			return;
 		}
 		CollectibleItem dropped = new CollectibleItem(heldItem,
-				character.getLocation().add(new Vector2f(-4, -4)));
+				character.getLocation().add(new Vector2f(-4, -4)), world);
 		world.addEntity(dropped);
 		heldItem = null;
 	}
