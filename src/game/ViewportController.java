@@ -3,6 +3,7 @@ package game;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.utils.Chat;
 import game.utils.Console;
 import game.utils.DefaultKeyListener;
 import game.utils.DefaultMouseListener;
@@ -14,12 +15,17 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 
 	private Input userInput;
 	private Viewport vp;
+	private Chat chat;
 
 	public ViewportController(Input inp, Viewport vp) {
 		userInput = inp;
 		this.vp = vp;
 		userInput.addKeyListener(this);
 		userInput.addMouseListener(this);
+	}
+
+	public void setChat(Chat chat) {
+		this.chat = chat;
 	}
 
 	public void update(float frametime) {
@@ -38,12 +44,12 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 		vp.move(movement);
 	}
 
-	private boolean inChat = false;
+	public static boolean inChat = false;
 
 	@Override
 	public void keyPressed(int key, char c) {
 		if (inChat) {
-			inChat = vp.chat.keyPressed(key, c);
+			inChat = chat.keyPressed(key, c);
 		} else {
 			switch (key) {
 			case Input.KEY_MINUS:
@@ -56,6 +62,9 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 				vp.printDebugInfo();
 				break;
 			case Input.KEY_T:
+				if (chat != null) {
+					chat.displaychat = true;
+				}
 				inChat = true;
 				break;
 			case Input.KEY_F1:

@@ -5,12 +5,14 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
+import game.blocks.BlockType;
 import game.world.World;
 
-public class ControllableCharacter extends Entity {
-	public static boolean flying = false;
+public class ControllableCharacter extends Creature {
+	public boolean flying = false;
 	private static final float SPEED = 0.0085f;
 	private static final float JUMP = 0.012f;
 	// 1 block = 1 m^2, 1 block = 16 px,
@@ -20,24 +22,42 @@ public class ControllableCharacter extends Entity {
 	// 9.8m/s^2
 	// = 9.8*16px/60frames, gravity =
 	// -2.613px/frame
-
-	public static final float BLOCK_MINE_TIME = 10.0f;
 	private float reach = 5f; // distance (in game units) in which the player
 								// can interact
 								// with items in the game
 	private float mineTime = 0;
 	private Block currentBlock;
 	private int damage = 1;
+	private int jumplimit = 1;
 
 	private float totalAttackTime = 250;
 	private float attackCharge = 0f;
 
 	protected World world;
+	// Break times for different blocks
+	private float blockMineTime = 100.0f;
+	private BlockType[][] breakTime = {
+			{ // 800f
+					BlockType.COAL_ORE,
+					BlockType.DIAMOND_ORE,
+					BlockType.GOLD_ORE,
+					BlockType.IRON_ORE,
+					BlockType.REDSTONE_ORE
+			},
+			{ // 400f
+					BlockType.STONE,
+					BlockType.GRAVEL,
+					BlockType.SANDSTONE
+			},
+			{ // 200f
+					BlockType.DIRT,
+					BlockType.GRASS,
+					BlockType.SAND
+			}
+	};
 
-	public ControllableCharacter(World w, Image spritesheet, int sheetwidth,
-			int sheetheight,
-			Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, 0.8f, 1.8f, pos);
+	public ControllableCharacter(World w, Image img, Vector2f pos) {
+		super(new Sprite(img), pos, w);
 
 		accel.y = GRAVITY;
 		world = w;
@@ -65,7 +85,7 @@ public class ControllableCharacter extends Entity {
 	}
 
 	public void jump() {
-		vel.y = -JUMP;
+		super.jump(JUMP, flying ? Integer.MAX_VALUE : jumplimit);
 	}
 
 	public void interact(Vector2f position) {
@@ -121,12 +141,39 @@ public class ControllableCharacter extends Entity {
 		if (newBlock != currentBlock) {
 			mineTime = 0;
 		}
+		BlockType type = newBlock.getBlockType();
+		updateMineTime(type);
 		currentBlock = newBlock;
 	}
 
 	public void stopMining() {
 		currentBlock = null;
 		mineTime = 0;
+	}
+
+	public boolean checkBlockType(BlockType[] b, BlockType block) {
+		for (BlockType element : b) {
+			if (element == block) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// Checks what kind of block is being mined and changes how quickly it mines
+	public void updateMineTime(BlockType block) {
+		if (!flying) {
+			for (int i = 0; i < breakTime.length; i++) {
+				if (checkBlockType(breakTime[i], block)) {
+					blockMineTime = 200f * (float) Math.pow(2f, breakTime.length - i - 1);
+				}
+			}
+			if (block == BlockType.BEDROCK) {
+				blockMineTime = Float.MAX_VALUE;
+			}
+		} else {
+			blockMineTime = 10.0f;
+		}
 	}
 
 	@Override
@@ -145,8 +192,8 @@ public class ControllableCharacter extends Entity {
 
 		if (currentBlock != null) {
 			mineTime += frametime;
-			if (mineTime > ControllableCharacter.BLOCK_MINE_TIME) {
-				w.removeBlock(currentBlock);
+			if (mineTime > blockMineTime) {
+				w.breakBlock(currentBlock.getPointPos());
 				stopMining();
 			}
 		}

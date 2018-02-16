@@ -49,22 +49,24 @@ public class MusicPlayer extends Thread {
 	File pausemusic = new File("data/music/pausemusic.wav");
 
 	public void pauseMusic() throws InterruptedException {
-		try {
-			Clip audioclip = MusicPlayer.PlayFile(pausemusic);
-			audioclip.start();
-			for (int i = 0; i < MusicPlayer.SongLength(pausemusic)
-					* 1000.0; i += 1000.0 / Dirtbox.DEFAULT_FRAME_RATE) {
-				if (MainGameState.inGame) {
-					audioclip.stop();
-					break;
+		if (MainGameState.playMusic) {
+			try {
+				Clip audioclip = MusicPlayer.PlayFile(pausemusic);
+				audioclip.start();
+				for (int i = 0; i < MusicPlayer.SongLength(pausemusic)
+						* 1000.0; i += 1000.0 / Dirtbox.DEFAULT_FRAME_RATE) {
+					if (MainGameState.inGame) {
+						audioclip.stop();
+						break;
+					}
+					Thread.sleep((long) (1000.0 / Dirtbox.DEFAULT_FRAME_RATE));
 				}
-				Thread.sleep((long) (1000.0 / Dirtbox.DEFAULT_FRAME_RATE));
+				audioclip.stop();
+			} catch (InterruptedException | UnsupportedAudioFileException
+					| IOException | LineUnavailableException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			audioclip.stop();
-		} catch (InterruptedException | UnsupportedAudioFileException
-				| IOException | LineUnavailableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

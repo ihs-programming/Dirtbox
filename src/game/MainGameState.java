@@ -8,6 +8,8 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
 import game.entities.PlayerController;
+import game.utils.Chat;
+import game.utils.Console;
 import game.utils.DefaultGameState;
 import game.world.World;
 
@@ -23,13 +25,18 @@ public class MainGameState implements DefaultGameState {
 	private boolean worldrendered = false;
 
 	private PlayerController playerController;
+	private Chat chat;
 
 	@Override
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		Input gcInput = gc.getInput();
 		vpc = new ViewportController(gcInput, vp);
 		world = new World(gcInput);
-		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp);
+		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp,
+				world);
+
+		chat = new Chat(new Console(world.getMainCharacter(), world));
+		vpc.setChat(chat);
 	}
 
 	@Override
@@ -55,6 +62,7 @@ public class MainGameState implements DefaultGameState {
 			}
 			world.draw(vp);
 			playerController.draw(vp);
+			chat.draw(vp);
 		} else {
 			// Display ui
 			ui.draw(g);
@@ -87,9 +95,11 @@ public class MainGameState implements DefaultGameState {
 			// open exit menu
 			inGame = !inGame;
 		}
-		if (keycode == Input.KEY_L) {
-			// toggle whether viewport will center on character
-			lockCharacter = !lockCharacter;
+		if (!ViewportController.inChat) {
+			if (keycode == Input.KEY_L) {
+				// toggle whether viewport will center on character
+				lockCharacter = !lockCharacter;
+			}
 		}
 	}
 }

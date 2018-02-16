@@ -15,23 +15,26 @@ import org.newdawn.slick.gui.GUIContext;
 import org.newdawn.slick.gui.MouseOverArea;
 
 public class GameUI {
-	private final static float DEFAULT_BLOCKBUTTON_SIZE = 100;
+	public final static float DEFAULT_BLOCKBUTTON_SIZE = 8;
 	private GameContainer context;
 	private List<AbstractComponent> components = new ArrayList<>();
 
 	public GameUI(GameContainer context, ComponentListener returnCallback) {
 		this.context = context;
 
-		LabelButton exitButton = generateStoneCoalButton(
-				new Vector2f(context.getWidth(), context.getHeight()).scale(.5f));
-		exitButton.setText("Exit game");
+		LabelButton exitButton = generateGuiButton(
+				new Vector2f(context.getWidth(), context.getHeight() + 200).scale(.5f), 0,
+				0);
+		exitButton.setText("");
 		exitButton.addListener(source -> {
 			context.exit();
 		});
 		components.add(exitButton);
 
-		LabelButton returnButton = generateStoneCoalButton(new Vector2f(100, 100));
-		returnButton.setText("Return to game");
+		LabelButton returnButton = generateGuiButton(
+				new Vector2f(context.getWidth(), context.getHeight() + 500).scale(.5f), 0,
+				1);
+		returnButton.setText("");
 		returnButton.addListener(returnCallback);
 		components.add(returnButton);
 	}
@@ -58,15 +61,18 @@ public class GameUI {
 		}
 	}
 
-	private LabelButton generateStoneCoalButton(Vector2f location) {
-		LabelButton button = generateButton(location, getBlockImg(0, 0, DEFAULT_BLOCKBUTTON_SIZE),
+	private LabelButton generateGuiButton(Vector2f location, int x, int y) {
+		LabelButton button = generateButton(location,
+				getBlockImg(x, y, DEFAULT_BLOCKBUTTON_SIZE),
 				null);
-		button.setMouseOverImage(getBlockImg(2, 2, DEFAULT_BLOCKBUTTON_SIZE));
+		button.setMouseOverImage(getBlockImg(x + 1, y, DEFAULT_BLOCKBUTTON_SIZE));
 		return button;
 	}
 
-	private LabelButton generateButton(Vector2f center, Image img, ComponentListener listener) {
-		LabelButton button = new LabelButton(context, img, (int) (center.x - img.getWidth() / 2),
+	private LabelButton generateButton(Vector2f center, Image img,
+			ComponentListener listener) {
+		LabelButton button = new LabelButton(context, img,
+				(int) (center.x - img.getWidth() / 2),
 				(int) (center.y - img.getWidth() / 2));
 		if (listener != null) {
 			button.addListener(listener);
@@ -75,10 +81,11 @@ public class GameUI {
 	}
 
 	private Image getBlockImg(int sx, int sy, float size) {
-		return SpriteSheetLoader.getBlockImage(sx, sy).getScaledCopy(size);
+		return SpriteSheetLoader.getGuiImage(sx, sy).getScaledCopy(size);
 	}
 
 	public void draw(Graphics g) {
+
 		g.setColor(Color.white);
 		for (AbstractComponent comp : components) {
 			try {

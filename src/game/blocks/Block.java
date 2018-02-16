@@ -1,7 +1,8 @@
 package game.blocks;
 
+import java.awt.Point;
+
 import org.newdawn.slick.Color;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
@@ -61,9 +62,15 @@ public abstract class Block {
 							255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 63.0)));
 		}
 	}
-
+	public BlockType getBlockType() {
+		return this.type;
+	}
 	public Vector2f getPos() {
 		return pos;
+	}
+
+	public Point getPointPos() {
+		return new Point(Math.round(pos.x), Math.round(pos.y));
 	}
 
 	public Shape getHitbox() {
@@ -81,7 +88,8 @@ public abstract class Block {
 		this.lighting = lighting;
 	}
 
-	public Image getImage() {
-		return sprite.img.copy(); // ensure image can't be modified outside of this class
+	public Sprite getSprite() {
+		return sprite.getCopy(); // ensure image can't be modified outside of this
+									// class
 	}
 }

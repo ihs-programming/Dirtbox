@@ -20,15 +20,19 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.blocks.SolidBlock;
+import game.entities.CollectibleItem;
 import game.entities.ControllableCharacter;
+import game.entities.Creature;
 import game.entities.Entity;
 import game.entities.creature.Bunny;
 import game.entities.creature.Wolf;
 import game.generation.RegionGenerator;
+import game.items.BlockItem;
 import game.utils.Geometry;
 
 public class World {
@@ -40,25 +44,43 @@ public class World {
 		return p1.x - p2.x;
 	};
 
-	public static ArrayList<Entity> characters;
-	public static ArrayList<Entity> backgroundsprites;
+	public ArrayList<Entity> entitiesToAdd;
+	public ArrayList<Entity> entities;
+	public ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
-	private static Image sunsprite;
+	private Image sunsprite;
 	private Entity sun;
 
 	private Input userInp = null; // used only for debugging purposes currently
 
 	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
+	public RegionGenerator regionGenerator;
 
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
 	 */
-	private Set<Point> changedBlocks = new HashSet<Point>();
+	private Set<Point> changedBlocks = new HashSet<>();
 
 	public World() {
-		characters = new ArrayList<>();
+		entities = new ArrayList<>();
+		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
+		regionGenerator = new RegionGenerator(blocks);
+		addDefaultEntities();
+	}
+
+	public Block getBlock(Point location) {
+		return blocks.get(location);
+	}
+
+	public static Point getCoordinates(Vector2f position) {
+		Point coordinate = new Point();
+		coordinate.setLocation(position.getX(), position.getY());
+		return coordinate;
+	}
+
+	private void addDefaultEntities() {
 		try {
 			sunsprite = new Image("data/characters/sunsprite.png");
 			sunsprite.setFilter(Image.FILTER_NEAREST);
@@ -67,16 +89,17 @@ public class World {
 			stalinsprite.setFilter(Image.FILTER_NEAREST);
 			stalinsprite = stalinsprite.getScaledCopy(1, 2);
 			ControllableCharacter stalin = new ControllableCharacter(this, stalinsprite,
-					1, 1, new Vector2f(0, 0));
+					new Vector2f(0, 0));
 			addEntity(stalin);
 
 			for (int i = 0; i < 10; i++) {
-				addEntity(new Bunny(stalinsprite, 1, 1, new Vector2f(10 * i, 0)));
+				Image bunny = new Image("data/characters/rabbit.png");
+				addEntity(new Bunny(new Sprite(bunny).scale(1f / bunny.getWidth()),
+						new Vector2f(10 * i, 0), this));
 			}
-			Image wolf = new Image("data/characters/woof.png");
-			wolf = wolf.getScaledCopy(1, 1);
-			addEntity(new Wolf(wolf, 1, 1,
-					new Vector2f(0, 0)));
+			Sprite wolf = new Sprite("data/characters/woof.png");
+			wolf.scale(2f / wolf.getWidth());
+			addEntity(new Wolf(wolf, new Vector2f(0, 0), this));
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
@@ -94,11 +117,16 @@ public class World {
 	}
 
 	public void addEntity(Entity e) {
-		characters.add(e);
+		entitiesToAdd.add(e);
+	}
+
+	private void updateEntityList() {
+		entities.addAll(entitiesToAdd);
+		entitiesToAdd.clear();
 	}
 
 	private void updateSun(Viewport vp) {
-		sun = new Entity(World.sunsprite, 1, 1, new Vector2f(
+		sun = new Entity(sunsprite, new Vector2f(
 				(float) -(Math
 						.cos(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
@@ -106,7 +134,8 @@ public class World {
 						+ sunsprite.getScaledCopy(4, 4).getWidth() / 2),
 				(float) -(Math.sin(
 						2.0 * Math.PI * Viewport.globaltimer / World.DAY_NIGHT_DURATION)
-						* 15) + 30));
+						* 15) + 30),
+				this);
 	}
 
 	public void draw(Viewport vp) {
@@ -116,7 +145,7 @@ public class World {
 			sun.draw(vp);
 		}
 
-		for (Entity e : World.backgroundsprites) {
+		for (Entity e : backgroundsprites) {
 			e.draw(vp);
 		}
 
@@ -124,7 +153,7 @@ public class World {
 		Rectangle viewRect = Geometry.getBoundingBox(view);
 
 		long time = System.currentTimeMillis();
-		Lighting.doSunLighting(blocks, (int) viewRect.getX() - 10,
+		Lighting.doSunLighting(getBlocks(), (int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
 				(int) viewRect.getY() - 10,
 				(int) (viewRect.getY() + view.getHeight()) + 10, 63);
@@ -133,18 +162,18 @@ public class World {
 					System.currentTimeMillis() - time);
 		}
 
-		new RegionGenerator(viewRect, blocks);
+		regionGenerator.generate(viewRect);
 
 		/*
-		 * The following three lines somehow randomly cause up to 1000 ms of lag
-		 * This is a big issue, as the game otherwise runs quite smoothly.
-		 * Please fix! "734.582767 ms for draw (!!!) 743.448732 ms for render"
+		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
+		 * a big issue, as the game otherwise runs quite smoothly. Please fix!
+		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
 		time = System.currentTimeMillis();
 		Block.draw_hit_count = 0;
 		for (Point p : visibleBlocks) {
-			blocks.get(p).draw(vp);
+			getBlocks().get(p).draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf(
@@ -154,9 +183,9 @@ public class World {
 		}
 		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
-			blocks.get(p).drawShading(vp);
+			getBlocks().get(p).drawShading(vp);
 		}
-		for (Entity e : World.characters) {
+		for (Entity e : entities) {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
@@ -165,8 +194,6 @@ public class World {
 			// renderHitboxes(vp);
 			// renderMouseRaytrace(vp);
 		}
-
-		vp.renderChat();
 	}
 
 	private void renderMouseRaytrace(Viewport vp) {
@@ -264,7 +291,8 @@ public class World {
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
 			Point start = new Point(i, (int) (view.getMinY() - 1));
 			Point end = new Point(i, (int) (view.getMaxY() + 1));
-			NavigableSet<Point> existingBlocks = blocks.navigableKeySet().subSet(start,
+			NavigableSet<Point> existingBlocks = getBlocks().navigableKeySet().subSet(
+					start,
 					true, end, true);
 			for (Point p : existingBlocks) {
 				blockLocs.add(p);
@@ -285,7 +313,9 @@ public class World {
 	}
 
 	public void update(int delta) {
-		Iterator<Entity> iter = characters.iterator();
+		BlockUpdates.propagateLiquids(changedBlocks, getBlocks());
+		updateEntityList();
+		Iterator<Entity> iter = entities.iterator();
 		while (iter.hasNext()) {
 			Entity e = iter.next();
 			e.update(this, delta);
@@ -295,15 +325,13 @@ public class World {
 			}
 		}
 
-		BlockUpdates.propagateLiquids(changedBlocks, blocks);
-
-		// collision detection for main character
-		for (Entity e : characters) {
+		// Collision Detection with surroundings
+		for (Entity e : entities) {
 			Shape hitbox = e.getHitbox();
 			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
 			List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 			for (Point p : collidingBlocks) {
-				Block b = blocks.get(p);
+				Block b = getBlocks().get(p);
 				if (b instanceof SolidBlock) {
 					e.collide(b.getHitbox());
 				}
@@ -322,7 +350,7 @@ public class World {
 		Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
 		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 		for (Point p : collidingBlocks) {
-			Block b = blocks.get(p);
+			Block b = getBlocks().get(p);
 			vp.draw(b.getHitbox(), Color.white);
 			vp.draw(Geometry.createCircle(b.getPos(), .2f), Color.green);
 		}
@@ -339,7 +367,7 @@ public class World {
 	public Block getBlockAtPosition(Vector2f gameMouseLocation) {
 		List<Point> clickLine = rayTrace(getCharacterPosition(), gameMouseLocation);
 		for (Point p : clickLine) {
-			Block b = blocks.get(p);
+			Block b = getBlocks().get(p);
 			if (b instanceof SolidBlock) {
 				return b;
 			}
@@ -349,7 +377,7 @@ public class World {
 
 	public Set<Entity> getEntities(Vector2f pos, float radius) {
 		HashSet<Entity> ret = new HashSet<>();
-		for (Entity e : characters) {
+		for (Entity e : entities) {
 			if (e.getLocation().distance(pos) < radius) {
 				ret.add(e);
 			}
@@ -357,15 +385,56 @@ public class World {
 		return ret;
 	}
 
-	public void removeBlock(Block b) {
-		Vector2f bpos = b.getPos();
-		Point blockLoc = new Point(Math.round(bpos.x), Math.round(bpos.y));
-		blocks.put(blockLoc, Block.createBlock(BlockType.EMPTY, bpos.x, bpos.y));
+	public void breakBlock(Point pos) {
+		Block prevBlock = getBlocks().get(pos);
+		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
+			return;
+		}
 
-		changedBlocks.add(blockLoc);
+		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
+
+		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
+			Vector2f newPos = prevBlock.getPos();
+			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos, this));
+		}
+		changedBlocks.add(pos);
+	}
+
+	public void explode(Point pos, int str) {
+		for (int i = -str; i <= str; i++) {
+			for (int z = -str; z <= str; z++) {
+				if (i * i + z * z > str * str) {
+					continue;
+				}
+				breakBlock(new Point(pos.x + i, pos.y + z));
+			}
+		}
+		for (Entity e : entities) {
+			Point entityCenter = new Point((int) e.getHitbox().getCenterX(),
+					(int) e.getHitbox().getCenterY());
+
+			if (entityCenter.distance(pos) < str) {
+				if (e instanceof Creature) {
+					((Creature) e).doHit(1);
+				}
+			}
+		}
+	}
+
+	public void removeEntity(Entity e) {
+		entities.remove(e);
 	}
 
 	public List<Entity> getEntities() {
-		return characters;
+		return entities;
+	}
+
+	public TreeMap<Point, Block> getBlocks() {
+		return blocks;
+	}
+
+	public void setBlocks(TreeMap<Point, Block> blocks) {
+		this.blocks = blocks;
 	}
 }

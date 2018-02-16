@@ -2,9 +2,9 @@ package game.entities.creature;
 
 import java.util.Set;
 
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.entities.Creature;
 import game.entities.Entity;
 import game.world.World;
@@ -12,8 +12,8 @@ import game.world.World;
 public class Wolf extends Creature {
 	private int count;
 
-	public Wolf(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public Wolf(Sprite sprite, Vector2f pos, World w) {
+		super(sprite, pos, w);
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class Wolf extends Creature {
 				((Creature) target).doHit(this, 1);
 			}
 			if (Math.random() < 0.01) {
-				vel.y = -Bunny.JUMP_STRENGTH;
+				jump(Bunny.JUMP_STRENGTH, 1);
 			}
 		}
 

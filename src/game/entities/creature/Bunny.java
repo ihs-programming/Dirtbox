@@ -1,8 +1,8 @@
 package game.entities.creature;
 
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.entities.Creature;
 import game.utils.ImprovedNoise;
 import game.world.World;
@@ -12,8 +12,8 @@ public class Bunny extends Creature {
 
 	int count = 0;
 
-	public Bunny(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public Bunny(Sprite sprite, Vector2f pos, World w) {
+		super(sprite, pos, w);
 	}
 
 	@Override
@@ -23,8 +23,12 @@ public class Bunny extends Creature {
 		vel.x *= 0.9f;
 
 		if (Math.random() < 0.01) {
-			vel.y = -JUMP_STRENGTH;
-			vel.x = 0.1f * (float) ImprovedNoise.noise(-0.1, count++ / 1000.0, 1);
+			jump(ImprovedNoise.noise(-0.1, count++ / 10.0, 1) > 0);
 		}
+	}
+
+	public void jump(boolean forward) {
+		jump(Bunny.JUMP_STRENGTH, 1);
+		vel.x = JUMP_STRENGTH * (forward ? 1 : -1);
 	}
 }

@@ -1,12 +1,12 @@
 package game.items;
 
-import org.newdawn.slick.Image;
+import game.Sprite;
 
 /**
  * Represents the item in general
  */
 public abstract class Item {
-	public abstract Image getIcon();
+	public abstract Sprite getIcon();
 
 	public abstract boolean equals(Item otherItem);
 }

@@ -1,12 +1,14 @@
 package game.entities;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.Sprite;
 import game.Viewport;
+import game.blocks.Block;
+import game.blocks.BlockType;
 import game.world.World;
 
 public abstract class Creature extends Entity {
@@ -16,9 +18,15 @@ public abstract class Creature extends Entity {
 	protected int totalHealth = 20;
 	protected int health;
 	private float timeSinceLastHit;
+	protected int numberOfJumps = 0;
+	private float framesUnderWater = 0;
+	private float timeTillDamageUnderWater = 7500f;
+	private float timeSinceLastDrownDamage = 0f;
+	private int drownDamage = 3;
+	private float drownDamageRate = 1500f;
 
-	public Creature(Image spritesheet, int sheetwidth, int sheetheight, Vector2f pos) {
-		super(spritesheet, sheetwidth, sheetheight, pos);
+	public Creature(Sprite sprite, Vector2f pos, World w) {
+		super(sprite, pos, w);
 		accel.y = GRAVITY;
 		health = totalHealth;
 	}
@@ -31,6 +39,11 @@ public abstract class Creature extends Entity {
 			health -= damage;
 			timeSinceLastHit = 0f;
 		}
+	}
+
+	public void doHit(int damage) {
+		health -= damage;
+		timeSinceLastHit = 0f;
 	}
 
 	@Override
@@ -62,5 +75,45 @@ public abstract class Creature extends Entity {
 	public void update(World w, float frametime) {
 		super.update(w, frametime);
 		timeSinceLastHit += frametime;
+
+		if (Viewport.globaltimer >= 1000) {
+
+			if (isInWater()) {
+				this.framesUnderWater += frametime;
+				timeSinceLastDrownDamage += frametime;
+				if (this.framesUnderWater >= this.timeTillDamageUnderWater
+						&& timeSinceLastDrownDamage >= drownDamageRate) {
+					timeSinceLastDrownDamage = 0f;
+					doHit(drownDamage);
+				}
+			} else {
+				this.framesUnderWater = 0;
+			}
+		}
+	}
+
+	private boolean isInWater() {
+		Block testBlock = world.getBlock(World.getCoordinates(super.pos));
+		if (testBlock != null && testBlock.type == BlockType.WATER) {
+			return true;
+		}
+		return false;
+	}
+
+	protected void jump(float jumpStrength, int jumplimit) {
+		if (isInWater() || numberOfJumps < jumplimit) {
+			vel.y = -jumpStrength;
+			numberOfJumps++;
+		}
+	}
+
+	@Override
+	protected void falldamage() {
+		if (numberOfJumps != 0) {
+			numberOfJumps = 0;
+		}
+		if (vel.getY() > 0.03) {
+			doHit((int) (vel.getY() * 300));
+		}
 	}
 }
