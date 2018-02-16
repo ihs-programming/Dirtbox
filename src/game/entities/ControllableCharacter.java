@@ -165,7 +165,7 @@ public class ControllableCharacter extends Creature {
 		if (!flying) {
 			for (int i = 0; i < breakTime.length; i++) {
 				if (checkBlockType(breakTime[i], block)) {
-					blockMineTime = 200f * (float) Math.pow(2f, i);
+					blockMineTime = 200f * (float) Math.pow(2f, breakTime.length - i - 1);
 				}
 			}
 			if (block == BlockType.BEDROCK) {
