@@ -2,8 +2,12 @@ package game.utils;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.IllegalFormatException;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -25,6 +29,10 @@ public class Console extends Thread {
 	private Client client = new Client();
 	private Server server;
 	private Saver saver = new Saver();
+	private Map<Integer, InetAddress> serverUI = new HashMap<>();
+
+	private JFrame frame;
+	private JTextField commandLine;
 
 	public Console(ControllableCharacter character, World world) {
 		this.character = character;
@@ -34,12 +42,8 @@ public class Console extends Thread {
 	@Override
 	public void run() {
 		frame.setVisible(true);
-
 		return;
 	}
-
-	private JFrame frame;
-	private JTextField commandLine;
 
 	public Console() {
 		frame = new JFrame();
@@ -67,6 +71,8 @@ public class Console extends Thread {
 		commandhelp.add("!stophosting: stops the current server (if running)");
 		commandhelp.add(
 				"!explode : Breaks all blocks in a large radius around the player");
+		commandhelp.add(
+				"!connect [number] : connects to server denoted by number created from listservers");
 		if (input.startsWith("!")) {
 			String command[] = input.split(" ");
 			return executeCommand(command, commandhelp);
@@ -137,11 +143,16 @@ public class Console extends Thread {
 			world.explode(p, 20);
 			break;
 		case "!listservers":
-			Collection<String> hosts = client.getHostInfo().values();
-			if (hosts.isEmpty()) {
+			Map<InetAddress, String> hostinfo = client.getHostInfo();
+			serverUI.clear();
+			int ind = 0;
+			for (Map.Entry<InetAddress, String> entry : hostinfo.entrySet()) {
+				serverUI.put(ind, entry.getKey());
+				output += Integer.toString(ind) + " : " + entry.getValue() + "\n";
+				ind++;
+			}
+			if (hostinfo.isEmpty()) {
 				output += "No hosts found...";
-			} else {
-				output += String.join("\n", hosts);
 			}
 			break;
 		case "!host":
@@ -161,6 +172,26 @@ public class Console extends Thread {
 			}
 			break;
 		case "!connect":
+			if (command.length < 2) {
+				output += "Need to specify a server";
+				break;
+			} else {
+				try {
+					int connectInd = Integer.parseInt(command[1]);
+					if (!serverUI.containsKey(connectInd)) {
+						output += "Unable to find servers";
+					} else {
+						InetAddress addr = serverUI.get(connectInd);
+						client.disconnect();
+						client.connect(addr);
+					}
+				} catch (IllegalFormatException e) {
+					output += "Must specify number denoting server index";
+				} catch (IOException e) {
+					output += "Unable to connect to server";
+					e.printStackTrace();
+				}
+			}
 			break;
 
 		// if command doesn't work, return this

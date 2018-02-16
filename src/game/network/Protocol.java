@@ -15,7 +15,8 @@ import java.util.Enumeration;
 public class Protocol {
 	private final static int HEADER_SIZE = 8;
 
-	public final static int DEFAULT_PORT = 8838;
+	public final static int DEFAULT_DISCOVERY_PORT = 8838;
+	public final static int DEFAULT_TCP_PORT = 39204;
 
 	/**
 	 * Checks if the given packet is
@@ -47,7 +48,7 @@ public class Protocol {
 	public static void broadcast(DatagramSocket socket, DatagramPacket packet)
 			throws IOException {
 		packet.setAddress(InetAddress.getByName("255.255.255.255"));
-		packet.setPort(Protocol.DEFAULT_PORT);
+		packet.setPort(Protocol.DEFAULT_DISCOVERY_PORT);
 		socket.send(packet);
 		Enumeration<NetworkInterface> interfaces = NetworkInterface
 				.getNetworkInterfaces();
@@ -66,7 +67,7 @@ public class Protocol {
 				DatagramPacket pkt = Protocol
 						.createMessage(MessageType.HEARTBEAT);
 				pkt.setAddress(broadcastAddr);
-				pkt.setPort(Protocol.DEFAULT_PORT);
+				pkt.setPort(Protocol.DEFAULT_DISCOVERY_PORT);
 				socket.send(pkt);
 			}
 		}
