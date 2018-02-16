@@ -102,7 +102,7 @@ public class Console extends Thread {
 
 		// "!characters" command, returns number of characters
 		case "!characters":
-			output += "Number of characters: " + World.entities.size() + "\n";
+			output += "Number of characters: " + world.entities.size() + "\n";
 			break;
 		case "!save":
 			saver.save(world, world.regionGenerator);

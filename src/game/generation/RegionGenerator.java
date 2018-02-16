@@ -44,15 +44,9 @@ public class RegionGenerator {
 	 */
 	private TreeMap<Point, Block> blocks;
 
-	public RegionGenerator(Rectangle s, TreeMap<Point, Block> blocks) {
+	public RegionGenerator(TreeMap<Point, Block> blocks) {
 		initializeBiomes();
 		this.blocks = blocks;
-		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
-			for (int j = Math.max(0, (int) (s.getMinY() - 1)); j <= s.getMaxY()
-					+ 1; j++) {
-				generateWorld(i, j);
-			}
-		}
 	}
 
 	private void initializeBiomes() {
@@ -69,6 +63,15 @@ public class RegionGenerator {
 				}
 			} else {
 				biomes[i] = biomes[i - 1];
+			}
+		}
+	}
+
+	public void generate(Rectangle s) {
+		for (int i = (int) (s.getMinX() - 1); i <= s.getMaxX() + 1; i++) {
+			for (int j = Math.max(0, (int) (s.getMinY() - 1)); j <= s.getMaxY()
+					+ 1; j++) {
+				generateWorld(i, j);
 			}
 		}
 	}
@@ -184,7 +187,8 @@ public class RegionGenerator {
 		return blocks;
 	}
 
-	private int[] generateHeightMap(BiomeType biometype, int chunkNumber, double customSeed) {
+	private int[] generateHeightMap(BiomeType biometype, int chunkNumber,
+			double customSeed) {
 		int[] heightMap = new int[CHUNK_SIZE];
 		for (int i = 0; i < heightMap.length; i++) {
 			if (biometype != BiomeType.BUFFER) {

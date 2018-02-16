@@ -44,11 +44,11 @@ public class World {
 	};
 
 	public ArrayList<Entity> entitiesToAdd;
-	public static ArrayList<Entity> entities;
-	public static ArrayList<Entity> backgroundsprites;
+	public ArrayList<Entity> entities;
+	public ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
-	private static Image sunsprite;
+	private Image sunsprite;
 	private Entity sun;
 
 	private Input userInp = null; // used only for debugging purposes currently
@@ -65,6 +65,7 @@ public class World {
 		entities = new ArrayList<>();
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
+		regionGenerator = new RegionGenerator(blocks);
 		addDefaultEntities();
 	}
 
@@ -124,7 +125,7 @@ public class World {
 	}
 
 	private void updateSun(Viewport vp) {
-		sun = new Entity(World.sunsprite, new Vector2f(
+		sun = new Entity(sunsprite, new Vector2f(
 				(float) -(Math
 						.cos(2.0 * Math.PI * Viewport.globaltimer
 								/ World.DAY_NIGHT_DURATION)
@@ -143,7 +144,7 @@ public class World {
 			sun.draw(vp);
 		}
 
-		for (Entity e : World.backgroundsprites) {
+		for (Entity e : backgroundsprites) {
 			e.draw(vp);
 		}
 
@@ -160,7 +161,7 @@ public class World {
 					System.currentTimeMillis() - time);
 		}
 
-		regionGenerator = new RegionGenerator(viewRect, getBlocks());
+		regionGenerator.generate(viewRect);
 
 		/*
 		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
@@ -183,10 +184,8 @@ public class World {
 		for (Point p : visibleBlocks) {
 			getBlocks().get(p).drawShading(vp);
 		}
-		synchronized (entities) {
-			for (Entity e : entities) {
-				e.draw(vp);
-			}
+		for (Entity e : entities) {
+			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf("%d ms for shading\n",

@@ -35,23 +35,25 @@ public class ControllableCharacter extends Creature {
 
 	protected World world;
 	// Break times for different blocks
-	public static float BlockMineTime = 100.0f;
-	BlockType[] BreakTimeThree = { // 800f
-			BlockType.COAL_ORE,
-			BlockType.DIAMOND_ORE,
-			BlockType.GOLD_ORE,
-			BlockType.IRON_ORE,
-			BlockType.REDSTONE_ORE
-	};
-	BlockType[] BreakTimeTwo = { // 400f
-			BlockType.STONE,
-			BlockType.GRAVEL,
-			BlockType.SANDSTONE
-	};
-	BlockType[] BreakTimeOne = { // 200f
-			BlockType.DIRT,
-			BlockType.GRASS,
-			BlockType.SAND
+	private float blockMineTime = 100.0f;
+	private BlockType[][] breakTime = {
+			{ // 800f
+					BlockType.COAL_ORE,
+					BlockType.DIAMOND_ORE,
+					BlockType.GOLD_ORE,
+					BlockType.IRON_ORE,
+					BlockType.REDSTONE_ORE
+			},
+			{ // 400f
+					BlockType.STONE,
+					BlockType.GRAVEL,
+					BlockType.SANDSTONE
+			},
+			{ // 200f
+					BlockType.DIRT,
+					BlockType.GRASS,
+					BlockType.SAND
+			}
 	};
 
 	public ControllableCharacter(World w, Image img, Vector2f pos) {
@@ -161,17 +163,16 @@ public class ControllableCharacter extends Creature {
 	// Checks what kind of block is being mined and changes how quickly it mines
 	public void updateMineTime(BlockType block) {
 		if (!flying) {
-			if (checkBlockType(BreakTimeOne, block)) {
-				BlockMineTime = 200.0f;
-			} else if (checkBlockType(BreakTimeTwo, block)) {
-				BlockMineTime = 400.0f;
-			} else if (checkBlockType(BreakTimeThree, block)) {
-				BlockMineTime = 800.0f;
-			} else if (block == BlockType.BEDROCK) {
-				BlockMineTime = Float.MAX_VALUE;
+			for (int i = 0; i < breakTime.length; i++) {
+				if (checkBlockType(breakTime[i], block)) {
+					blockMineTime = 200f * (float) Math.pow(2f, i);
+				}
+			}
+			if (block == BlockType.BEDROCK) {
+				blockMineTime = Float.MAX_VALUE;
 			}
 		} else {
-			BlockMineTime = 10.0f;
+			blockMineTime = 10.0f;
 		}
 	}
 
@@ -191,7 +192,7 @@ public class ControllableCharacter extends Creature {
 
 		if (currentBlock != null) {
 			mineTime += frametime;
-			if (mineTime > ControllableCharacter.BlockMineTime) {
+			if (mineTime > blockMineTime) {
 				w.breakBlock(currentBlock.getPointPos());
 				stopMining();
 			}
