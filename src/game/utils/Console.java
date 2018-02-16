@@ -54,6 +54,8 @@ public class Console extends Thread {
 		commandhelp.add("!time set [time] : sets the current time to [time]");
 		commandhelp.add("!characters : returns the total number of chracters");
 		commandhelp.add("!fly : increases movement speed tenfold");
+		commandhelp.add(
+				"!explode : Breaks all blocks in a large radius around the player");
 		if (input.startsWith("!")) {
 			String command[] = input.split(" ");
 			return executeCommand(command, commandhelp);
@@ -104,18 +106,23 @@ public class Console extends Thread {
 		case "!characters":
 			output += "Number of characters: " + world.entities.size() + "\n";
 			break;
+
 		case "!save":
 			saver.save(world, world.regionGenerator);
-			// "!fly" command, changes flying state
+			break;
+
+		// "!fly" command, changes flying state
 		case "!f":
 		case "!fly":
 			character.flying = !character.flying;
 			break;
+
 		case "!explode":
 			Point p = new Point((int) character.getHitbox().getX(),
 					(int) character.getHitbox().getY());
 			world.explode(p, 20);
 			break;
+
 		// if command doesn't work, return this
 		default:
 			output += "\"" + command[0]
