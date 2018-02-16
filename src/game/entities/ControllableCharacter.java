@@ -85,7 +85,7 @@ public class ControllableCharacter extends Creature {
 	}
 
 	public void jump() {
-		this.jump(JUMP, jumplimit);
+		super.jump(JUMP, flying ? Integer.MAX_VALUE : jumplimit);
 	}
 
 	public void interact(Vector2f position) {
