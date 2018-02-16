@@ -10,6 +10,7 @@ import javax.swing.WindowConstants;
 
 import game.Viewport;
 import game.entities.ControllableCharacter;
+import game.save.Save;
 import game.world.World;
 
 public class Console extends Thread {
@@ -102,8 +103,9 @@ public class Console extends Thread {
 		case "!characters":
 			output += "Number of characters: " + World.entities.size() + "\n";
 			break;
-
-		// "!fly" command, changes flying state
+		case "!save":
+			Save.save();
+			// "!fly" command, changes flying state
 		case "!f":
 		case "!fly":
 			ControllableCharacter.flying = !ControllableCharacter.flying;

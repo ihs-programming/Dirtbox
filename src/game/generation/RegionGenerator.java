@@ -77,12 +77,11 @@ public class RegionGenerator {
 			return;
 		} else {
 			if (curpos.getX() < generatedblocks.getMinX()) {
-				generatedblocks
-						.setWidth((float) (generatedblocks.getMaxX() - curpos.getX()));
 				generatedblocks.setX((float) curpos.getX());
 			} else if (curpos.getX() > generatedblocks.getMaxX()) {
 				generatedblocks
-						.setWidth((float) (curpos.getX() - generatedblocks.getMinX()));
+						.setWidth(
+								(float) (curpos.getX() - generatedblocks.getMinX()));
 			}
 		}
 		if (y >= BEDROCK_LAYER) {

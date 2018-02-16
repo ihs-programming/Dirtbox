@@ -68,7 +68,7 @@ public class World {
 	}
 
 	public static Block getBlock(Point location) {
-		return blocks.get(location);
+		return getBlocks().get(location);
 	}
 
 	public static Point getCoordinates(Vector2f position) {
@@ -149,7 +149,7 @@ public class World {
 		Rectangle viewRect = Geometry.getBoundingBox(view);
 
 		long time = System.currentTimeMillis();
-		Lighting.doSunLighting(blocks, (int) viewRect.getX() - 10,
+		Lighting.doSunLighting(getBlocks(), (int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
 				(int) viewRect.getY() - 10,
 				(int) (viewRect.getY() + view.getHeight()) + 10, 63);
@@ -158,7 +158,7 @@ public class World {
 					System.currentTimeMillis() - time);
 		}
 
-		new RegionGenerator(viewRect, blocks);
+		new RegionGenerator(viewRect, getBlocks());
 
 		/*
 		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
@@ -169,7 +169,7 @@ public class World {
 		time = System.currentTimeMillis();
 		Block.draw_hit_count = 0;
 		for (Point p : visibleBlocks) {
-			blocks.get(p).draw(vp);
+			getBlocks().get(p).draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf(
@@ -179,7 +179,7 @@ public class World {
 		}
 		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
-			blocks.get(p).drawShading(vp);
+			getBlocks().get(p).drawShading(vp);
 		}
 		synchronized (entities) {
 			for (Entity e : entities) {
@@ -289,7 +289,7 @@ public class World {
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
 			Point start = new Point(i, (int) (view.getMinY() - 1));
 			Point end = new Point(i, (int) (view.getMaxY() + 1));
-			NavigableSet<Point> existingBlocks = blocks.navigableKeySet().subSet(start,
+			NavigableSet<Point> existingBlocks = getBlocks().navigableKeySet().subSet(start,
 					true, end, true);
 			for (Point p : existingBlocks) {
 				blockLocs.add(p);
@@ -310,7 +310,7 @@ public class World {
 	}
 
 	public void update(int delta) {
-		BlockUpdates.propagateLiquids(changedBlocks, blocks);
+		BlockUpdates.propagateLiquids(changedBlocks, getBlocks());
 		updateEntityList();
 		Iterator<Entity> iter = entities.iterator();
 		while (iter.hasNext()) {
@@ -328,7 +328,7 @@ public class World {
 			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
 			List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 			for (Point p : collidingBlocks) {
-				Block b = blocks.get(p);
+				Block b = getBlocks().get(p);
 				if (b instanceof SolidBlock) {
 					e.collide(b.getHitbox());
 				}
@@ -347,7 +347,7 @@ public class World {
 		Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
 		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
 		for (Point p : collidingBlocks) {
-			Block b = blocks.get(p);
+			Block b = getBlocks().get(p);
 			vp.draw(b.getHitbox(), Color.white);
 			vp.draw(Geometry.createCircle(b.getPos(), .2f), Color.green);
 		}
@@ -364,7 +364,7 @@ public class World {
 	public Block getBlockAtPosition(Vector2f gameMouseLocation) {
 		List<Point> clickLine = rayTrace(getCharacterPosition(), gameMouseLocation);
 		for (Point p : clickLine) {
-			Block b = blocks.get(p);
+			Block b = getBlocks().get(p);
 			if (b instanceof SolidBlock) {
 				return b;
 			}
@@ -383,12 +383,12 @@ public class World {
 	}
 
 	public void breakBlock(Point pos) {
-		Block prevBlock = blocks.get(pos);
+		Block prevBlock = getBlocks().get(pos);
 		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
 			return;
 		}
 
-		blocks.put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
+		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
 			Vector2f newPos = prevBlock.getPos();
@@ -415,5 +415,13 @@ public class World {
 
 	public List<Entity> getEntities() {
 		return entities;
+	}
+
+	public static TreeMap<Point, Block> getBlocks() {
+		return blocks;
+	}
+
+	public static void setBlocks(TreeMap<Point, Block> blocks) {
+		World.blocks = blocks;
 	}
 }
