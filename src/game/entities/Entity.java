@@ -33,14 +33,17 @@ public class Entity {
 	private Shape intersectionEdge;
 	private Point scalefactor;
 
-	public Entity(Sprite sprite, Vector2f pos) {
+	protected World world;
+
+	public Entity(Sprite sprite, Vector2f pos, World w) {
 		this.pos = pos.copy();
 		this.sprite = sprite.getCopy();
+		world = w;
 		generateHitbox();
 	}
 
-	public Entity(Image img, Vector2f pos) {
-		this(new Sprite(img), pos);
+	public Entity(Image img, Vector2f pos, World w) {
+		this(new Sprite(img), pos, w);
 	}
 
 	public Shape getHitbox() {

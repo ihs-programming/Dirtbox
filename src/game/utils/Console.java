@@ -10,12 +10,13 @@ import javax.swing.WindowConstants;
 
 import game.Viewport;
 import game.entities.ControllableCharacter;
-import game.save.Save;
+import game.save.Saver;
 import game.world.World;
 
 public class Console extends Thread {
 	private ControllableCharacter character;
 	private World world;
+	private Saver saver = new Saver();
 
 	public Console(ControllableCharacter character, World world) {
 		this.character = character;
@@ -104,11 +105,11 @@ public class Console extends Thread {
 			output += "Number of characters: " + World.entities.size() + "\n";
 			break;
 		case "!save":
-			Save.save();
+			saver.save(world, world.regionGenerator);
 			// "!fly" command, changes flying state
 		case "!f":
 		case "!fly":
-			ControllableCharacter.flying = !ControllableCharacter.flying;
+			character.flying = !character.flying;
 			break;
 		case "!explode":
 			Point p = new Point((int) character.getHitbox().getX(),

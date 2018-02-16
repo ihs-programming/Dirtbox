@@ -11,18 +11,18 @@ import game.blocks.BlockType;
 import game.generation.RegionGenerator;
 import game.world.World;
 
-public class Save {
-	public static void save() {
+public class Saver {
+	public void save(World w, RegionGenerator rg) {
 		ArrayList<String> arraylist = new ArrayList<>();
-		BlocksToArrayList(arraylist, World.getBlocks(), RegionGenerator.generatedblocks);
+		blocksToArrayList(arraylist, w.getBlocks(), rg.generatedblocks);
 	}
 
-	private static String BlockToString(Block block) {
+	private String BlockToString(Block block) {
 		return block.type.toString() + " " + String.valueOf(block.getPos().x) + " "
 				+ String.valueOf(block.getPos().y);
 	}
 
-	private static Block StringToBlock(String blockstring) {
+	private Block stringToBlock(String blockstring) {
 		BlockType blocktype = BlockType
 				.valueOf(blockstring.substring(0, blockstring.indexOf(" ")));
 		float xpos = Float.parseFloat(blockstring.substring(1, blockstring.indexOf(" ")));
@@ -30,13 +30,11 @@ public class Save {
 		return Block.createBlock(blocktype, xpos, ypos);
 	}
 
-	private static TreeMap<Point, Block> ArrayListToBlocks(
-			ArrayList<String> savearraylist) {
-
+	private TreeMap<Point, Block> arrayListToBlocks(ArrayList<String> savearraylist) {
 		return null;
 	}
 
-	private static ArrayList<String> BlocksToArrayList(ArrayList<String> savearraylist,
+	private ArrayList<String> blocksToArrayList(ArrayList<String> savearraylist,
 			TreeMap<Point, Block> blocks, Rectangle generatedblocks) {
 		Point curpos = new Point();
 		for (int x = 0; x < generatedblocks.getWidth(); x++) {

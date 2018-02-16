@@ -53,7 +53,8 @@ public class World {
 
 	private Input userInp = null; // used only for debugging purposes currently
 
-	private static TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
+	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
+	public RegionGenerator regionGenerator;
 
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
@@ -67,8 +68,8 @@ public class World {
 		addDefaultEntities();
 	}
 
-	public static Block getBlock(Point location) {
-		return getBlocks().get(location);
+	public Block getBlock(Point location) {
+		return blocks.get(location);
 	}
 
 	public static Point getCoordinates(Vector2f position) {
@@ -92,11 +93,11 @@ public class World {
 			for (int i = 0; i < 10; i++) {
 				Image bunny = new Image("data/characters/rabbit.png");
 				addEntity(new Bunny(new Sprite(bunny).scale(1f / bunny.getWidth()),
-						new Vector2f(10 * i, 0)));
+						new Vector2f(10 * i, 0), this));
 			}
 			Sprite wolf = new Sprite("data/characters/woof.png");
 			wolf.scale(2f / wolf.getWidth());
-			addEntity(new Wolf(wolf, new Vector2f(0, 0)));
+			addEntity(new Wolf(wolf, new Vector2f(0, 0), this));
 			controlledCharacter = stalin;
 		} catch (SlickException e) {
 			e.printStackTrace();
@@ -131,7 +132,8 @@ public class World {
 						+ sunsprite.getScaledCopy(4, 4).getWidth() / 2),
 				(float) -(Math.sin(
 						2.0 * Math.PI * Viewport.globaltimer / World.DAY_NIGHT_DURATION)
-						* 15) + 30));
+						* 15) + 30),
+				this);
 	}
 
 	public void draw(Viewport vp) {
@@ -158,7 +160,7 @@ public class World {
 					System.currentTimeMillis() - time);
 		}
 
-		new RegionGenerator(viewRect, getBlocks());
+		regionGenerator = new RegionGenerator(viewRect, getBlocks());
 
 		/*
 		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
@@ -289,7 +291,8 @@ public class World {
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
 			Point start = new Point(i, (int) (view.getMinY() - 1));
 			Point end = new Point(i, (int) (view.getMaxY() + 1));
-			NavigableSet<Point> existingBlocks = getBlocks().navigableKeySet().subSet(start,
+			NavigableSet<Point> existingBlocks = getBlocks().navigableKeySet().subSet(
+					start,
 					true, end, true);
 			for (Point p : existingBlocks) {
 				blockLocs.add(p);
@@ -393,7 +396,7 @@ public class World {
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
 			Vector2f newPos = prevBlock.getPos();
 			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
-			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos));
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos, this));
 		}
 		changedBlocks.add(pos);
 	}
@@ -417,11 +420,11 @@ public class World {
 		return entities;
 	}
 
-	public static TreeMap<Point, Block> getBlocks() {
+	public TreeMap<Point, Block> getBlocks() {
 		return blocks;
 	}
 
-	public static void setBlocks(TreeMap<Point, Block> blocks) {
-		World.blocks = blocks;
+	public void setBlocks(TreeMap<Point, Block> blocks) {
+		this.blocks = blocks;
 	}
 }

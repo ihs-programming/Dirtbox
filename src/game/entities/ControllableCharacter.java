@@ -12,7 +12,7 @@ import game.blocks.BlockType;
 import game.world.World;
 
 public class ControllableCharacter extends Creature {
-	public static boolean flying = false;
+	public boolean flying = false;
 	private static final float SPEED = 0.0085f;
 	private static final float JUMP = 0.012f;
 	// 1 block = 1 m^2, 1 block = 16 px,
@@ -55,7 +55,7 @@ public class ControllableCharacter extends Creature {
 	};
 
 	public ControllableCharacter(World w, Image img, Vector2f pos) {
-		super(new Sprite(img), pos);
+		super(new Sprite(img), pos, w);
 
 		accel.y = GRAVITY;
 		world = w;
@@ -157,7 +157,8 @@ public class ControllableCharacter extends Creature {
 		}
 		return false;
 	}
-	//Checks what kind of block is being mined and changes how quickly it mines
+
+	// Checks what kind of block is being mined and changes how quickly it mines
 	public void updateMineTime(BlockType block) {
 		if (!flying) {
 			if (checkBlockType(BreakTimeOne, block)) {
