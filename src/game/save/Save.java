@@ -30,6 +30,7 @@ public class Save {
 				savearraylist.add(BlockToString(blocks.get(curpos)));
 			}
 		}
+		savearraylist.add("END OF BLOCKS");
 		return savearraylist;
 	}
 }
