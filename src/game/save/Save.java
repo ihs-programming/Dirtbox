@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import org.newdawn.slick.geom.Rectangle;
 
 import game.blocks.Block;
+import game.blocks.BlockType;
 import game.generation.RegionGenerator;
 import game.world.World;
 
@@ -19,6 +20,14 @@ public class Save {
 	private static String BlockToString(Block block) {
 		return block.type.toString() + " " + String.valueOf(block.getPos().x) + " "
 				+ String.valueOf(block.getPos().y);
+	}
+
+	private static Block StringToBlock(String blockstring) {
+		BlockType blocktype = BlockType
+				.valueOf(blockstring.substring(0, blockstring.indexOf(" ")));
+		float xpos = Float.parseFloat(blockstring.substring(1, blockstring.indexOf(" ")));
+		float ypos = Float.parseFloat(blockstring.substring(2, blockstring.indexOf(" ")));
+		return Block.createBlock(blocktype, xpos, ypos);
 	}
 
 	private static ArrayList<String> BlocksToArrayList(ArrayList<String> savearraylist,
