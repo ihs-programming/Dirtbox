@@ -111,6 +111,10 @@ public class Console extends Thread {
 			saver.save(world, world.regionGenerator);
 			break;
 
+		case "!load":
+			saver.load(world);
+			break;
+
 		// "!fly" command, changes flying state
 		case "!f":
 		case "!fly":

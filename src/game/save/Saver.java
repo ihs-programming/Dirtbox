@@ -12,9 +12,20 @@ import game.generation.RegionGenerator;
 import game.world.World;
 
 public class Saver {
+	private ArrayList<String> arraylist = new ArrayList<>();
+
 	public void save(World w, RegionGenerator rg) {
-		ArrayList<String> arraylist = new ArrayList<>();
-		blocksToArrayList(arraylist, w.getBlocks(), rg.generatedblocks);
+		arraylist = blocksToArrayList(arraylist, w.getBlocks(), rg.generatedblocks);
+	}
+
+	public void load(World w) {
+		System.out.println(BlockToString(w.getBlock(new Point(1, 1))));
+		System.out.println(w.getBlock(new Point(1, 1)));
+		System.out.println(w.getBlock(new Point(1, 1)).getSprite());
+		System.out.println(stringToBlock(BlockToString(w.getBlock(new Point(1, 1)))));
+		System.out.println(
+				stringToBlock(BlockToString(w.getBlock(new Point(1, 1)))).getSprite());
+		w.setBlocks(arrayListToBlocks(arraylist));
 	}
 
 	private String BlockToString(Block block) {
@@ -23,15 +34,37 @@ public class Saver {
 	}
 
 	private Block stringToBlock(String blockstring) {
+		String[] stringarray = blockstring.split(" ");
 		BlockType blocktype = BlockType
-				.valueOf(blockstring.substring(0, blockstring.indexOf(" ")));
-		float xpos = Float.parseFloat(blockstring.substring(1, blockstring.indexOf(" ")));
-		float ypos = Float.parseFloat(blockstring.substring(2, blockstring.indexOf(" ")));
+				.valueOf(stringarray[0]);
+		float xpos = Float.parseFloat(stringarray[1]);
+		float ypos = Float.parseFloat(stringarray[2]);
 		return Block.createBlock(blocktype, xpos, ypos);
 	}
 
 	private TreeMap<Point, Block> arrayListToBlocks(ArrayList<String> savearraylist) {
-		return null;
+		TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
+			if (p1.x == p2.x) {
+				return p1.y - p2.y;
+			}
+			return p1.x - p2.x;
+		});
+		Point currentpoint = new Point();
+		String blockstring = null;
+		float xpos = 0f;
+		float ypos = 0f;
+		for (int index = 0; index < Integer.MAX_VALUE; index++) {
+			blockstring = savearraylist.get(index);
+			if (blockstring == "END OF BLOCKS") {
+				break;
+			}
+			String[] stringarray = blockstring.split(" ");
+			xpos = Float.parseFloat(stringarray[1]);
+			ypos = Float.parseFloat(stringarray[2]);
+			currentpoint.setLocation(xpos, ypos);
+			blocks.put(currentpoint, stringToBlock(blockstring));
+		}
+		return blocks;
 	}
 
 	private ArrayList<String> blocksToArrayList(ArrayList<String> savearraylist,
