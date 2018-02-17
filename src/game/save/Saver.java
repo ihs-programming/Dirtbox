@@ -61,7 +61,7 @@ public class Saver {
 			String[] stringarray = blockstring.split(" ");
 			xpos = Float.parseFloat(stringarray[1]);
 			ypos = Float.parseFloat(stringarray[2]);
-			currentpoint.setLocation(xpos, ypos);
+			currentpoint = new Point(Math.round(xpos), Math.round(ypos));
 			blocks.put(currentpoint, stringToBlock(blockstring));
 		}
 		return blocks;
