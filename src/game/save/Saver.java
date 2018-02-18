@@ -29,8 +29,8 @@ public class Saver {
 	}
 
 	private String BlockToString(Block block) {
-		return block.type.toString() + " " + String.valueOf(block.getPos().x) + " "
-				+ String.valueOf(block.getPos().y);
+		return block.type.toString() + " " + String.valueOf((int) block.getPos().x) + " "
+				+ String.valueOf((int) block.getPos().y);
 	}
 
 	private Block stringToBlock(String blockstring) {
@@ -70,8 +70,13 @@ public class Saver {
 	private ArrayList<String> blocksToArrayList(ArrayList<String> savearraylist,
 			TreeMap<Point, Block> blocks, Rectangle generatedblocks) {
 		Point curpos = new Point();
-		for (int x = 0; x < generatedblocks.getWidth(); x++) {
-			for (int y = 0; y < generatedblocks.getHeight(); y++) {
+		System.out
+				.println(generatedblocks.getMinX() + " to " + generatedblocks.getMaxX());
+		for (int x = (int) Math.floor(generatedblocks.getMinX()); x < generatedblocks
+				.getMaxX(); x++) {
+			System.out.println(curpos);
+			for (int y = (int) Math.floor(generatedblocks.getMinY()); y < generatedblocks
+					.getMaxY(); y++) {
 				curpos.setLocation(x, y);
 				savearraylist.add(BlockToString(blocks.get(curpos)));
 			}
