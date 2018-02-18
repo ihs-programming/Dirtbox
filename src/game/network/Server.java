@@ -1,17 +1,15 @@
 package game.network;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 
 public class Server {
-	private ArrayList<Socket> clientSockets = new ArrayList<>();
 	private ArrayList<String> messages;
 	private DatagramSocket socket;
 	private Thread broadcastingThread;
+	private Thread recievingThread;
 
 	public Server() {
 		try {
@@ -20,6 +18,9 @@ public class Server {
 
 			broadcastingThread = new BroadcastThread();
 			broadcastingThread.start();
+
+			recievingThread = new ReceiverThread();
+			recievingThread.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -42,19 +43,6 @@ public class Server {
 	}
 
 	public void updateMessages() {
-		for (Socket s : clientSockets) {
-			try {
-				InputStreamReader reader;
-				reader = new InputStreamReader(s.getInputStream());
-				String output = "";
-				for (int c = reader.read(); c != -1; c = reader.read()) {
-					output += (char) c;
-				}
-				messages.add(output);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public ArrayList<String> getMessages() {
@@ -70,6 +58,24 @@ public class Server {
 					Protocol.broadcast(socket, packet);
 				} catch (IOException e) {
 					System.out.println("Unable to send message");
+				}
+			}
+		}
+	}
+
+	private class ReceiverThread extends Thread {
+		@Override
+		public void run() {
+			byte[] buffer = new byte[Protocol.MAX_PACKET_SIZE];
+			while (!socket.isClosed()) {
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+				try {
+					socket.receive(packet);
+					System.out.println("Recieved message!");
+					System.out.println(new String(packet.getData(), packet.getOffset(),
+							packet.getLength()));
+				} catch (IOException e) {
+
 				}
 			}
 		}

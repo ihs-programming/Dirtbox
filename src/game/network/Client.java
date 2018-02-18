@@ -3,7 +3,7 @@ package game.network;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,10 +19,10 @@ public class Client {
 	private static final float TIMEOUT = 5f;
 
 	private DatagramSocket socket;
-	private Map<InetAddress, HostInformation> knownHosts = new HashMap<>();
+	private Map<InetSocketAddress, HostInformation> knownHosts = new HashMap<>();
 	private Thread listenerThread;
 	private ArrayList<String> hostMessages = new ArrayList<>();
-	private Optional<InetAddress> hostAddr;
+	private Optional<InetSocketAddress> hostAddr;
 
 	public Client() {
 		try {
@@ -35,10 +35,10 @@ public class Client {
 		}
 	}
 
-	public Map<InetAddress, String> getHostInfo() {
-		Map<InetAddress, String> hostmap = new HashMap<>();
-		ArrayList<InetAddress> toRemove = new ArrayList<>();
-		for (Map.Entry<InetAddress, HostInformation> host : knownHosts.entrySet()) {
+	public Map<InetSocketAddress, String> getHostInfo() {
+		Map<InetSocketAddress, String> hostmap = new HashMap<>();
+		ArrayList<InetSocketAddress> toRemove = new ArrayList<>();
+		for (Map.Entry<InetSocketAddress, HostInformation> host : knownHosts.entrySet()) {
 			String hostname = host.getKey().getHostName();
 			String hostinfo = host.getValue().toString();
 			if (host.getValue().timeSinceLastUpdate() > TIMEOUT) {
@@ -48,7 +48,7 @@ public class Client {
 				hostmap.put(host.getKey(), info);
 			}
 		}
-		for (InetAddress addr : toRemove) {
+		for (InetSocketAddress addr : toRemove) {
 			knownHosts.remove(addr);
 		}
 		return hostmap;
@@ -59,8 +59,8 @@ public class Client {
 	 *
 	 * @param addr
 	 */
-	public void connect(InetAddress addr) throws IOException {
-		hostAddr = Optional.of(InetAddress.getByAddress(addr.getAddress()));
+	public void connect(InetSocketAddress addr) throws IOException {
+		hostAddr = Optional.of(addr);
 	}
 
 	public void disconnect() {
@@ -75,9 +75,10 @@ public class Client {
 		if (!hostAddr.isPresent()) {
 			throw new IOException("Not connected to host");
 		}
-		InetAddress addr = hostAddr.get();
+		InetSocketAddress host = hostAddr.get();
 		DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length());
-		packet.setPort(Protocol.DEFAULT_DISCOVERY_PORT);
+		packet.setSocketAddress(host);
+		socket.send(packet);
 	}
 
 	/**
@@ -92,12 +93,14 @@ public class Client {
 				try {
 					socket.receive(packet);
 					if (Protocol.parseMessage(packet) == MessageType.HEARTBEAT) {
+						InetSocketAddress addr = (InetSocketAddress) packet
+								.getSocketAddress();
 						HostInformation info = knownHosts
-								.getOrDefault(packet.getAddress(), new HostInformation());
+								.getOrDefault(addr, new HostInformation());
 						info.update();
-						knownHosts.put(packet.getAddress(), info);
+						knownHosts.put(addr, info);
 					} else if (hostAddr.isPresent()
-							&& hostAddr.get().equals(packet.getAddress())) {
+							&& hostAddr.get().equals(packet.getSocketAddress())) {
 						hostMessages.add(new String(packet.getData(), packet.getOffset(),
 								packet.getLength()));
 					}

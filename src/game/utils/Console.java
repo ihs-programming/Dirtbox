@@ -3,7 +3,7 @@ package game.utils;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IllegalFormatException;
@@ -29,7 +29,7 @@ public class Console extends Thread {
 	private Client client = new Client();
 	private Server server;
 	private Saver saver = new Saver();
-	private Map<Integer, InetAddress> serverUI = new HashMap<>();
+	private Map<Integer, InetSocketAddress> serverUI = new HashMap<>();
 
 	private JFrame frame;
 	private JTextField commandLine;
@@ -145,10 +145,10 @@ public class Console extends Thread {
 			world.explode(p, 20);
 			break;
 		case "!listservers":
-			Map<InetAddress, String> hostinfo = client.getHostInfo();
+			Map<InetSocketAddress, String> hostinfo = client.getHostInfo();
 			serverUI.clear();
 			int ind = 0;
-			for (Map.Entry<InetAddress, String> entry : hostinfo.entrySet()) {
+			for (Map.Entry<InetSocketAddress, String> entry : hostinfo.entrySet()) {
 				serverUI.put(ind, entry.getKey());
 				output += Integer.toString(ind) + " : " + entry.getValue() + "\n";
 				ind++;
@@ -183,7 +183,7 @@ public class Console extends Thread {
 					if (!serverUI.containsKey(connectInd)) {
 						output += "Unable to find servers";
 					} else {
-						InetAddress addr = serverUI.get(connectInd);
+						InetSocketAddress addr = serverUI.get(connectInd);
 						client.disconnect();
 						client.connect(addr);
 					}
@@ -206,7 +206,12 @@ public class Console extends Thread {
 
 		case "!send":
 			if (command.length >= 2) {
-				client.send(command[1]);
+				try {
+					client.send(command[1]);
+					output += "Sent message";
+				} catch (IOException e) {
+					output += "Unable to send message";
+				}
 			} else {
 				output += "No message to send";
 			}
