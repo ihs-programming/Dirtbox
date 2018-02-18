@@ -115,6 +115,7 @@ public class Console extends Thread {
 
 		output += runGameCommand(command);
 		output += runNetworkCommand(command);
+		output += getNetworkStatus(command);
 
 		switch (command[0]) {
 		case "!h":
@@ -201,13 +202,6 @@ public class Console extends Thread {
 		case "!host":
 			server = new Server();
 			break;
-		case "!hoststatus":
-			if (server == null) {
-				output += "Not currently hosting a server";
-			} else {
-				output += "Server is currently active";
-			}
-			break;
 		case "!stophosting":
 			if (server != null) {
 				server.stop();
@@ -241,10 +235,6 @@ public class Console extends Thread {
 			client.disconnect();
 			break;
 
-		case "!viewmessages":
-			output += String.join("\n", client.getMessages());
-			break;
-
 		case "!send":
 			if (command.length >= 2) {
 				try {
@@ -258,6 +248,23 @@ public class Console extends Thread {
 			}
 			break;
 
+		}
+		return output;
+	}
+
+	private String getNetworkStatus(String[] command) {
+		String output = "";
+		switch (command[0]) {
+		case "!hoststatus":
+			if (server == null) {
+				output += "Not currently hosting a server";
+			} else {
+				output += "Server is currently active";
+			}
+			break;
+		case "!viewmessages":
+			output += String.join("\n", client.getMessages());
+			break;
 		case "!constatus":
 			Optional<InetSocketAddress> addr = client.getCurrentHost();
 			if (addr.isPresent()) {
