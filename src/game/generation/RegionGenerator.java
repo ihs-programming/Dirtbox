@@ -81,12 +81,17 @@ public class RegionGenerator {
 		if (blocks.containsKey(curpos)) {
 			return;
 		} else {
-			if (curpos.getX() < generatedblocks.getMinX()) {
-				generatedblocks.setX((float) curpos.getX());
-			} else if (curpos.getX() > generatedblocks.getMaxX()) {
-				generatedblocks
-						.setWidth(
-								(float) (curpos.getX() - generatedblocks.getMinX()));
+			if (!generatedblocks.contains(curpos.x, curpos.y)) {
+				if (generatedblocks.getCenterX() < curpos.x) {
+					generatedblocks.setBounds(generatedblocks.getMinX(),
+							generatedblocks.getMinY(),
+							curpos.x - generatedblocks.getMinX(),
+							generatedblocks.getMaxY());
+				} else if (generatedblocks.getCenterX() > curpos.x) {
+					generatedblocks.setBounds(curpos.x, generatedblocks.getMinY(),
+							generatedblocks.getMaxX() - curpos.x,
+							generatedblocks.getMaxY());
+				}
 			}
 		}
 		if (y >= BEDROCK_LAYER) {
