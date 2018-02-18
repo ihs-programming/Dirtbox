@@ -13,13 +13,17 @@ import java.util.Enumeration;
  * to communicate with other clients
  */
 public class Protocol {
-	private final static int HEADER_SIZE = 8;
+	private final static int HEADER_SIZE = 1;
 
 	public final static int DEFAULT_DISCOVERY_PORT = 8838;
-	public final static int DEFAULT_TCP_PORT = 39204;
 
 	/**
-	 * Checks if the given packet is
+	 * Max size of udp packet according to wikipedia
+	 */
+	public final static int MAX_PACKET_SIZE = 65507;
+
+	/**
+	 * Determines message type
 	 *
 	 * @param p
 	 * @return
@@ -39,8 +43,9 @@ public class Protocol {
 			buffer = new byte[HEADER_SIZE];
 			return new DatagramPacket(buffer, buffer.length);
 		case UNKNOWN:
-			buffer = new byte[1];
-			return new DatagramPacket(buffer, 1);
+			throw new IllegalArgumentException("Cannot create unknown packet");
+		default:
+			break;
 		}
 		return null;
 	}

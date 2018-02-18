@@ -20,7 +20,7 @@ public class HostInformation {
 	 * @return
 	 */
 	public float timeSinceLastUpdate() {
-		return ChronoUnit.SECONDS.between(LocalDateTime.now(), lastUpdated);
+		return ChronoUnit.SECONDS.between(lastUpdated, LocalDateTime.now());
 	}
 
 	/**

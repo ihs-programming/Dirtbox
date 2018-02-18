@@ -72,7 +72,9 @@ public class Console extends Thread {
 		commandhelp.add(
 				"!explode : Breaks all blocks in a large radius around the player");
 		commandhelp.add(
-				"!connect [number] : connects to server denoted by number created from listservers");
+				"!connect [number] : connects to server denoted by number created from !listservers");
+		commandhelp.add("!disconnect : Disconnects from currently connected server");
+		commandhelp.add("!viewmessages : Views all messages from hosts");
 		if (input.startsWith("!")) {
 			String command[] = input.split(" ");
 			return executeCommand(command, commandhelp);
@@ -191,6 +193,22 @@ public class Console extends Thread {
 					output += "Unable to connect to server";
 					e.printStackTrace();
 				}
+			}
+			break;
+
+		case "!disconnect":
+			client.disconnect();
+			break;
+
+		case "!viewmessages":
+			output += String.join("\n", client.getMessages());
+			break;
+
+		case "!send":
+			if (command.length >= 2) {
+				client.send(command[1]);
+			} else {
+				output += "No message to send";
 			}
 			break;
 
