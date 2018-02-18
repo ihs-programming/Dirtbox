@@ -11,7 +11,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
@@ -195,22 +194,6 @@ public class World {
 		}
 	}
 
-	private void renderMouseRaytrace(Viewport vp) {
-		if (userInp == null) {
-			System.out.println("Unable to render raytracing");
-			return;
-		}
-		Vector2f mousePos = new Vector2f(userInp.getMouseX(), userInp.getMouseY());
-		mousePos = vp.getInverseDrawTransform().transform(mousePos);
-		List<Point> points = rayTrace(getCharacterPosition(), mousePos);
-		vp.draw(Geometry.createCircle(getCharacterPosition(), .2f), Color.cyan);
-		vp.draw(Geometry.createCircle(mousePos, .2f), Color.cyan);
-		vp.draw(new Line(getCharacterPosition(), mousePos), Color.green);
-		for (Point p : points) {
-			vp.draw(new Rectangle(p.x, p.y, 1, 1), Color.pink);
-		}
-	}
-
 	/**
 	 * Return list of block locations that would be hit on the route of the line
 	 * going from start and past end
@@ -335,23 +318,6 @@ public class World {
 					e.collide(b.getHitbox());
 				}
 			}
-		}
-	}
-
-	/**
-	 * May be useful for debugging hitbox locations
-	 *
-	 * @param vp
-	 */
-	private void renderHitboxes(Viewport vp) {
-		vp.draw(controlledCharacter.getHitbox(), Color.red);
-		Shape hitbox = controlledCharacter.getHitbox();
-		Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
-		List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
-		for (Point p : collidingBlocks) {
-			Block b = getBlocks().get(p);
-			vp.draw(b.getHitbox(), Color.white);
-			vp.draw(Geometry.createCircle(b.getPos(), .2f), Color.green);
 		}
 	}
 

@@ -1,8 +1,5 @@
 package game;
 
-import java.util.HashMap;
-
-import org.lwjgl.util.Point;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
@@ -12,8 +9,6 @@ public class Sprite {
 	private float scaleFactor;
 	private Image img;
 	public Vector2f loc = new Vector2f();
-
-	private HashMap<Point, Image> cache = new HashMap<>();
 
 	public Sprite(String ref) throws SlickException {
 		this(new Image(ref));
