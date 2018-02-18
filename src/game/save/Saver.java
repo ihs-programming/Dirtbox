@@ -19,12 +19,6 @@ public class Saver {
 	}
 
 	public void load(World w) {
-		System.out.println(BlockToString(w.getBlock(new Point(1, 1))));
-		System.out.println(w.getBlock(new Point(1, 1)));
-		System.out.println(w.getBlock(new Point(1, 1)).getSprite());
-		System.out.println(stringToBlock(BlockToString(w.getBlock(new Point(1, 1)))));
-		System.out.println(
-				stringToBlock(BlockToString(w.getBlock(new Point(1, 1)))).getSprite());
 		w.setBlocks(arrayListToBlocks(arraylist));
 	}
 
@@ -74,7 +68,6 @@ public class Saver {
 				.println(generatedblocks.getMinX() + " to " + generatedblocks.getMaxX());
 		for (int x = (int) Math.floor(generatedblocks.getMinX()); x < generatedblocks
 				.getMaxX(); x++) {
-			System.out.println(curpos);
 			for (int y = (int) Math.floor(generatedblocks.getMinY()); y < generatedblocks
 					.getMaxY(); y++) {
 				curpos.setLocation(x, y);

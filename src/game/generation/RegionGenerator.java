@@ -92,7 +92,6 @@ public class RegionGenerator {
 							generatedblocks.getMaxX() - curpos.x,
 							generatedblocks.getMaxY());
 				}
-				System.out.println(generatedblocks);
 			}
 		}
 		if (y >= BEDROCK_LAYER) {
@@ -105,19 +104,6 @@ public class RegionGenerator {
 			Block[][] chunk = generateChunk(chunkStart, 0, 0);
 			boolean cavemap[][] = generateMap(chunkStart);
 			for (int i = 0; i < chunk.length; i++) {
-				if (!generatedblocks.contains(curpos.x, curpos.y)) {
-					if (generatedblocks.getCenterX() < curpos.x) {
-						generatedblocks.setBounds(generatedblocks.getMinX(),
-								generatedblocks.getMinY(),
-								curpos.x - generatedblocks.getMinX(),
-								generatedblocks.getMaxY());
-					} else if (generatedblocks.getCenterX() > curpos.x) {
-						generatedblocks.setBounds(curpos.x, generatedblocks.getMinY(),
-								generatedblocks.getMaxX() - curpos.x,
-								generatedblocks.getMaxY());
-					}
-					System.out.println(generatedblocks);
-				}
 				for (int j = 0; j < chunk[i].length; j++) {
 					if (cavemap[i][j]) {
 						blocks.put(new Point(i + chunkStart, j), chunk[i][j]);
