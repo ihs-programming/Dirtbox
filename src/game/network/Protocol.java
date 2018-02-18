@@ -33,7 +33,7 @@ public class Protocol {
 			// packet must at least contain HEADER_SIZE bytes
 			return MessageType.UNKNOWN;
 		}
-		return MessageType.HEARTBEAT;
+		return MessageType.getType(p.getData()[0]);
 	}
 
 	public static DatagramPacket createMessage(MessageType type) {

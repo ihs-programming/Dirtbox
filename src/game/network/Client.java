@@ -101,6 +101,7 @@ public class Client {
 						knownHosts.put(addr, info);
 					} else if (hostAddr.isPresent()
 							&& hostAddr.get().equals(packet.getSocketAddress())) {
+						System.out.println("Recieved message");
 						hostMessages.add(new String(packet.getData(), packet.getOffset(),
 								packet.getLength()));
 					}

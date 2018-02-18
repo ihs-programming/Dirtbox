@@ -71,9 +71,7 @@ public class Server {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				try {
 					socket.receive(packet);
-					System.out.println("Recieved message!");
-					System.out.println(new String(packet.getData(), packet.getOffset(),
-							packet.getLength()));
+					Protocol.broadcast(socket, packet);
 				} catch (IOException e) {
 
 				}

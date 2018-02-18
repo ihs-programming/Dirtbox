@@ -95,7 +95,6 @@ public class Console extends Thread {
 		}
 
 		switch (command[0]) {
-
 		case "!h":
 		case "!help":
 		case "!?":
