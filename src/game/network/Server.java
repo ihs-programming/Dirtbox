@@ -73,7 +73,6 @@ public class Server {
 					socket.receive(packet);
 					Protocol.broadcast(socket, packet);
 				} catch (IOException e) {
-
 				}
 			}
 		}

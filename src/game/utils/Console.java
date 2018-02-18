@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IllegalFormatException;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -75,6 +76,10 @@ public class Console extends Thread {
 				"!connect [number] : connects to server denoted by number created from !listservers");
 		commandhelp.add("!disconnect : Disconnects from currently connected server");
 		commandhelp.add("!viewmessages : Views all messages from hosts");
+		commandhelp.add(
+				"!send [message] : sends a message to the currently connected server");
+		commandhelp.add(
+				"!constatus : prints information about the currently connected to server");
 		if (input.startsWith("!")) {
 			String command[] = input.split(" ");
 			return executeCommand(command, commandhelp);
@@ -85,14 +90,31 @@ public class Console extends Thread {
 	public String executeCommand(String command[], ArrayList<String> commandhelp) {
 		String output = "";
 		// return help value
-		if (command.length > 1 && command[1].equals("?")) {
-			for (int i = 0; i < commandhelp.size(); i++) {
-				if (commandhelp.get(i).startsWith(command[0])) {
-					output += commandhelp.get(i) + "\n";
+		if (command.length > 1) {
+			if (command[1].equals("?")) {
+				for (int i = 0; i < commandhelp.size(); i++) {
+					if (commandhelp.get(i).startsWith(command[0])) {
+						output += commandhelp.get(i) + "\n";
+					}
+				}
+				return output;
+			}
+			boolean commandExists = false;
+			for (String help : commandhelp) {
+				if (help.startsWith(command[0])) {
+					commandExists = true;
+					break;
 				}
 			}
-			return output;
+			if (!commandExists) {
+				output += "\"" + command[0]
+						+ "\" is not a recognized command. Use \"!help\" for help\n";
+				return output;
+			}
 		}
+
+		output += runGameCommand(command);
+		output += runNetworkCommand(command);
 
 		switch (command[0]) {
 		case "!h":
@@ -103,6 +125,14 @@ public class Console extends Thread {
 			}
 			break;
 
+		}
+		return output;
+	}
+
+	private String runGameCommand(String[] command) {
+		String output = "";
+
+		switch (command[0]) {
 		// "!time" command, sets and returns time
 		case "!time":
 			if (command.length < 2) {
@@ -147,6 +177,14 @@ public class Console extends Thread {
 					(int) character.getHitbox().getY());
 			world.explode(p, 20);
 			break;
+		}
+		return output;
+	}
+
+	private String runNetworkCommand(String[] command) {
+		String output = "";
+
+		switch (command[0]) {
 		case "!listservers":
 			Map<InetSocketAddress, String> hostinfo = client.getHostInfo();
 			serverUI.clear();
@@ -220,13 +258,15 @@ public class Console extends Thread {
 			}
 			break;
 
-		// if command doesn't work, return this
-		default:
-			output += "\"" + command[0]
-					+ "\" is not a recognized command. Use \"!help\" for help\n";
+		case "!constatus":
+			Optional<InetSocketAddress> addr = client.getCurrentHost();
+			if (addr.isPresent()) {
+				output += addr.get().toString();
+			} else {
+				output += "Not currently connected to server";
+			}
 			break;
 		}
 		return output;
 	}
-
 }

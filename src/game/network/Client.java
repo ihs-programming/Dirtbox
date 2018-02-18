@@ -22,7 +22,7 @@ public class Client {
 	private Map<InetSocketAddress, HostInformation> knownHosts = new HashMap<>();
 	private Thread listenerThread;
 	private ArrayList<String> hostMessages = new ArrayList<>();
-	private Optional<InetSocketAddress> hostAddr;
+	private Optional<InetSocketAddress> hostAddr = Optional.empty();
 
 	public Client() {
 		try {
@@ -52,6 +52,10 @@ public class Client {
 			knownHosts.remove(addr);
 		}
 		return hostmap;
+	}
+
+	public Optional<InetSocketAddress> getCurrentHost() {
+		return hostAddr;
 	}
 
 	/**
@@ -101,7 +105,6 @@ public class Client {
 						knownHosts.put(addr, info);
 					} else if (hostAddr.isPresent()
 							&& hostAddr.get().equals(packet.getSocketAddress())) {
-						System.out.println("Recieved message");
 						hostMessages.add(new String(packet.getData(), packet.getOffset(),
 								packet.getLength()));
 					}
