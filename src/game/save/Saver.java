@@ -14,8 +14,14 @@ import game.world.World;
 public class Saver {
 	private ArrayList<String> arraylist = new ArrayList<>();
 
+	public Rectangle generatedBlocks(World w) {
+		return new Rectangle(w.getFirstBlock().x, w.getFirstBlock().y,
+				w.getLastBlock().x - w.getFirstBlock().x,
+				w.getLastBlock().y - w.getFirstBlock().y);
+	}
+
 	public void save(World w, RegionGenerator rg) {
-		arraylist = blocksToArrayList(arraylist, w.getBlocks(), rg.generatedblocks);
+		arraylist = blocksToArrayList(arraylist, w.getBlocks(), generatedBlocks(w));
 	}
 
 	public void load(World w) {
