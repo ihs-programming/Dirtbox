@@ -19,7 +19,7 @@ public class Client {
 	private Map<InetSocketAddress, HostInformation> knownHosts = new HashMap<>();
 	private Thread listenerThread;
 	private ArrayList<String> hostMessages = new ArrayList<>();
-	private Optional<InetSocketAddress> hostAddr = Optional.empty();
+	private Optional<UDPConnection> connection = Optional.empty();
 
 	public Client() {
 		try {
@@ -52,7 +52,10 @@ public class Client {
 	}
 
 	public Optional<InetSocketAddress> getCurrentHost() {
-		return hostAddr;
+		if (connection.isPresent()) {
+			return Optional.of(connection.get().addr);
+		}
+		return Optional.empty();
 	}
 
 	/**
@@ -61,11 +64,14 @@ public class Client {
 	 * @param addr
 	 */
 	public void connect(InetSocketAddress addr) throws IOException {
-		hostAddr = Optional.of(addr);
+		connection = Optional.of(new UDPConnection(socket, addr));
 	}
 
 	public void disconnect() {
-		hostAddr = Optional.empty();
+		if (connection.isPresent()) {
+			connection.get().disconnect();
+		}
+		connection = Optional.empty();
 	}
 
 	public List<String> getMessages() {
@@ -73,13 +79,11 @@ public class Client {
 	}
 
 	public void send(String message) throws IOException {
-		if (!hostAddr.isPresent()) {
+		if (!connection.isPresent()) {
 			throw new IOException("Not connected to host");
 		}
-		InetSocketAddress host = hostAddr.get();
-		DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length());
-		packet.setSocketAddress(host);
-		socket.send(packet);
+		UDPConnection con = connection.get();
+		con.sendMessage(message.getBytes());
 	}
 
 	private void parsePacket(DatagramPacket packet) {
@@ -90,10 +94,11 @@ public class Client {
 					.getOrDefault(addr, new HostInformation());
 			info.update();
 			knownHosts.put(addr, info);
-		} else if (hostAddr.isPresent()
-				&& hostAddr.get().equals(packet.getSocketAddress())) {
+		} else if (connection.isPresent()
+				&& connection.get().addr.equals(packet.getSocketAddress())) {
 			hostMessages.add(new String(packet.getData(), packet.getOffset(),
 					packet.getLength()));
+			connection.get().parseMessage(packet);
 		}
 	}
 
