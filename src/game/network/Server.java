@@ -5,6 +5,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 
+/**
+ * Creates discoverable server
+ */
 public class Server {
 	private ArrayList<String> messages;
 	private DatagramSocket socket;
@@ -42,18 +45,23 @@ public class Server {
 		socket.close();
 	}
 
-	public void updateMessages() {
-	}
-
 	public ArrayList<String> getMessages() {
 		return messages;
+	}
+
+	private void parseMessage(DatagramPacket packet) {
+		try {
+			Protocol.broadcast(socket, packet);
+		} catch (IOException e) {
+		}
 	}
 
 	private class BroadcastThread extends Thread {
 		@Override
 		public void run() {
 			while (!socket.isClosed()) {
-				DatagramPacket packet = Protocol.createMessage(MessageType.HEARTBEAT);
+				DatagramPacket packet = Protocol.createMessage(MessageType.DISCOVERY,
+						null);
 				try {
 					Protocol.broadcast(socket, packet);
 				} catch (IOException e) {
@@ -71,7 +79,7 @@ public class Server {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				try {
 					socket.receive(packet);
-					Protocol.broadcast(socket, packet);
+					parseMessage(packet);
 				} catch (IOException e) {
 				}
 			}

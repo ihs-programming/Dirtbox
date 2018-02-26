@@ -3,7 +3,7 @@ package game.network;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-public class HostInformation {
+class HostInformation {
 	private LocalDateTime lastUpdated;
 
 	public HostInformation() {

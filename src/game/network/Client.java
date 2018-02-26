@@ -12,12 +12,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Low level interface that maintains packet reliability, network discovery, and
- * not much more
+ * Low level interface that maintains packet reliability and network discovery
  */
 public class Client {
-	private static final float TIMEOUT = 5f;
-
 	private DatagramSocket socket;
 	private Map<InetSocketAddress, HostInformation> knownHosts = new HashMap<>();
 	private Thread listenerThread;
@@ -41,7 +38,7 @@ public class Client {
 		for (Map.Entry<InetSocketAddress, HostInformation> host : knownHosts.entrySet()) {
 			String hostname = host.getKey().getHostName();
 			String hostinfo = host.getValue().toString();
-			if (host.getValue().timeSinceLastUpdate() > TIMEOUT) {
+			if (host.getValue().timeSinceLastUpdate() > Protocol.TIMEOUT) {
 				toRemove.add(host.getKey());
 			} else {
 				String info = String.format("%s: %s\n", hostname, hostinfo);
@@ -68,7 +65,7 @@ public class Client {
 	}
 
 	public void disconnect() {
-		hostAddr = null;
+		hostAddr = Optional.empty();
 	}
 
 	public List<String> getMessages() {
@@ -85,29 +82,33 @@ public class Client {
 		socket.send(packet);
 	}
 
+	private void parsePacket(DatagramPacket packet) {
+		if (Protocol.parseMessage(packet) == MessageType.DISCOVERY) {
+			InetSocketAddress addr = (InetSocketAddress) packet
+					.getSocketAddress();
+			HostInformation info = knownHosts
+					.getOrDefault(addr, new HostInformation());
+			info.update();
+			knownHosts.put(addr, info);
+		} else if (hostAddr.isPresent()
+				&& hostAddr.get().equals(packet.getSocketAddress())) {
+			hostMessages.add(new String(packet.getData(), packet.getOffset(),
+					packet.getLength()));
+		}
+	}
+
 	/**
 	 * Receives and parses incoming messages
 	 */
 	private class RecieverThread extends Thread {
 		@Override
 		public void run() {
-			byte[] buffer = new byte[8];
+			byte[] buffer = new byte[Protocol.MAX_PACKET_SIZE];
 			while (!socket.isClosed()) {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				try {
 					socket.receive(packet);
-					if (Protocol.parseMessage(packet) == MessageType.HEARTBEAT) {
-						InetSocketAddress addr = (InetSocketAddress) packet
-								.getSocketAddress();
-						HostInformation info = knownHosts
-								.getOrDefault(addr, new HostInformation());
-						info.update();
-						knownHosts.put(addr, info);
-					} else if (hostAddr.isPresent()
-							&& hostAddr.get().equals(packet.getSocketAddress())) {
-						hostMessages.add(new String(packet.getData(), packet.getOffset(),
-								packet.getLength()));
-					}
+					parsePacket(packet);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

@@ -1,5 +1,6 @@
 package game.network;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -22,6 +23,8 @@ public class Protocol {
 	 */
 	public final static int MAX_PACKET_SIZE = 65507;
 
+	static final float TIMEOUT = 5f;
+
 	/**
 	 * Determines message type
 	 *
@@ -36,18 +39,17 @@ public class Protocol {
 		return MessageType.getType(p.getData()[0]);
 	}
 
-	public static DatagramPacket createMessage(MessageType type) {
-		byte[] buffer;
-		switch (type) {
-		case HEARTBEAT:
-			buffer = new byte[HEADER_SIZE];
-			return new DatagramPacket(buffer, buffer.length);
-		case UNKNOWN:
-			throw new IllegalArgumentException("Cannot create unknown packet");
-		default:
-			break;
+	public static DatagramPacket createMessage(MessageType type, byte[] information) {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		output.write(type.getHeader());
+		if (information != null) {
+			try {
+				output.write(information);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		return null;
+		return new DatagramPacket(output.toByteArray(), output.size());
 	}
 
 	public static void broadcast(DatagramSocket socket, DatagramPacket packet)
@@ -70,11 +72,12 @@ public class Protocol {
 				}
 
 				DatagramPacket pkt = Protocol
-						.createMessage(MessageType.HEARTBEAT);
+						.createMessage(MessageType.DISCOVERY, null);
 				pkt.setAddress(broadcastAddr);
 				pkt.setPort(Protocol.DEFAULT_DISCOVERY_PORT);
 				socket.send(pkt);
 			}
 		}
 	}
+
 }

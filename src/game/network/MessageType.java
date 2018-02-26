@@ -2,13 +2,13 @@ package game.network;
 
 public enum MessageType {
 	// @formatter:off
-	HEARTBEAT(0),
-
+	DISCOVERY(0),
 	/**
 	 * Uses "ack" method from:
 	 * https://gafferongames.com/post/reliability_ordering_and_congestion_avoidance_over_udp/
 	 */
 	SMALL_RELIABLE(1),
+	SMALL(2),
 	UNKNOWN(-1);
 	// @formatter:on
 
@@ -25,5 +25,10 @@ public enum MessageType {
 			}
 		}
 		return UNKNOWN;
+	}
+
+	public byte getHeader() {
+		assert this != UNKNOWN;
+		return (byte) id;
 	}
 }
