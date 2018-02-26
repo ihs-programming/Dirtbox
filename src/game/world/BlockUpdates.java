@@ -2,11 +2,14 @@ package game.world;
 
 import java.awt.Point;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.newdawn.slick.geom.Vector2f;
 
@@ -21,26 +24,41 @@ import game.blocks.LiquidBlock;
  *
  */
 public class BlockUpdates {
+	private static final int FLOW_SEARCH_LIMIT = 500;
+
 	private static void propagateFallingBlocks(Set<Point> changedBlocks,
 			TreeMap<Point, Block> blocks,
 			HashSet<Point> queue) {
 
-		Iterator<Point> iter = changedBlocks.iterator();
-		while (iter.hasNext()) {
-			Point p = iter.next();
-			Point above = new Point(p.x, p.y - 1);
-			if (blocks.containsKey(above) && blocks.containsKey(p)) {
-				if (blocks.get(p).type == BlockType.EMPTY
-						|| blocks.get(p) instanceof LiquidBlock) {
-					Block onTop = blocks.get(above);
-					if (onTop.type == BlockType.WATER || onTop.type == BlockType.SAND) {
-						swapBlocks(blocks, p, above);
+		List<Point> toFall = changedBlocks.stream().filter(p -> blocks.containsKey(p))
+				.filter(p -> isEmpty(blocks.get(p)))
+				.filter(p -> shouldFall(blocks.get(above(p))))
+				.collect(Collectors.toList());
 
-						addAround(queue, p);
-					}
-				}
-			}
+		for (Point p : toFall) {
+			swapBlocks(blocks, p, above(p));
+
+			addAround(queue, p);
 		}
+	}
+
+	private static Point above(Point p) {
+		return new Point(p.x, p.y - 1);
+	}
+
+	private static Point under(Point p) {
+		return new Point(p.x, p.y + 1);
+	}
+
+	private static boolean isEmpty(Block b) {
+		if (b == null) {
+			return false;
+		}
+		return b.type == BlockType.EMPTY || b instanceof LiquidBlock;
+	}
+
+	private static boolean shouldFall(Block b) {
+		return b.type == BlockType.SAND;
 	}
 
 	static void propagateLiquids(Set<Point> changedBlocks,
@@ -49,52 +67,33 @@ public class BlockUpdates {
 		propagateFallingBlocks(changedBlocks, blocks, queue);
 
 		HashSet<Point> possibleLiquids = new HashSet<>();
-		for (Point p : changedBlocks) {
-			addAround(possibleLiquids, p);
-		}
+
+		changedBlocks.forEach(p -> addAround(possibleLiquids, p));
+
+		possibleLiquids.stream().filter(p -> blocks.get(p) instanceof LiquidBlock);
 		for (Point p : possibleLiquids) {
 			Block b = blocks.get(p);
 			if (b instanceof LiquidBlock) {
-				// Hmm.. Might as well use it? This probably isn't how you're
-				// supposed to tho.
 				Block under = blocks.get(new Point(p.x, p.y + 1));
 				// First try flowing under
 				if (under != null && under.type == BlockType.EMPTY) {
 					swapBlocks(blocks, p, new Point(p.x, p.y + 1));
 					addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 				} else {
-					// Flow to the left
-					Point curr = new Point(p.x - 1, p.y);
-					Point currBot = new Point(p.x - 1, p.y + 1);
-					while (blocks.containsKey(curr) && blocks.containsKey(currBot)) {
-						if (!flowThrough(blocks.get(curr))) {
-							break;
-						}
-						if (blocks.get(currBot).type == BlockType.EMPTY) {
-							break;
-						}
-						curr.x--;
-						currBot.x--;
-					}
-					if (blocks.containsKey(curr) && flowThrough(blocks.get(curr))) {
-						swapBlocks(blocks, p, curr);
+					Point flowTo = canFlow(
+							IntStream.iterate(-1, n -> n - 1).limit(FLOW_SEARCH_LIMIT),
+							p, blocks);
+					if (flowTo != null) {
+						swapBlocks(blocks, p, flowTo);
+						System.out.println(flowTo + " " + p);
 						addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 					} else {
-						// Try flowing to the right
-						curr = new Point(p.x + 1, p.y);
-						currBot = new Point(p.x + 1, p.y + 1);
-						while (blocks.containsKey(curr) && blocks.containsKey(currBot)) {
-							if (!flowThrough(blocks.get(curr))) {
-								break;
-							}
-							if (blocks.get(currBot).type == BlockType.EMPTY) {
-								break;
-							}
-							curr.x++;
-							currBot.x++;
-						}
-						if (blocks.containsKey(curr) && flowThrough(blocks.get(curr))) {
-							swapBlocks(blocks, p, curr);
+						flowTo = canFlow(
+								IntStream.iterate(1, n -> n + 1).limit(FLOW_SEARCH_LIMIT),
+								p,
+								blocks);
+						if (flowTo != null) {
+							swapBlocks(blocks, p, flowTo);
 							addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 						}
 					}
@@ -104,6 +103,20 @@ public class BlockUpdates {
 
 		changedBlocks.clear();
 		changedBlocks.addAll(queue);
+
+	}
+
+	private static Point canFlow(IntStream offset, Point start,
+			TreeMap<Point, Block> blocks) {
+		Optional<Point> end = offset.mapToObj(n -> new Point(start.x + n, start.y))
+				.filter(p -> blocks.containsKey(p) && blocks.containsKey(under(p)))
+				.filter(p -> !flowThrough(blocks.get(p))
+						|| flowThrough(blocks.get(under(p))))
+				.findFirst();
+		if (!end.isPresent() || !flowThrough(blocks.get(end.get()))) {
+			return null;
+		}
+		return end.get();
 	}
 
 	private static boolean flowThrough(Block b) {
@@ -123,6 +136,10 @@ public class BlockUpdates {
 
 	private static void addAllAdjacentWater(TreeMap<Point, Block> blocks, Point start,
 			Set<Point> queue) {
+		if (queue.contains(start)) {
+			return;
+		}
+
 		Queue<Point> all = new LinkedList<>();
 		HashSet<Point> ret = new HashSet<>();
 
