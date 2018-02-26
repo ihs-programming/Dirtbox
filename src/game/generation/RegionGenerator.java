@@ -34,11 +34,6 @@ public class RegionGenerator {
 	 */
 	private final BiomeType[] biomes = new BiomeType[10000];
 
-	/**
-	 * This rectangle contains the coordinates of all generated blocks
-	 */
-	public Rectangle generatedblocks = new Rectangle(0, 0, 0, CHUNK_HEIGHT);
-
 	/*
 	 * Block object that the regiongenerator will operate on
 	 */
@@ -80,14 +75,6 @@ public class RegionGenerator {
 		Point curpos = new Point(x, y);
 		if (blocks.containsKey(curpos)) {
 			return;
-		} else {
-			if (curpos.getX() < generatedblocks.getMinX()) {
-				generatedblocks.setX((float) curpos.getX());
-			} else if (curpos.getX() > generatedblocks.getMaxX()) {
-				generatedblocks
-						.setWidth(
-								(float) (curpos.getX() - generatedblocks.getMinX()));
-			}
 		}
 		if (y >= BEDROCK_LAYER) {
 			blocks.put(curpos, Block.createBlock(BlockType.BEDROCK, x, y));

@@ -422,6 +422,14 @@ public class World {
 		}
 	}
 
+	public Point getFirstBlock() {
+		return blocks.firstKey();
+	}
+
+	public Point getLastBlock() {
+		return blocks.lastKey();
+	}
+
 	public void removeEntity(Entity e) {
 		entities.remove(e);
 	}
