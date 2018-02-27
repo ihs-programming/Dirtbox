@@ -16,7 +16,7 @@ public enum BlockType {
 	GRAVEL(3, 1),
 	GRASS(3, 0),
 	IRON_ORE(1, 2),
-	LEAVES(5, 3),
+	LEAVES(4, 3),
 	REDSTONE_ORE(3, 3),
 	SAND(2, 1),
 	SANDSTONE(0, 11),
