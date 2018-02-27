@@ -2,9 +2,11 @@ package game.world;
 
 import java.awt.Point;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import game.blocks.Block;
 import game.blocks.BlockType;
@@ -46,9 +48,7 @@ public class Lighting {
 			NavigableSet<Point> allBlocks = blocks.navigableKeySet()
 					.subSet(start, true, end, true);
 			HashSet<Point> visited = new HashSet<>();
-			for (Point p : allBlocks) {
-				blocks.get(p).setLighting(0);
-			}
+			allBlocks.forEach(p -> blocks.get(p).setLighting(0));
 			for (Point p : allBlocks) {
 				Block b = blocks.get(p);
 
@@ -61,11 +61,12 @@ public class Lighting {
 					break;
 				}
 			}
-
-			for (Point p : allBlocks) {
+			List<Point> lightSources = allBlocks.stream()
+					.filter(p -> BlockType.getLightValue(blocks.get(p)) != -1)
+					.collect(Collectors.toList());
+			for (Point p : lightSources) {
 				Block b = blocks.get(p);
-				if (BlockType.getLightValue(b) != -1
-						&& BlockType.getLightValue(b) > b.getLighting()) {
+				if (BlockType.getLightValue(b) > b.getLighting()) {
 					b.setLighting(BlockType.getLightValue(b));
 
 					if (visited.contains(p)) {
@@ -113,7 +114,6 @@ public class Lighting {
 						visited.add(next);
 					}
 				}
-
 			}
 		}
 	}
