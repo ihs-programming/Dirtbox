@@ -85,7 +85,6 @@ public class BlockUpdates {
 							p, blocks);
 					if (flowTo != null) {
 						swapBlocks(blocks, p, flowTo);
-						System.out.println(flowTo + " " + p);
 						addAllAdjacentWater(blocks, new Point(p.x, p.y), queue);
 					} else {
 						flowTo = canFlow(
