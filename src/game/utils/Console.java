@@ -61,6 +61,8 @@ public class Console extends Thread {
 	public String doCommand(String input) {
 
 		// List of all commands and what they do
+		// note that commandhelp must be of the form [(command),(command)...] :
+		// (helptext)
 		ArrayList<String> commandhelp = new ArrayList<>();
 		commandhelp.add("!help, !h, !? : returns a list of commands");
 		commandhelp.add("!time : returns the time");
@@ -99,18 +101,19 @@ public class Console extends Thread {
 				}
 				return output;
 			}
-			boolean commandExists = false;
-			for (String help : commandhelp) {
-				if (help.startsWith(command[0])) {
-					commandExists = true;
-					break;
-				}
+		}
+
+		boolean commandExists = false;
+		for (String help : commandhelp) {
+			if (help.split(":")[0].matches(".*\\b" + command[0].substring(1) + "\\b.*")) {
+				commandExists = true;
+				break;
 			}
-			if (!commandExists) {
-				output += "\"" + command[0]
-						+ "\" is not a recognized command. Use \"!help\" for help\n";
-				return output;
-			}
+		}
+		if (!commandExists) {
+			output += "\"" + command[0]
+					+ "\" is not a recognized command. Use \"!help\" for help\n";
+			return output;
 		}
 
 		output += runGameCommand(command);
@@ -125,7 +128,6 @@ public class Console extends Thread {
 				output += commandhelp.get(i) + "\n";
 			}
 			break;
-
 		}
 		return output;
 	}

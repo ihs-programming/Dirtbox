@@ -5,8 +5,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.BitSet;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Manages the connection with the remote address. Allows for reliable udp
@@ -21,14 +21,8 @@ public class UDPConnection {
 
 	private DatagramSocket socket;
 	public final InetSocketAddress addr;
-	private int latestPacketID = 0;
-	private int latestRemotePacketID = 0;
-
-	private int latestMessageID = 0;
-
 	private Thread messageSender;
-	private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<>();
-	private BitSet recievedMessages = new BitSet(NUM_ACKS);
+	private BlockingQueue<Message> messageQueue = new LinkedBlockingDeque<>();
 	private boolean connected = true;
 
 	private static class Message {
@@ -84,35 +78,14 @@ public class UDPConnection {
 		 */
 		@Override
 		public void run() {
-			ByteBuffer prevMessage = ByteBuffer.allocate(0);
 			while (isConnected()) {
-				ByteBuffer message = ByteBuffer.allocate(PACKET_SIZE);
-				message.putInt(latestPacketID++);
-				while (message.remaining() - 4 > 0) {
-					message.putInt(latestMessageID);
-					if (prevMessage.hasRemaining()) {
-						int size = Math.min(message.remaining(),
-								prevMessage.remaining()) - 4;
-						message.putInt(size);
-						byte[] data = new byte[size];
-						prevMessage.get(data);
-						message.put(data);
-
-						prevMessage.compact();
-						prevMessage.flip();
-					} else {
-						Message nextMessage = messageQueue.poll();
-						if (nextMessage == null) {
-							break;
-						}
-						prevMessage = nextMessage.buffer;
-					}
-				}
-				DatagramPacket packet = new DatagramPacket(message.array(),
-						message.arrayOffset(), message.capacity(), addr);
 				try {
+					Message m = messageQueue.take();
+					DatagramPacket packet = new DatagramPacket(m.buffer.array(),
+							m.buffer.capacity());
+					packet.setSocketAddress(addr);
 					socket.send(packet);
-				} catch (IOException e) {
+				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
