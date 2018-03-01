@@ -34,7 +34,9 @@ public class Chat {
 		case Input.KEY_ENTER:
 			chatAddLine(curr);
 			String result = console.doCommand(curr);
-			chatAddLine(result);
+			if (result != null) {
+				chatAddLine(result);
+			}
 			displaychat = false;
 			curr = "";
 			return false;

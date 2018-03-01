@@ -26,6 +26,7 @@ import game.blocks.BlockType;
 import game.blocks.SolidBlock;
 import game.entities.CollectibleItem;
 import game.entities.ControllableCharacter;
+import game.entities.Creature;
 import game.entities.Entity;
 import game.entities.creature.Bunny;
 import game.entities.creature.Wolf;
@@ -375,6 +376,24 @@ public class World {
 				breakBlock(new Point(pos.x + i, pos.y + z));
 			}
 		}
+		for (Entity e : entities) {
+			Point entityCenter = new Point((int) e.getHitbox().getCenterX(),
+					(int) e.getHitbox().getCenterY());
+
+			if (entityCenter.distance(pos) < str) {
+				if (e instanceof Creature) {
+					((Creature) e).doHit(1);
+				}
+			}
+		}
+	}
+
+	public Point getFirstBlock() {
+		return blocks.firstKey();
+	}
+
+	public Point getLastBlock() {
+		return blocks.lastKey();
 	}
 
 	public void removeEntity(Entity e) {

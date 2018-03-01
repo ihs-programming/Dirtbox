@@ -84,7 +84,7 @@ public class Console extends Thread {
 			String command[] = input.split(" ");
 			return executeCommand(command, commandhelp);
 		}
-		return "";
+		return null;
 	}
 
 	public String executeCommand(String command[], ArrayList<String> commandhelp) {
@@ -158,16 +158,19 @@ public class Console extends Thread {
 
 		case "!save":
 			saver.save(world, world.regionGenerator);
+			output = null;
 			break;
 
 		case "!load":
 			saver.load(world);
+			output = null;
 			break;
 
 		// "!fly" command, changes flying state
 		case "!f":
 		case "!fly":
 			character.flying = !character.flying;
+			output = null;
 			break;
 		case "!addhealth":
 			character.doHit(-10000);
@@ -177,6 +180,7 @@ public class Console extends Thread {
 			Point p = new Point((int) character.getHitbox().getX(),
 					(int) character.getHitbox().getY());
 			world.explode(p, 20);
+			output = null;
 			break;
 		}
 		return output;
