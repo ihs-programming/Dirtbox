@@ -36,6 +36,9 @@ public class Console extends Thread {
 			StringBuilder ret = new StringBuilder();
 
 			for (String s : commands.keySet()) {
+				if (s.equals("!help")) {
+					continue;
+				}
 				ret.append(String.format("!%s : %s\n", s, commands.get(s).command(null)));
 			}
 			return ret.toString();
