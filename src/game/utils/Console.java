@@ -2,6 +2,7 @@ package game.utils;
 
 import java.awt.Dimension;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,14 +35,8 @@ public class Console extends Thread {
 
 	private static HashMap<String, CommandParser> commands = new HashMap<>();
 	static {
-		addCommand("!ping", args -> "Pong");
-		addCommand("!pong", args -> {
-			if (args != null && args[1].equals("a")) {
-				return "yay";
-			}
-			return "Usage !pong. Stuff";
-		});
-		addCommand("!help", args -> {
+		addCommand(args -> "Pong", "!ping");
+		addCommand(args -> {
 			StringBuilder ret = new StringBuilder();
 
 			for (String s : commands.keySet()) {
@@ -51,7 +46,7 @@ public class Console extends Thread {
 				ret.append(String.format("%s : %s\n", s, commands.get(s).command(null)));
 			}
 			return ret.toString();
-		});
+		}, "!help", "!h", "!?", "!loool");
 
 		// You can add commands from other places as well!
 	}
@@ -90,8 +85,8 @@ public class Console extends Thread {
 		frame.pack();
 	}
 
-	public static void addCommand(String text, CommandParser cp) {
-		commands.put(text, cp);
+	public static void addCommand(CommandParser cp, String... texts) {
+		Arrays.asList(texts).forEach(s -> commands.put(s, cp));
 	}
 
 	public String doCommand(String input) {
@@ -174,7 +169,7 @@ public class Console extends Thread {
 	}
 	/*
 	 * private String runNetworkCommand(String[] command) { String output = "";
-	 * 
+	 *
 	 * switch (command[0]) { case "!listservers": Map<InetSocketAddress, String>
 	 * hostinfo = client.getHostInfo(); serverUI.clear(); int ind = 0; for
 	 * (Map.Entry<InetSocketAddress, String> entry : hostinfo.entrySet()) {
@@ -190,13 +185,13 @@ public class Console extends Thread {
 	 * catch (IllegalFormatException e) { output +=
 	 * "Must specify number denoting server index"; } catch (IOException e) { output
 	 * += "Unable to connect to server"; e.printStackTrace(); } } break;
-	 * 
+	 *
 	 * case "!disconnect": client.disconnect(); break;
-	 * 
+	 *
 	 * case "!send": if (command.length >= 2) { try { client.send(command[1]);
 	 * output += "Sent message"; } catch (IOException e) { output +=
 	 * "Unable to send message"; } } else { output += "No message to send"; } break;
-	 * 
+	 *
 	 * } return output; }
 	 */
 
