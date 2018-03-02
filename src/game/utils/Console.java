@@ -22,13 +22,36 @@ import game.world.World;
  * Handles various commands in the game
  */
 public class Console extends Thread {
+	public static final String ERROR = "Unknown command";
+	private static HashMap<String, CommandParser> commands = new HashMap<>();
 	static {
 		addCommand("ping", args -> "Pong");
+		addCommand("pong", args -> {
+			if (args != null && args[1].equals("a")) {
+				return "yay";
+			}
+			return "Usage !pong. Stuff";
+		});
+		addCommand("help", args -> {
+			StringBuilder ret = new StringBuilder();
+
+			for (String s : commands.keySet()) {
+				ret.append(String.format("!%s : %s\n", s, commands.get(s).command(null)));
+			}
+			return ret.toString();
+		});
 
 		// You can add commands from other places as well!
 	}
 
 	private static interface CommandParser {
+		/**
+		 * Do a command.
+		 *
+		 * @param args
+		 *            is null if we want the debug message.
+		 * @return
+		 */
 		public String command(String args[]);
 	}
 
@@ -65,13 +88,9 @@ public class Console extends Thread {
 		frame.pack();
 	}
 
-	private static HashMap<String, CommandParser> commands = new HashMap<>();
-
 	public static void addCommand(String text, CommandParser cp) {
 		commands.put(text, cp);
 	}
-
-	public static final String ERROR = "Unknown command";
 
 	public String doCommand(String input) {
 		String[] args = input.split(" ");
