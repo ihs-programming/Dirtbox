@@ -9,15 +9,13 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
+import game.SpriteSheetLoader;
 import game.Viewport;
 
 public class Inventory {
 	// number of slots wide and high the inventory display will be
 	private InventoryConfig config = new InventoryConfig();
 	private InventoryItem items[][] = new InventoryItem[config.numSlotsWide][config.numSlotsHigh];
-
-	public Inventory() {
-	}
 
 	public void addItem(Item item) {
 		for (InventoryItem[] item2 : items) {
@@ -83,11 +81,17 @@ public class Inventory {
 
 	public void drawHotbar(Viewport vp) {
 		Graphics g = vp.getGraphics();
-		drawHotbar(g);
+		drawHotbar(g, vp);
 	}
 
-	private void drawHotbar(Graphics g) {
-		g.fillRect(0, 0, 5000f, 5000f);
+	private void drawHotbar(Graphics g, Viewport vp) {
+
+		g.setColor(new Color(255, 255, 255, .5f));
+		float x = vp.getViewShape().getWidth() / 2 - 200f;
+		float y = vp.getViewShape().getHeight() - 50f;
+		Image img = SpriteSheetLoader.getHotbar(0, 0);
+		img.draw(x, y);
+		g.fillRect(x, y, 400f, 50f);
 
 	}
 

@@ -15,10 +15,16 @@ import game.MainGameState;
 
 public class MusicPlayer extends Thread {
 
+	// Sound Files
+	File daymusic = new File("data/music/daymusic.wav");
+	File pausemusic = new File("data/music/pausemusic.wav");
+
+	private static boolean ambianceplaying = false;
+
 	public MusicPlayer() {
 	}
 
-	static Clip PlayFile(File file)
+	static Clip playFile(File file)
 			throws UnsupportedAudioFileException, IOException, LineUnavailableException,
 			InterruptedException {
 		AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
@@ -27,7 +33,7 @@ public class MusicPlayer extends Thread {
 		return audioclip;
 	}
 
-	static void PlayDirect(File file)
+	static void playDirect(File file)
 			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
 		Clip audioclip = AudioSystem.getClip();
@@ -44,14 +50,10 @@ public class MusicPlayer extends Thread {
 		return durationInSeconds;
 	}
 
-	// Sound Files
-	File daymusic = new File("data/music/daymusic.wav");
-	File pausemusic = new File("data/music/pausemusic.wav");
-
 	public void pauseMusic() throws InterruptedException {
 		if (MainGameState.playMusic) {
 			try {
-				Clip audioclip = MusicPlayer.PlayFile(pausemusic);
+				Clip audioclip = MusicPlayer.playFile(pausemusic);
 				audioclip.start();
 				for (int i = 0; i < MusicPlayer.SongLength(pausemusic)
 						* 1000.0; i += 1000.0 / Dirtbox.DEFAULT_FRAME_RATE) {
@@ -69,8 +71,6 @@ public class MusicPlayer extends Thread {
 			}
 		}
 	}
-
-	static boolean ambianceplaying = false;
 
 	@Override
 	public void run() {

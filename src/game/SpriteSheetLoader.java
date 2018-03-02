@@ -33,9 +33,6 @@ public class SpriteSheetLoader {
 		return img.getScaledCopy(Block.BLOCK_SPRITE_SIZE, Block.BLOCK_SPRITE_SIZE);
 	}
 
-	private static final SpriteSheet GUI_SPRITE = loadGuiSheet("data/exitbutton.png", 47,
-			17);
-
 	private static SpriteSheet loadGuiSheet(String filename, int spriteWidth,
 			int spriteHeight) {
 		Image spriteSheetImage;
@@ -50,8 +47,19 @@ public class SpriteSheetLoader {
 		return null;
 	}
 
+	private static final SpriteSheet GUI_SPRITE = loadGuiSheet("data/exitbutton.png", 47,
+			17);
+	private static final SpriteSheet GUI_H = loadGuiSheet("data/hotbar.png", 400,
+			50);
+
 	public static Image getGuiImage(int x, int y) {
 		Image img = GUI_SPRITE.getSprite(x, y);
+		img.setFilter(Image.FILTER_NEAREST);
+		return img;
+	}
+
+	public static Image getHotbar(int x, int y) {
+		Image img = GUI_H.getSprite(x, y);
 		img.setFilter(Image.FILTER_NEAREST);
 		return img;
 	}
