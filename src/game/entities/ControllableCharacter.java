@@ -70,18 +70,22 @@ public class ControllableCharacter extends Creature {
 	 */
 	public void move(boolean isLeft) {
 		float move = (flying ? 10 : 1) * SPEED;
+		Vector2f velocity = getVelocity();
 		if (isLeft) {
-			vel.x = -move;
+			velocity.x = -move;
 		} else {
-			vel.x = move;
+			velocity.x = move;
 		}
+		setVelocity(velocity);
 	}
 
 	/**
 	 * Stops the character from moving (if he were moving)
 	 */
 	public void stopMoving() {
-		vel.x = 0;
+		Vector2f velocity = getVelocity();
+		velocity.x = 0;
+		setVelocity(velocity);
 	}
 
 	public void jump() {

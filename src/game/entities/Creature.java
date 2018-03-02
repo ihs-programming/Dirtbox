@@ -35,7 +35,9 @@ public abstract class Creature extends Entity {
 		Vector2f dist = getLocation().sub(aggressor.getLocation());
 
 		if (dist.length() < 5) {
+			Vector2f vel = getVelocity();
 			vel.x += dist.normalise().scale(0.01f).x;
+			setVelocity(vel);
 			health -= damage;
 			timeSinceLastHit = 0f;
 		}
@@ -62,7 +64,7 @@ public abstract class Creature extends Entity {
 			// create health bar
 			Rectangle healthBarOutline = new Rectangle(0, 0, 1, 1);
 			Rectangle healthBar = new Rectangle(0, 0, 1.0f * health / totalHealth, 1);
-			Transform barTransform = new Transform(new float[] { getHitbox().getWidth(),
+			Transform barTransform = new Transform(new float[] { sprite.getWidth(),
 					0,
 					getLocation().x, 0, HEALTH_BAR_HEIGHT,
 					getLocation().y - HEALTH_BAR_DISPLACEMENT });
@@ -103,7 +105,9 @@ public abstract class Creature extends Entity {
 
 	protected void jump(float jumpStrength, int jumplimit) {
 		if (isInWater() || numberOfJumps < jumplimit) {
+			Vector2f vel = getVelocity();
 			vel.y = -jumpStrength;
+			setVelocity(vel);
 			numberOfJumps++;
 		}
 	}
@@ -113,6 +117,7 @@ public abstract class Creature extends Entity {
 		if (numberOfJumps != 0) {
 			numberOfJumps = 0;
 		}
+		Vector2f vel = getVelocity();
 		if (vel.getY() > 0.03) {
 			doHit((int) (vel.getY() * 300));
 		}

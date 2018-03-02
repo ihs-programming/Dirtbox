@@ -14,6 +14,8 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import org.newdawn.slick.geom.Vector2f;
+
 import game.Viewport;
 import game.entities.ControllableCharacter;
 import game.network.Client;
@@ -173,8 +175,8 @@ public class Console extends Thread {
 			break;
 
 		case "!explode":
-			Point p = new Point((int) character.getHitbox().getX(),
-					(int) character.getHitbox().getY());
+			Vector2f loc = character.getLocation();
+			Point p = new Point((int) loc.x, (int) loc.y);
 			world.explode(p, 20);
 			output = null;
 			break;

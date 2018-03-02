@@ -314,17 +314,14 @@ public class World {
 		}
 
 		// Collision Detection with surroundings
-		for (Entity e : entities) {
-			Shape hitbox = e.getHitbox();
-			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
-			List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
-			for (Point p : collidingBlocks) {
-				Block b = getBlocks().get(p);
-				if (b instanceof SolidBlock) {
-					e.collide(b.getHitbox());
-				}
-			}
-		}
+		dynWorld.update(delta * 1000);
+		/*
+		 * for (Entity e : entities) { Shape hitbox = e.getHitbox(); Rectangle
+		 * boundingBox = Geometry.getBoundingBox(hitbox); List<Point> collidingBlocks =
+		 * getVisibleBlockLocations(boundingBox); for (Point p : collidingBlocks) {
+		 * Block b = getBlocks().get(p); if (b instanceof SolidBlock) {
+		 * e.collide(b.getHitbox()); } } }
+		 */
 	}
 
 	/**
@@ -382,10 +379,8 @@ public class World {
 			}
 		}
 		for (Entity e : entities) {
-			Point entityCenter = new Point((int) e.getHitbox().getCenterX(),
-					(int) e.getHitbox().getCenterY());
-
-			if (entityCenter.distance(pos) < str) {
+			Vector2f entityCenter = e.getLocation();
+			if (pos.distance(entityCenter.x, entityCenter.y) < str) {
 				if (e instanceof Creature) {
 					((Creature) e).doHit(1);
 				}
