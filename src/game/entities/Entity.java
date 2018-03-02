@@ -64,7 +64,6 @@ public class Entity {
 		org.dyn4j.geometry.Polygon p = (org.dyn4j.geometry.Polygon) physicsBody
 				.getFixture(0).getShape();
 		org.newdawn.slick.geom.Polygon poly = new org.newdawn.slick.geom.Polygon();
-		System.out.println("Shape: " + p.getVertices().length);
 		for (Vector2 v : p.getVertices()) {
 			poly.addPoint((float) v.x, (float) v.y);
 		}

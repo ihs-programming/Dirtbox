@@ -12,7 +12,9 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Vector2;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
@@ -38,7 +40,7 @@ import game.utils.Geometry;
 
 public class World {
 	public static final double DAY_NIGHT_DURATION = 1200000.0;
-	private static final double GRAVITY_STRENGTH = 1;
+	private static final double GRAVITY_STRENGTH = 5;
 	private static final Comparator<Point> pointComparer = (p1, p2) -> {
 		if (p1.x == p2.x) {
 			return p1.y - p2.y;
@@ -59,6 +61,7 @@ public class World {
 	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
 	public RegionGenerator regionGenerator;
 
+	private Set<Body> blockBodies = new HashSet<>();
 	private org.dyn4j.dynamics.World dynWorld = new org.dyn4j.dynamics.World();
 
 	/**
@@ -197,10 +200,11 @@ public class World {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
-			System.out.printf("%d ms for shading\n",
-					System.currentTimeMillis() - time);
-			// renderHitboxes(vp);
-			// renderMouseRaytrace(vp);
+			List<Point> locs = getVisibleBlockLocations(
+					Geometry.getBoundingBox(vp.getGameViewShape()));
+			for (Point p : locs) {
+				vp.draw(blocks.get(p).getHitbox(), Color.green);
+			}
 		}
 	}
 
@@ -318,6 +322,28 @@ public class World {
 		}
 
 		// Collision Detection with surroundings
+		for (Body b : blockBodies) {
+			dynWorld.removeBody(b);
+		}
+		blockBodies.clear();
+		for (Entity e : entities) {
+			Rectangle boundingBox = Geometry.getBoundingBox(e.getHitbox());
+			Vector2f boxPos = new Vector2f(boundingBox.getCenter());
+			boundingBox.setWidth(boundingBox.getWidth() + 5);
+			boundingBox.setHeight(boundingBox.getHeight() + 5);
+			boundingBox.setCenterX(boxPos.x);
+			boundingBox.setCenterY(boxPos.y);
+			List<Point> locs = getVisibleBlockLocations(boundingBox);
+			for (Point p : locs) {
+				Body b = blocks.get(p).getBody();
+				if (dynWorld.containsBody(b)) {
+					continue;
+				}
+				dynWorld.addBody(b);
+				blockBodies.add(b);
+				System.out.println("OK");
+			}
+		}
 		dynWorld.update(delta);
 	}
 

@@ -2,6 +2,9 @@ package game.blocks;
 
 import java.awt.Point;
 
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.geometry.Convex;
+import org.dyn4j.geometry.MassType;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
@@ -21,6 +24,7 @@ public abstract class Block {
 
 	private Sprite sprite;
 	private Vector2f pos;
+	private Body physicsBody;
 
 	private int lighting;
 	public final BlockType type;
@@ -62,9 +66,11 @@ public abstract class Block {
 							255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 63.0)));
 		}
 	}
+
 	public BlockType getBlockType() {
 		return this.type;
 	}
+
 	public Vector2f getPos() {
 		return pos;
 	}
@@ -91,5 +97,18 @@ public abstract class Block {
 	public Sprite getSprite() {
 		return sprite.getCopy(); // ensure image can't be modified outside of this
 									// class
+	}
+
+	public Body getBody() {
+		if (physicsBody == null) {
+			Convex c = new org.dyn4j.geometry.Rectangle(Block.BLOCK_SPRITE_SIZE,
+					Block.BLOCK_SPRITE_SIZE);
+			physicsBody = new Body();
+			physicsBody.addFixture(c);
+			physicsBody.translateToOrigin();
+			physicsBody.translate(pos.x, pos.y);
+			physicsBody.setMass(MassType.INFINITE);
+		}
+		return physicsBody;
 	}
 }
