@@ -1,5 +1,7 @@
 package game.entities;
 
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Line;
@@ -24,7 +26,6 @@ public class Entity {
 
 	private Shape hitbox;
 	protected Sprite sprite;
-	protected Vector2f pos = new Vector2f();
 	protected Vector2f prevPos = new Vector2f();
 	protected Vector2f vel = new Vector2f();
 	protected Vector2f accel = new Vector2f();
@@ -32,11 +33,11 @@ public class Entity {
 	protected Polygon[] lastMovement = new Polygon[4];
 	private Shape intersectionEdge;
 	private Point scalefactor;
+	private Body physicsBody = new Body();
 
 	protected World world;
 
 	public Entity(Sprite sprite, Vector2f pos, World w) {
-		this.pos = pos.copy();
 		this.sprite = sprite.getCopy();
 		world = w;
 		generateHitbox();
@@ -50,8 +51,8 @@ public class Entity {
 		if (this.hitbox == null) {
 			generateHitbox();
 		} else {
-			hitbox.setX(pos.x + (1 - scalefactor.getX()) * hitbox.getWidth());
-			hitbox.setY(pos.y + (1 - scalefactor.getY()) * hitbox.getHeight());
+			hitbox.setX(getLocation().x + (1 - scalefactor.getX()) * hitbox.getWidth());
+			hitbox.setY(getLocation().y + (1 - scalefactor.getY()) * hitbox.getHeight());
 		}
 		return this.hitbox;
 	}
@@ -60,12 +61,13 @@ public class Entity {
 		float width = 0.95f * sprite.getWidth();
 		float height = 0.99f * sprite.getHeight();
 		this.hitbox = new Rectangle(
-				pos.x + 0.025f * width, pos.y + 0.01f * height, width, height);
+				getLocation().x + 0.025f * width, getLocation().y + 0.01f * height, width,
+				height);
 		this.scalefactor = new Point(0.95f, 0.99f);
 	}
 
 	public void draw(Viewport vp) {
-		sprite.loc.set(pos);
+		sprite.loc.set(getLocation());
 		vp.draw(sprite);
 		if (Viewport.DEBUG_MODE && Entity.DEBUG_COLLISION) {
 			renderMovement(vp);
@@ -96,17 +98,19 @@ public class Entity {
 	}
 
 	public void update(World w, float frametime) {
-		prevPos.set(pos);
-		pos.add(vel.copy().scale(frametime));
+		prevPos.set(getLocation());
+		getLocation().add(vel.copy().scale(frametime));
 		vel.add(accel.copy().scale(frametime));
-		hitbox.setCenterX(pos.x);
-		hitbox.setCenterY(pos.y);
+		hitbox.setCenterX(getLocation().x);
+		hitbox.setCenterY(getLocation().y);
 	}
 
 	public Vector2f getLocation() {
-		float width = sprite.getWidth();
-		float height = sprite.getHeight();
-		return pos.copy().add(new Vector2f(width / 2, height / 2));
+		Vector2 v = physicsBody.getWorldCenter();
+		return new Vector2f((float) v.x, (float) v.y);
+	}
+
+	public void setLocation(Vector2f loc) {
 	}
 
 	/**
@@ -127,7 +131,7 @@ public class Entity {
 			// (Point means that there is no hitbox)
 		} else if (hitbox instanceof Rectangle) {
 			float[] displacement = new float[2];
-			Vector2f prevDirection = pos.copy().sub(prevPos).negate();
+			Vector2f prevDirection = getLocation().copy().sub(prevPos).negate();
 			float charPoints[] = { charHitbox.getMinX(), charHitbox.getMinY(),
 					charHitbox.getMaxX(), charHitbox.getMaxY() };
 			float hitboxPoints[] = { hitbox.getMinX(), hitbox.getMinY(), hitbox.getMaxX(),
@@ -199,7 +203,7 @@ public class Entity {
 				}
 			}
 
-			pos.add(new Vector2f(displacement));
+			getLocation().add(new Vector2f(displacement));
 		} else {
 			throw new UnsupportedOperationException(
 					"Collision with non rectangles not implemented yet\n" +
@@ -217,5 +221,9 @@ public class Entity {
 	 */
 	public boolean alive() {
 		return true;
+	}
+
+	public Body getBody() {
+		return physicsBody;
 	}
 }

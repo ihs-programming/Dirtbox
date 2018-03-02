@@ -64,7 +64,8 @@ public abstract class Creature extends Entity {
 			Rectangle healthBar = new Rectangle(0, 0, 1.0f * health / totalHealth, 1);
 			Transform barTransform = new Transform(new float[] { getHitbox().getWidth(),
 					0,
-					pos.x, 0, HEALTH_BAR_HEIGHT, pos.y - HEALTH_BAR_DISPLACEMENT });
+					getLocation().x, 0, HEALTH_BAR_HEIGHT,
+					getLocation().y - HEALTH_BAR_DISPLACEMENT });
 
 			vp.fill(healthBar.transform(barTransform), Color.red);
 			vp.draw(healthBarOutline.transform(barTransform), Color.white);
@@ -93,7 +94,7 @@ public abstract class Creature extends Entity {
 	}
 
 	private boolean isInWater() {
-		Block testBlock = world.getBlock(World.getCoordinates(super.pos));
+		Block testBlock = world.getBlock(World.getCoordinates(getLocation()));
 		if (testBlock != null && testBlock.type == BlockType.WATER) {
 			return true;
 		}

@@ -56,6 +56,8 @@ public class World {
 	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
 	public RegionGenerator regionGenerator;
 
+	private org.dyn4j.dynamics.World dynWorld = new org.dyn4j.dynamics.World();
+
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
 	 */
@@ -120,7 +122,10 @@ public class World {
 	}
 
 	private void updateEntityList() {
-		entities.addAll(entitiesToAdd);
+		for (Entity e : entitiesToAdd) {
+			dynWorld.addBody(e.getBody());
+			entities.add(e);
+		}
 		entitiesToAdd.clear();
 	}
 
