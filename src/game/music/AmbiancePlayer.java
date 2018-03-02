@@ -20,7 +20,7 @@ public class AmbiancePlayer extends Thread {
 
 	public void playsound(File soundFile) {
 		try {
-			Clip audioclip = MusicPlayer.PlayFile(soundFile);
+			Clip audioclip = MusicPlayer.playFile(soundFile);
 			audioclip.start();
 			for (int i = 0; i < MusicPlayer.SongLength(soundFile)
 					* 1000.0; i += 1000.0

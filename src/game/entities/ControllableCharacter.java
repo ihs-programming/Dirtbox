@@ -138,7 +138,7 @@ public class ControllableCharacter extends Creature {
 			stopMining();
 			return;
 		}
-		if (newBlock != currentBlock) {
+		if (!newBlock.equals(currentBlock)) {
 			mineTime = 0;
 		}
 		BlockType type = newBlock.getBlockType();

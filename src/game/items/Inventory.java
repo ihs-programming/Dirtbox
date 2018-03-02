@@ -16,9 +16,6 @@ public class Inventory {
 	private InventoryConfig config = new InventoryConfig();
 	private InventoryItem items[][] = new InventoryItem[config.numSlotsWide][config.numSlotsHigh];
 
-	public Inventory() {
-	}
-
 	public void addItem(Item item) {
 		for (InventoryItem[] item2 : items) {
 			for (InventoryItem element : item2) {

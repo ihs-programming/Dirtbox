@@ -1,12 +1,9 @@
 package game.utils;
 
 import java.awt.Dimension;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.IllegalFormatException;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -22,7 +19,19 @@ import game.world.World;
  * Handles various commands in the game
  */
 public class Console extends Thread {
+
+	private ControllableCharacter character;
+	private World world;
+	private Client client = new Client();
+	private Server server;
+	private Saver saver = new Saver();
+	private Map<Integer, InetSocketAddress> serverUI = new HashMap<>();
+
+	private JFrame frame;
+	private JTextField commandLine;
+
 	public static final String ERROR = "Unknown command";
+
 	private static HashMap<String, CommandParser> commands = new HashMap<>();
 	static {
 		addCommand("!ping", args -> "Pong");
@@ -36,10 +45,10 @@ public class Console extends Thread {
 			StringBuilder ret = new StringBuilder();
 
 			for (String s : commands.keySet()) {
-				if (s.equals("!help")) {
+				if ("!help".equals(s)) {
 					continue;
 				}
-				ret.append(String.format("!%s : %s\n", s, commands.get(s).command(null)));
+				ret.append(String.format("%s : %s\n", s, commands.get(s).command(null)));
 			}
 			return ret.toString();
 		});
@@ -57,16 +66,6 @@ public class Console extends Thread {
 		 */
 		public String command(String args[]);
 	}
-
-	private ControllableCharacter character;
-	private World world;
-	private Client client = new Client();
-	private Server server;
-	private Saver saver = new Saver();
-	private Map<Integer, InetSocketAddress> serverUI = new HashMap<>();
-
-	private JFrame frame;
-	private JTextField commandLine;
 
 	public Console(ControllableCharacter character, World world) {
 		this.character = character;
@@ -173,99 +172,42 @@ public class Console extends Thread {
 		 */
 
 	}
+	/*
+	 * private String runNetworkCommand(String[] command) { String output = "";
+	 * 
+	 * switch (command[0]) { case "!listservers": Map<InetSocketAddress, String>
+	 * hostinfo = client.getHostInfo(); serverUI.clear(); int ind = 0; for
+	 * (Map.Entry<InetSocketAddress, String> entry : hostinfo.entrySet()) {
+	 * serverUI.put(ind, entry.getKey()); output += Integer.toString(ind) + " : " +
+	 * entry.getValue() + "\n"; ind++; } if (hostinfo.isEmpty()) { output +=
+	 * "No hosts found..."; } break; case "!host": server = new Server(); break;
+	 * case "!stophosting": if (server != null) { server.stop(); server = null; }
+	 * break; case "!connect": if (command.length < 2) { output +=
+	 * "Need to specify a server"; break; } else { try { int connectInd =
+	 * Integer.parseInt(command[1]); if (!serverUI.containsKey(connectInd)) { output
+	 * += "Unable to find servers"; } else { InetSocketAddress addr =
+	 * serverUI.get(connectInd); client.disconnect(); client.connect(addr); } }
+	 * catch (IllegalFormatException e) { output +=
+	 * "Must specify number denoting server index"; } catch (IOException e) { output
+	 * += "Unable to connect to server"; e.printStackTrace(); } } break;
+	 * 
+	 * case "!disconnect": client.disconnect(); break;
+	 * 
+	 * case "!send": if (command.length >= 2) { try { client.send(command[1]);
+	 * output += "Sent message"; } catch (IOException e) { output +=
+	 * "Unable to send message"; } } else { output += "No message to send"; } break;
+	 * 
+	 * } return output; }
+	 */
 
-	private String runNetworkCommand(String[] command) {
-		String output = "";
-
-		switch (command[0]) {
-		case "!listservers":
-			Map<InetSocketAddress, String> hostinfo = client.getHostInfo();
-			serverUI.clear();
-			int ind = 0;
-			for (Map.Entry<InetSocketAddress, String> entry : hostinfo.entrySet()) {
-				serverUI.put(ind, entry.getKey());
-				output += Integer.toString(ind) + " : " + entry.getValue() + "\n";
-				ind++;
-			}
-			if (hostinfo.isEmpty()) {
-				output += "No hosts found...";
-			}
-			break;
-		case "!host":
-			server = new Server();
-			break;
-		case "!stophosting":
-			if (server != null) {
-				server.stop();
-				server = null;
-			}
-			break;
-		case "!connect":
-			if (command.length < 2) {
-				output += "Need to specify a server";
-				break;
-			} else {
-				try {
-					int connectInd = Integer.parseInt(command[1]);
-					if (!serverUI.containsKey(connectInd)) {
-						output += "Unable to find servers";
-					} else {
-						InetSocketAddress addr = serverUI.get(connectInd);
-						client.disconnect();
-						client.connect(addr);
-					}
-				} catch (IllegalFormatException e) {
-					output += "Must specify number denoting server index";
-				} catch (IOException e) {
-					output += "Unable to connect to server";
-					e.printStackTrace();
-				}
-			}
-			break;
-
-		case "!disconnect":
-			client.disconnect();
-			break;
-
-		case "!send":
-			if (command.length >= 2) {
-				try {
-					client.send(command[1]);
-					output += "Sent message";
-				} catch (IOException e) {
-					output += "Unable to send message";
-				}
-			} else {
-				output += "No message to send";
-			}
-			break;
-
-		}
-		return output;
-	}
-
-	private String getNetworkStatus(String[] command) {
-		String output = "";
-		switch (command[0]) {
-		case "!hoststatus":
-			if (server == null) {
-				output += "Not currently hosting a server";
-			} else {
-				output += "Server is currently active";
-			}
-			break;
-		case "!viewmessages":
-			output += String.join("\n", client.getMessages());
-			break;
-		case "!constatus":
-			Optional<InetSocketAddress> addr = client.getCurrentHost();
-			if (addr.isPresent()) {
-				output += addr.get().toString();
-			} else {
-				output += "Not currently connected to server";
-			}
-			break;
-		}
-		return output;
-	}
+	/*
+	 * private String getNetworkStatus(String[] command) { String output = "";
+	 * switch (command[0]) { case "!hoststatus": if (server == null) { output +=
+	 * "Not currently hosting a server"; } else { output +=
+	 * "Server is currently active"; } break; case "!viewmessages": output +=
+	 * String.join("\n", client.getMessages()); break; case "!constatus":
+	 * Optional<InetSocketAddress> addr = client.getCurrentHost(); if
+	 * (addr.isPresent()) { output += addr.get().toString(); } else { output +=
+	 * "Not currently connected to server"; } break; } return output; }
+	 */
 }
