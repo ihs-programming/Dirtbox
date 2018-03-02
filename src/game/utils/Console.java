@@ -25,14 +25,14 @@ public class Console extends Thread {
 	public static final String ERROR = "Unknown command";
 	private static HashMap<String, CommandParser> commands = new HashMap<>();
 	static {
-		addCommand("ping", args -> "Pong");
-		addCommand("pong", args -> {
+		addCommand("!ping", args -> "Pong");
+		addCommand("!pong", args -> {
 			if (args != null && args[1].equals("a")) {
 				return "yay";
 			}
 			return "Usage !pong. Stuff";
 		});
-		addCommand("help", args -> {
+		addCommand("!help", args -> {
 			StringBuilder ret = new StringBuilder();
 
 			for (String s : commands.keySet()) {
@@ -93,6 +93,9 @@ public class Console extends Thread {
 	}
 
 	public String doCommand(String input) {
+		if (input.length() == 0 || input.charAt(0) != '!') {
+			return "";
+		}
 		String[] args = input.split(" ");
 		if (commands.containsKey(args[0])) {
 			return commands.get(args[0]).command(args);
