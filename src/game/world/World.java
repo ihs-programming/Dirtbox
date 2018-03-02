@@ -11,6 +11,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
@@ -68,6 +69,7 @@ public class World {
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
 		regionGenerator = new RegionGenerator(blocks);
+		dynWorld.setGravity(new Vector2(0, 1));
 		addDefaultEntities();
 	}
 

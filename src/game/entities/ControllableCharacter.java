@@ -13,7 +13,7 @@ import game.world.World;
 
 public class ControllableCharacter extends Creature {
 	public boolean flying = false;
-	private static final float SPEED = 0.0085f;
+	private static final float SPEED = 10f;
 	private static final float JUMP = 0.012f;
 	// 1 block = 1 m^2, 1 block = 16 px,
 	// 1 m =

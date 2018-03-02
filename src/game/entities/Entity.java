@@ -4,6 +4,7 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Convex;
 import org.dyn4j.geometry.Mass;
 import org.dyn4j.geometry.Vector2;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Polygon;
@@ -60,17 +61,26 @@ public class Entity {
 	}
 
 	public Shape getHitbox() {
-		Polygon p = (Polygon) physicsBody.getFixture(0).getShape();
+		org.dyn4j.geometry.Polygon p = (org.dyn4j.geometry.Polygon) physicsBody
+				.getFixture(0).getShape();
 		org.newdawn.slick.geom.Polygon poly = new org.newdawn.slick.geom.Polygon();
-		for (int i = 0; i < p.getPoints().length; i++) {
-			poly.addPoint(p.getPoint(i)[0], p.getPoint(i)[1]);
+		System.out.println("Shape: " + p.getVertices().length);
+		for (Vector2 v : p.getVertices()) {
+			poly.addPoint((float) v.x, (float) v.y);
 		}
+		poly.setClosed(true);
+		Vector2f diff = convert(physicsBody.getWorldPoint(p.getCenter()));
+		poly.setCenterX(diff.x);
+		poly.setCenterY(diff.y);
 		return poly;
 	}
 
 	public void draw(Viewport vp) {
 		sprite.loc.set(getLocation());
 		vp.draw(sprite);
+		if (Viewport.DEBUG_MODE) {
+			vp.draw(getHitbox(), Color.red);
+		}
 	}
 
 	public void update(World w, float frametime) {
