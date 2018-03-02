@@ -83,11 +83,14 @@ public class Inventory {
 
 	public void drawHotbar(Viewport vp) {
 		Graphics g = vp.getGraphics();
-		drawHotbar(g);
+		drawHotbar(g, vp);
 	}
 
-	private void drawHotbar(Graphics g) {
-		g.fillRect(0, 0, 5000f, 5000f);
+	private void drawHotbar(Graphics g, Viewport vp) {
+		g.setColor(new Color(255, 255, 255, .5f));
+
+		g.fillRect(vp.getViewShape().getWidth() / 2 - 200f,
+				vp.getViewShape().getHeight() - 50f, 400f, 50f);
 
 	}
 

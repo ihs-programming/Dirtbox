@@ -47,6 +47,8 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 						userInput.getMouseX(),
 						userInput.getMouseY());
 			}
+		} else {
+			inventory.drawHotbar(vp);
 		}
 	}
 
