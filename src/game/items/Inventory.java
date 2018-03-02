@@ -9,6 +9,7 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
+import game.SpriteSheetLoader;
 import game.Viewport;
 
 public class Inventory {
@@ -84,10 +85,13 @@ public class Inventory {
 	}
 
 	private void drawHotbar(Graphics g, Viewport vp) {
-		g.setColor(new Color(255, 255, 255, .5f));
 
-		g.fillRect(vp.getViewShape().getWidth() / 2 - 200f,
-				vp.getViewShape().getHeight() - 50f, 400f, 50f);
+		g.setColor(new Color(255, 255, 255, .5f));
+		float x = vp.getViewShape().getWidth() / 2 - 200f;
+		float y = vp.getViewShape().getHeight() - 50f;
+		Image img = SpriteSheetLoader.getHotbar(0, 0);
+		img.draw(x, y);
+		g.fillRect(x, y, 400f, 50f);
 
 	}
 
