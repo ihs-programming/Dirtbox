@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
@@ -37,6 +38,7 @@ import game.utils.Geometry;
 
 public class World {
 	public static final double DAY_NIGHT_DURATION = 1200000.0;
+	private static final double GRAVITY_STRENGTH = 1;
 	private static final Comparator<Point> pointComparer = (p1, p2) -> {
 		if (p1.x == p2.x) {
 			return p1.y - p2.y;
@@ -69,7 +71,7 @@ public class World {
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
 		regionGenerator = new RegionGenerator(blocks);
-		dynWorld.setGravity(new Vector2(0, 1));
+		dynWorld.setGravity(new Vector2(0, GRAVITY_STRENGTH));
 		addDefaultEntities();
 	}
 
@@ -316,14 +318,7 @@ public class World {
 		}
 
 		// Collision Detection with surroundings
-		dynWorld.update(delta * 1000);
-		/*
-		 * for (Entity e : entities) { Shape hitbox = e.getHitbox(); Rectangle
-		 * boundingBox = Geometry.getBoundingBox(hitbox); List<Point> collidingBlocks =
-		 * getVisibleBlockLocations(boundingBox); for (Point p : collidingBlocks) {
-		 * Block b = getBlocks().get(p); if (b instanceof SolidBlock) {
-		 * e.collide(b.getHitbox()); } } }
-		 */
+		dynWorld.update(delta);
 	}
 
 	/**
@@ -355,6 +350,11 @@ public class World {
 		return ret;
 	}
 
+	/**
+	 * Breaks block and spawns a new block entity
+	 *
+	 * @param pos
+	 */
 	public void breakBlock(Point pos) {
 		Block prevBlock = getBlocks().get(pos);
 		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
@@ -410,7 +410,14 @@ public class World {
 		return blocks;
 	}
 
+	public void setBlock(Point p, Block b) {
+		blocks.put(p, b);
+	}
+
 	public void setBlocks(TreeMap<Point, Block> blocks) {
-		this.blocks = blocks;
+		this.blocks.clear();
+		for (Map.Entry<Point, Block> ent : blocks.entrySet()) {
+			setBlock(ent.getKey(), ent.getValue());
+		}
 	}
 }
