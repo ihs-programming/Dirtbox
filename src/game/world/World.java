@@ -43,9 +43,9 @@ public class World {
 		return p1.x - p2.x;
 	};
 
-	public ArrayList<Entity> entitiesToAdd;
-	public ArrayList<Entity> entities;
-	public ArrayList<Entity> backgroundsprites;
+	private ArrayList<Entity> entitiesToAdd;
+	private ArrayList<Entity> entities;
+	private ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
 	private Image sunsprite;

@@ -67,7 +67,6 @@ public class Console extends Thread {
 		commandhelp.add("!help, !h, !? : returns a list of commands");
 		commandhelp.add("!time : returns the time");
 		commandhelp.add("!time set [time] : sets the current time to [time]");
-		commandhelp.add("!characters : returns the total number of chracters");
 		commandhelp.add("!fly : increases movement speed tenfold");
 		commandhelp.add("!listservers : lists availible servers");
 		commandhelp.add("!host : starts hosting server on computer");
@@ -151,11 +150,6 @@ public class Console extends Thread {
 					}
 				}
 			}
-			break;
-
-		// "!characters" command, returns number of characters
-		case "!characters":
-			output += "Number of characters: " + world.entities.size() + "\n";
 			break;
 
 		case "!save":
