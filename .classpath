@@ -24,5 +24,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/slick/lib/tinylinepp.jar"/>
+	<classpathentry kind="lib" path="lib/dyn4j/dyn4j-v3.2.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
