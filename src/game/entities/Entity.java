@@ -99,7 +99,7 @@ public class Entity {
 
 	public void update(World w, float frametime) {
 		prevPos.set(getLocation());
-		getLocation().add(vel.copy().scale(frametime));
+		setLocation(getLocation().add(vel.copy().scale(frametime)));
 		vel.add(accel.copy().scale(frametime));
 		hitbox.setCenterX(getLocation().x);
 		hitbox.setCenterY(getLocation().y);
@@ -107,10 +107,20 @@ public class Entity {
 
 	public Vector2f getLocation() {
 		Vector2 v = physicsBody.getWorldCenter();
-		return new Vector2f((float) v.x, (float) v.y);
+		return convert(v);
 	}
 
 	public void setLocation(Vector2f loc) {
+		Vector2f prevCent = convert(physicsBody.getWorldCenter());
+		physicsBody.translate(convert(prevCent.negate().add(loc)));
+	}
+
+	private Vector2f convert(Vector2 v) {
+		return new Vector2f((float) v.x, (float) v.y);
+	}
+
+	private Vector2 convert(Vector2f v) {
+		return new Vector2(v.x, v.y);
 	}
 
 	/**
@@ -203,7 +213,7 @@ public class Entity {
 				}
 			}
 
-			getLocation().add(new Vector2f(displacement));
+			setLocation(getLocation().add(new Vector2f(displacement)));
 		} else {
 			throw new UnsupportedOperationException(
 					"Collision with non rectangles not implemented yet\n" +

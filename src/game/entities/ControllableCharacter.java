@@ -90,15 +90,16 @@ public class ControllableCharacter extends Creature {
 
 	public void interact(Vector2f position) {
 		Entity attackedEntity = null;
-		Line characterClick = new Line(pos, position);
+		Line characterClick = new Line(getLocation(), position);
 		for (Entity e : world.getEntities()) {
 			if (e == this) {
 				continue;
 			}
 			if (e.getHitbox().intersects(characterClick) &&
 					(attackedEntity == null ||
-							attackedEntity.getLocation().distance(pos) > e.getLocation()
-									.distance(pos))) {
+							attackedEntity.getLocation().distance(getLocation()) > e
+									.getLocation()
+									.distance(getLocation()))) {
 				attackedEntity = e;
 			}
 		}
@@ -115,7 +116,8 @@ public class ControllableCharacter extends Creature {
 			return;
 		}
 		Vector2f blockCenter = new Vector2f(newBlock.getHitbox().getCenter());
-		if (blockCenter.distance(pos) < attackedEntity.getLocation().distance(pos)) {
+		if (blockCenter.distance(getLocation()) < attackedEntity.getLocation()
+				.distance(getLocation())) {
 			mineBlock(newBlock);
 		} else if (attackedEntity instanceof Creature) {
 			attack((Creature) attackedEntity);
@@ -134,7 +136,7 @@ public class ControllableCharacter extends Creature {
 	}
 
 	public void mineBlock(Block newBlock) {
-		if (newBlock == null || newBlock.getPos().distance(pos) > reach) {
+		if (newBlock == null || newBlock.getPos().distance(getLocation()) > reach) {
 			stopMining();
 			return;
 		}
@@ -180,8 +182,9 @@ public class ControllableCharacter extends Creature {
 	public void draw(Viewport vp) {
 		super.draw(vp);
 		if (Viewport.DEBUG_MODE) {
-			String debugString = String.format("Character position: %f %f\n", pos.x,
-					pos.y);
+			String debugString = String.format("Character position: %f %f\n",
+					getLocation().x,
+					getLocation().y);
 			vp.draw(debugString, 20, 30, Color.white);
 		}
 	}
