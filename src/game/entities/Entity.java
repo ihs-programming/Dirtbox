@@ -122,10 +122,7 @@ public class Entity {
 				hitbox.intersects(charHitbox))) {
 			return;
 		}
-		if (hitbox instanceof Point) {
-			// Do nothing
-			// (Point means that there is no hitbox)
-		} else if (hitbox instanceof Rectangle) {
+		if (hitbox instanceof Rectangle) {
 			float[] displacement = new float[2];
 			Vector2f prevDirection = pos.copy().sub(prevPos).negate();
 			float charPoints[] = { charHitbox.getMinX(), charHitbox.getMinY(),

@@ -10,7 +10,7 @@ import game.world.World;
 public class Bunny extends Creature {
 	public static final float JUMP_STRENGTH = 0.008f;
 
-	int count = 0;
+	private int count = 0;
 
 	public Bunny(Sprite sprite, Vector2f pos, World w) {
 		super(sprite, pos, w);
