@@ -5,14 +5,42 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Checksum {
 	/*
 	 * This class allows for file checking to prevent the use of modified clients
 	 */
 
-	private static File[] getFilesinDirectory(File folder) {
-		File[] listOfFiles = folder.listFiles();
+	public static String getChecksum() {
+		File sourcedirectory = new File("src");
+		String hash = "";
+		List<File> filestocheck = getFilesInDirectory(sourcedirectory);
+		for (int i = 0; i < filestocheck.size(); i++) {
+			try {
+				hash += md5Checksum(filestocheck.get(i));
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return Integer.toHexString(hash.hashCode());
+	}
+
+	private static List<File> getFilesInDirectory(File folder) {
+		List<File> listOfFiles = new ArrayList<>(Arrays.asList(folder.listFiles()));
+		for (int i = 0; i < listOfFiles.size(); i++) {
+			if (listOfFiles.get(i).isDirectory()) {
+				List<File> nestedfiles = getFilesInDirectory(listOfFiles.get(i));
+				listOfFiles.addAll(nestedfiles);
+				listOfFiles.remove(i);
+			}
+		}
 		return listOfFiles;
 	}
 
@@ -41,7 +69,6 @@ public class Checksum {
 		while ((bytesCount = fis.read(byteArray)) != -1) {
 			digest.update(byteArray, 0, bytesCount);
 		}
-		;
 
 		// close the stream; We don't need it now.
 		fis.close();
