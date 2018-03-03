@@ -61,7 +61,7 @@ public class BlockUpdates {
 		return b.type == BlockType.SAND;
 	}
 
-	static void propagateLiquids(Set<Point> changedBlocks,
+	protected static void propagateLiquids(Set<Point> changedBlocks,
 			TreeMap<Point, Block> blocks) {
 		HashSet<Point> queue = new HashSet<>();
 		propagateFallingBlocks(changedBlocks, blocks, queue);

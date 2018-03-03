@@ -31,7 +31,8 @@ public class Lighting {
 	 * @param strength
 	 *            Strength of the light
 	 */
-	static void doSunLighting(TreeMap<Point, Block> blocks, int xStart, int xEnd,
+	protected static void doSunLighting(TreeMap<Point, Block> blocks, int xStart,
+			int xEnd,
 			int yStart, int yEnd, int strength) {
 		PriorityQueue<Point> sources = new PriorityQueue<>(
 				(a, b) -> blocks.get(b).getLighting() - blocks.get(a).getLighting());

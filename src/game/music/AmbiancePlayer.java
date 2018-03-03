@@ -15,14 +15,14 @@ public class AmbiancePlayer extends Thread {
 	AmbiancePlayer() {
 	}
 
-	File daymusic = new File("data/music/daymusic.wav");
-	File nightmusic = new File("data/music/nightmusic.wav");
+	private File daymusic = new File("data/music/daymusic.wav");
+	private File nightmusic = new File("data/music/nightmusic.wav");
 
 	public void playsound(File soundFile) {
 		try {
 			Clip audioclip = MusicPlayer.playFile(soundFile);
 			audioclip.start();
-			for (int i = 0; i < MusicPlayer.SongLength(soundFile)
+			for (int i = 0; i < MusicPlayer.songLength(soundFile)
 					* 1000.0; i += 1000.0
 							/ Dirtbox.DEFAULT_FRAME_RATE) {
 				if (!MainGameState.inGame || !MainGameState.playMusic) {

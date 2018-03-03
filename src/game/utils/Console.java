@@ -75,7 +75,6 @@ public class Console extends Thread {
 	@Override
 	public void run() {
 		frame.setVisible(true);
-		return;
 	}
 
 	public Console() {
@@ -174,7 +173,7 @@ public class Console extends Thread {
 	}
 	/*
 	 * private String runNetworkCommand(String[] command) { String output = "";
-	 * 
+	 *
 	 * switch (command[0]) { case "!listservers": Map<InetSocketAddress, String>
 	 * hostinfo = client.getHostInfo(); serverUI.clear(); int ind = 0; for
 	 * (Map.Entry<InetSocketAddress, String> entry : hostinfo.entrySet()) {
@@ -190,13 +189,13 @@ public class Console extends Thread {
 	 * catch (IllegalFormatException e) { output +=
 	 * "Must specify number denoting server index"; } catch (IOException e) { output
 	 * += "Unable to connect to server"; e.printStackTrace(); } } break;
-	 * 
+	 *
 	 * case "!disconnect": client.disconnect(); break;
-	 * 
+	 *
 	 * case "!send": if (command.length >= 2) { try { client.send(command[1]);
 	 * output += "Sent message"; } catch (IOException e) { output +=
 	 * "Unable to send message"; } } else { output += "No message to send"; } break;
-	 * 
+	 *
 	 * } return output; }
 	 */
 

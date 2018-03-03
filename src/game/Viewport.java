@@ -97,7 +97,7 @@ public class Viewport {
 				/ 2) {
 			day = false;
 		} else if (!day
-				&& !(globaltimer % World.DAY_NIGHT_DURATION > World.DAY_NIGHT_DURATION)) {
+				&& globaltimer % World.DAY_NIGHT_DURATION <= World.DAY_NIGHT_DURATION) {
 			day = true;
 		}
 		resetTransformCache = true;

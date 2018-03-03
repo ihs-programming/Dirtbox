@@ -13,6 +13,8 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 	private static final float SCALE_INCREASE = 1.2f;
 	private static final float SCALE_DECREASE = 1.0f / 1.2f;
 
+	public static boolean inChat = false;
+
 	private Input userInput;
 	private Viewport vp;
 	private Chat chat;
@@ -43,8 +45,6 @@ public class ViewportController implements DefaultKeyListener, DefaultMouseListe
 		movement.scale(MOVEMENT_FACTOR);
 		vp.move(movement);
 	}
-
-	public static boolean inChat = false;
 
 	@Override
 	public void keyPressed(int key, char c) {

@@ -295,7 +295,6 @@ public class RegionGenerator {
 		if (y == 0) {
 			switch (biome) {
 			case OCEAN:
-				type = BlockType.SAND;
 			case DESERT:
 				type = BlockType.SAND;
 				break;
@@ -326,7 +325,7 @@ public class RegionGenerator {
 				return BlockType.SANDSTONE;
 			}
 			if (Math.random() < 0.003) {
-				type = oreselector(x, y, heightMap);
+				type = oreselector(x, y);
 			} else {
 				type = BlockType.STONE;
 			}
@@ -334,7 +333,7 @@ public class RegionGenerator {
 		return type;
 	}
 
-	private BlockType oreselector(int x, int j, int heightMap[]) {
+	private BlockType oreselector(int x, int j) {
 
 		BlockType[] ores = new BlockType[] { BlockType.COAL_ORE, BlockType.IRON_ORE,
 				BlockType.GOLD_ORE, BlockType.REDSTONE_ORE, BlockType.DIAMOND_ORE };
