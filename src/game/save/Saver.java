@@ -55,7 +55,7 @@ public class Saver {
 		float ypos = 0f;
 		for (int index = 0; index < Integer.MAX_VALUE; index++) {
 			blockstring = savearraylist.get(index);
-			if (blockstring.equals("END OF BLOCKS")) {
+			if ("END OF BLOCKS".equals(blockstring)) {
 				break;
 			}
 			String[] stringarray = blockstring.split(" ");

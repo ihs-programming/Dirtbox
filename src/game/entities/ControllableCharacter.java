@@ -159,7 +159,7 @@ public class ControllableCharacter extends Creature {
 
 	public boolean checkBlockType(BlockType[] b, BlockType block) {
 		for (BlockType element : b) {
-			if (element == block) {
+			if (element.equals(block)) {
 				return true;
 			}
 		}

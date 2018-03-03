@@ -97,10 +97,7 @@ public abstract class Creature extends Entity {
 
 	private boolean isInWater() {
 		Block testBlock = world.getBlock(World.getCoordinates(getLocation()));
-		if (testBlock != null && testBlock.type == BlockType.WATER) {
-			return true;
-		}
-		return false;
+		return testBlock != null && testBlock.type == BlockType.WATER;
 	}
 
 	protected void jump(float jumpStrength, int jumplimit) {

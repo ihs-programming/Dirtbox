@@ -75,7 +75,6 @@ public class Console extends Thread {
 	@Override
 	public void run() {
 		frame.setVisible(true);
-		return;
 	}
 
 	public Console() {
