@@ -131,6 +131,7 @@ public class World {
 	private void updateEntityList() {
 		for (Entity e : entitiesToAdd) {
 			dynWorld.addBody(e.getBody());
+			dynWorld.addListener(e.getPhysicsListener());
 			entities.add(e);
 		}
 		entitiesToAdd.clear();
@@ -425,6 +426,8 @@ public class World {
 
 	public void removeEntity(Entity e) {
 		entities.remove(e);
+		dynWorld.removeBody(e.getBody());
+		dynWorld.removeListener(e.getPhysicsListener());
 	}
 
 	public List<Entity> getEntities() {

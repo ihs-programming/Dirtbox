@@ -1,5 +1,12 @@
 package game.entities;
 
+import org.dyn4j.Listener;
+import org.dyn4j.collision.manifold.Manifold;
+import org.dyn4j.collision.narrowphase.Penetration;
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.BodyFixture;
+import org.dyn4j.dynamics.CollisionListener;
+import org.dyn4j.dynamics.contact.ContactConstraint;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Transform;
@@ -118,5 +125,37 @@ public abstract class Creature extends Entity {
 		if (vel.getY() > 0.03) {
 			doHit((int) (vel.getY() * 300));
 		}
+	}
+
+	@Override
+	public Listener getPhysicsListener() {
+		return new CollisionListener() {
+
+			@Override
+			public boolean collision(Body body1, BodyFixture fixture1, Body body2,
+					BodyFixture fixture2) {
+				return true;
+			}
+
+			@Override
+			public boolean collision(Body body1, BodyFixture fixture1, Body body2,
+					BodyFixture fixture2, Penetration penetration) {
+				return true;
+			}
+
+			@Override
+			public boolean collision(Body body1, BodyFixture fixture1, Body body2,
+					BodyFixture fixture2, Manifold manifold) {
+				return true;
+			}
+
+			@Override
+			public boolean collision(ContactConstraint contactConstraint) {
+				if (contactConstraint.getNormal().y < 0) {
+					numberOfJumps--;
+				}
+				return true;
+			}
+		};
 	}
 }

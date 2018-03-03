@@ -106,7 +106,8 @@ public abstract class Block {
 			physicsBody = new Body();
 			physicsBody.addFixture(c);
 			physicsBody.translateToOrigin();
-			physicsBody.translate(pos.x, pos.y);
+			float disp = BLOCK_SPRITE_SIZE / 2;
+			physicsBody.translate(pos.x + disp, pos.y + disp);
 			physicsBody.setMass(MassType.INFINITE);
 		}
 		return physicsBody;

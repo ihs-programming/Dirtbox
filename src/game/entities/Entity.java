@@ -1,8 +1,10 @@
 package game.entities;
 
+import org.dyn4j.Listener;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Convex;
 import org.dyn4j.geometry.Mass;
+import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
@@ -46,6 +48,7 @@ public class Entity {
 		if (physicsBody == null) {
 			physicsBody = new Body();
 			physicsBody.setMass(new Mass(new Vector2(), 1, 1));
+			physicsBody.setMassType(MassType.FIXED_ANGULAR_VELOCITY);
 			generateHitbox();
 		}
 		return physicsBody;
@@ -122,5 +125,10 @@ public class Entity {
 	 */
 	public boolean alive() {
 		return true;
+	}
+
+	public Listener getPhysicsListener() {
+		return new Listener() {
+		};
 	}
 }
