@@ -322,10 +322,10 @@ public class World {
 		}
 
 		// Collision Detection with surroundings
-		for (Body b : blockBodies) {
-			dynWorld.removeBody(b);
-		}
-		blockBodies.clear();
+		/*
+		 * for (Body b : blockBodies) { dynWorld.removeBody(b); }
+		 */
+		// blockBodies.clear();
 		for (Entity e : entities) {
 			Rectangle boundingBox = Geometry.getBoundingBox(e.getHitbox());
 			Vector2f boxPos = new Vector2f(boundingBox.getCenter());
@@ -341,7 +341,6 @@ public class World {
 				}
 				dynWorld.addBody(b);
 				blockBodies.add(b);
-				System.out.println("OK");
 			}
 		}
 		dynWorld.update(delta);

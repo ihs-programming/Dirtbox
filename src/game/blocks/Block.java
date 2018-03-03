@@ -24,7 +24,7 @@ public abstract class Block {
 
 	private Sprite sprite;
 	private Vector2f pos;
-	private Body physicsBody;
+	protected Body physicsBody;
 
 	private int lighting;
 	public final BlockType type;
