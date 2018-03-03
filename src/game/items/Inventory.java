@@ -49,7 +49,8 @@ public class Inventory {
 	 * @param pos
 	 */
 	public void addItem(Item item, Point pos) {
-		int i = pos.x, j = pos.y;
+		int i = pos.x;
+		int j = pos.y;
 		if (items[i][j] == null) {
 			items[i][j] = new InventoryItem(item);
 			items[i][j].addItem();

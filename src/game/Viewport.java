@@ -33,7 +33,7 @@ public class Viewport {
 	 */
 	public static float gamma = 0.0f;
 	public static long globaltimer = 0;
-	static long timerupdate = 0;
+	protected static long timerupdate = 0;
 
 	public static boolean day = true;
 	public static boolean DEBUG_MODE = false;

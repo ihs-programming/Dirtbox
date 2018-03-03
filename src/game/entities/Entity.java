@@ -192,6 +192,8 @@ public class Entity {
 					case 3: // left
 						vel.x = Math.max(vel.x, 0);
 						break;
+					default:
+						break;
 					}
 				}
 			}

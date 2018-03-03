@@ -26,7 +26,6 @@ public class SpriteSheetLoader {
 		} catch (SlickException e) {
 			System.out.printf("Unable to load sprite sheet %s...\n", filename);
 			e.printStackTrace();
-			System.exit(1);
 		}
 		return null;
 	}

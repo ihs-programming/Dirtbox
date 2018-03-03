@@ -43,8 +43,12 @@ public final class ImprovedNoise {
 		double u = fade(x), // COMPUTE FADE CURVES
 				v = fade(y), // FOR EACH OF X,Y,Z.
 				w = fade(z);
-		int A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z, // HASH COORDINATES OF
-				B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z; // THE 8 CUBE CORNERS,
+		int A = p[X] + Y;
+		int AA = p[A] + Z;
+		int AB = p[A + 1] + Z;
+		int B = p[X + 1] + Y;
+		int BA = p[B] + Z; // HASH COORDINATES OF
+		int BB = p[B + 1] + Z; // THE 8 CUBE CORNERS,
 
 		return lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z), // AND ADD
 				grad(p[BA], x - 1, y, z)), // BLENDED
