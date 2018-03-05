@@ -8,13 +8,13 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Polygon;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.Viewport;
+import game.utils.Geometry;
 import game.world.World;
 
 /**
@@ -29,8 +29,6 @@ public class Entity {
 	protected Vector2f accel = new Vector2f();
 
 	protected Polygon[] lastMovement = new Polygon[4];
-	private Shape intersectionEdge;
-	private Point scalefactor;
 	private Body physicsBody;
 
 	protected World world;
@@ -60,21 +58,13 @@ public class Entity {
 		Convex shape = new org.dyn4j.geometry.Rectangle(width, height);
 		physicsBody.removeAllFixtures();
 		physicsBody.addFixture(shape);
-		this.scalefactor = new Point(0.95f, 0.99f);
 	}
 
 	public Shape getHitbox() {
-		org.dyn4j.geometry.Polygon p = (org.dyn4j.geometry.Polygon) physicsBody
-				.getFixture(0).getShape();
-		org.newdawn.slick.geom.Polygon poly = new org.newdawn.slick.geom.Polygon();
-		for (Vector2 v : p.getVertices()) {
-			poly.addPoint((float) v.x, (float) v.y);
+		if (this instanceof ControllableCharacter) {
+			System.out.println(Geometry.convertShape(getBody())[0].getCenterY());
 		}
-		poly.setClosed(true);
-		Vector2f diff = convert(physicsBody.getWorldPoint(p.getCenter()));
-		poly.setCenterX(diff.x);
-		poly.setCenterY(diff.y);
-		return poly;
+		return Geometry.convertShape(getBody())[0];
 	}
 
 	public void draw(Viewport vp) {
