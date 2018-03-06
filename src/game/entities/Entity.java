@@ -61,9 +61,6 @@ public class Entity {
 	}
 
 	public Shape getHitbox() {
-		if (this instanceof ControllableCharacter) {
-			System.out.println(Geometry.convertShape(getBody())[0].getCenterY());
-		}
 		return Geometry.convertShape(getBody())[0];
 	}
 
