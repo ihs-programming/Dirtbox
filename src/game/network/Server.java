@@ -16,6 +16,11 @@ public class Server {
 
 	public Server() {
 		try {
+			// DatagramSocket()
+			// Constructs a datagram socket and binds it to any available port
+			// on the local host machine.
+
+			// Are you sure "any port" is applicable here?
 			socket = new DatagramSocket();
 			socket.setBroadcast(true);
 
