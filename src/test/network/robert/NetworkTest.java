@@ -1,11 +1,11 @@
 package test.network.robert;
 
-import game.network.robert.Server;
 import game.network.robert.UDPBroadcast;
+import game.network.robert.UDPServer;
 
 public class NetworkTest {
 	public static void main(String args[]) throws Exception {
-		Server s = new Server();
+		UDPServer s = new UDPServer();
 		UDPBroadcast cast = new UDPBroadcast(1000, 2000);
 
 		Thread.sleep(2000);

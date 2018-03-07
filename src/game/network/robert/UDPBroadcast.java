@@ -32,7 +32,7 @@ public class UDPBroadcast {
 		buffer = new HashSet<>();
 
 		InetAddress broadcast = InetAddress.getByName("255.255.255.255");
-		socket = Server.socket;
+		socket = UDPServer.socket;
 		byte[] pingPacket = new byte[PING_PACKET_SIZE];
 		Arrays.fill(pingPacket, PING_VALUE);
 		DatagramPacket search = new DatagramPacket(

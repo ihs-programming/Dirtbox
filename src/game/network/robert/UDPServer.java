@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
-public class Server {
+public class UDPServer {
 	static {
 		DatagramSocket sock = null;
 		try {
@@ -20,7 +20,7 @@ public class Server {
 	// Reasoning for this is because we can only create one datagram socket
 	static final DatagramSocket socket;
 
-	public Server() {
+	public UDPServer() {
 		Runnable UDPServer = () -> {
 			try {
 
@@ -42,4 +42,5 @@ public class Server {
 		};
 		new Thread(UDPServer).start();
 	}
+
 }
