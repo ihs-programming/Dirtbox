@@ -1,9 +1,9 @@
-package game.network.robert;
+package game.network.event;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 
-import game.network.robert.io.Util;
+import game.network.io.Util;
 
 /**
  * So probably have an event driven system.
@@ -25,8 +25,8 @@ import game.network.robert.io.Util;
  */
 public abstract class Event {
 	/**
-	 * If a class implements this, it must also have a constructor accepting a
-	 * byte array.
+	 * If a class implements this, it must also have a constructor accepting a byte
+	 * array.
 	 *
 	 * @return A byte representation of the object. That is, <code>new
 	 *         Event(event.toBytes())</code> should produce the same object;
@@ -53,8 +53,8 @@ public abstract class Event {
 	}
 
 	/**
-	 * This is the header that tells us what class the Event is. This removes
-	 * any need for a massive switch statement!
+	 * This is the header that tells us what class the Event is. This removes any
+	 * need for a massive switch statement!
 	 *
 	 * Unfortuantely also means we have to use reflection.
 	 *

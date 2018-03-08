@@ -1,4 +1,4 @@
-package game.network.robert.io;
+package game.network.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

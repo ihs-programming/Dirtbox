@@ -1,4 +1,4 @@
-package game.network.robert;
+package game.network;
 
 import java.io.IOException;
 import java.net.ServerSocket;

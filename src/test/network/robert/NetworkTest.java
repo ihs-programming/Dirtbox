@@ -1,7 +1,7 @@
 package test.network.robert;
 
-import game.network.robert.UDPBroadcast;
-import game.network.robert.UDPServer;
+import game.network.UDPBroadcast;
+import game.network.UDPServer;
 
 public class NetworkTest {
 	public static void main(String args[]) throws Exception {

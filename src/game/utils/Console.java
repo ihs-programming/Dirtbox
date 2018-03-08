@@ -11,8 +11,6 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import game.entities.ControllableCharacter;
-import game.network.Client;
-import game.network.Server;
 import game.save.Saver;
 import game.world.World;
 
@@ -23,8 +21,6 @@ public class Console extends Thread {
 
 	private ControllableCharacter character;
 	private World world;
-	private Client client = new Client();
-	private Server server;
 	private Saver saver = new Saver();
 	private Map<Integer, InetSocketAddress> serverUI = new HashMap<>();
 
