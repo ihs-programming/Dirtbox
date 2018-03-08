@@ -20,6 +20,10 @@ public class Util {
 		return ret;
 	}
 
+	public static int toInt(byte[] b, int off) {
+		return toInt(new byte[] { b[off], b[off + 1], b[off + 2], b[off + 3] });
+	}
+
 	public static int toInt(byte[] b) {
 		assert b.length == 4;
 
@@ -28,6 +32,15 @@ public class Util {
 			ret += (int) Math.pow(256, i) * (b[i] < 0 ? b[i] + 256 : b[i]);
 		}
 		ret += (int) Math.pow(256, 3) * b[3];
+
+		return ret;
+	}
+
+	public static byte[] combine(byte[] a, byte[] b) {
+		byte[] ret = new byte[a.length + b.length];
+
+		System.arraycopy(a, 0, ret, 0, a.length);
+		System.arraycopy(b, 0, ret, a.length, b.length);
 
 		return ret;
 	}
