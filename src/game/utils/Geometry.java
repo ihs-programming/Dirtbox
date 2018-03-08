@@ -24,17 +24,23 @@ public class Geometry {
 		Shape[] shapes = new Shape[b.getFixtureCount()];
 		int i = 0;
 		for (Fixture f : b.getFixtures()) {
-			shapes[i++] = convertShape(f.getShape(), b.getTransform());
+			shapes[i++] = convertShape(f.getShape(), b.getInitialTransform());
 		}
 		return shapes;
 	}
 
 	public static Shape convertShape(Convex c, Transform t) {
-		Vector2[] axes = c.getAxes(null, t);
-		Polygon p = new Polygon();
-		for (Vector2 point : axes) {
-			p.addPoint((float) point.x, (float) point.y);
+		if (!(c instanceof org.dyn4j.geometry.Polygon)) {
+			throw new UnsupportedOperationException();
 		}
-		return p;
+		org.dyn4j.geometry.Polygon p = (org.dyn4j.geometry.Polygon) c;
+		Vector2[] vertices = p.getVertices();
+		Polygon np = new Polygon();
+		for (Vector2 point : vertices) {
+			Vector2 pointCopy = point.copy();
+			t.transform(pointCopy);
+			np.addPoint((float) pointCopy.x, (float) pointCopy.y);
+		}
+		return np;
 	}
 }

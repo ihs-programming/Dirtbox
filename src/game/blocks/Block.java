@@ -6,13 +6,13 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Convex;
 import org.dyn4j.geometry.MassType;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.SpriteSheetLoader;
 import game.Viewport;
+import game.utils.Geometry;
 
 public abstract class Block {
 	public static final int BLOCK_SPRITE_SIZE = 1;
@@ -80,10 +80,7 @@ public abstract class Block {
 	}
 
 	public Shape getHitbox() {
-		Rectangle hitbox = sprite.getBoundingBox();
-		hitbox.setX(pos.x);
-		hitbox.setY(pos.y);
-		return hitbox;
+		return Geometry.convertShape(getBody())[0];
 	}
 
 	public int getLighting() {
@@ -107,6 +104,7 @@ public abstract class Block {
 			physicsBody.addFixture(c);
 			physicsBody.translateToOrigin();
 			float disp = BLOCK_SPRITE_SIZE / 2;
+			disp = 0;
 			physicsBody.translate(pos.x + disp, pos.y + disp);
 			physicsBody.setMass(MassType.INFINITE);
 		}

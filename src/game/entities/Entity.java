@@ -61,9 +61,6 @@ public class Entity {
 	}
 
 	public Shape getHitbox() {
-		if (this instanceof ControllableCharacter) {
-			System.out.println(Geometry.convertShape(getBody())[0].getCenterY());
-		}
 		return Geometry.convertShape(getBody())[0];
 	}
 
@@ -72,6 +69,13 @@ public class Entity {
 		vp.draw(sprite);
 		if (Viewport.DEBUG_MODE) {
 			vp.draw(getHitbox(), Color.red);
+			if (this instanceof ControllableCharacter) {
+				vp.draw(String.format("Hitbox shape position: %f %f",
+						getHitbox().getCenterX(),
+						getHitbox().getCenterY()), 20, 50, Color.white);
+				vp.draw(String.format("Velocity: %f %f", getBody().getLinearVelocity().x,
+						getBody().getLinearVelocity().y), 20, 70, Color.white);
+			}
 		}
 	}
 
@@ -85,7 +89,7 @@ public class Entity {
 	}
 
 	public void setLocation(Vector2f loc) {
-		Vector2f prevCent = convert(getBody().getWorldCenter());
+		Vector2f prevCent = getLocation();
 		getBody().translate(convert(prevCent.negate().add(loc)));
 	}
 
