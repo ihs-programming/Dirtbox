@@ -13,7 +13,7 @@ public class BackgroundBlock extends Block {
 	private Shape hitbox;
 
 	public BackgroundBlock(BlockType t, float xpos, float ypos) {
-		super(t, t.sx, t.sy, xpos, ypos);
+		super(t, t.sx, t.sy, xpos, ypos, true);
 
 		// change size later
 		hitbox = new Rectangle(super.getPos().x, super.getPos().y, 1, 1);

@@ -91,7 +91,8 @@ public class RegionGenerator {
 						blocks.put(new Point(i + chunkStart, j), chunk[i][j]);
 					} else {
 						blocks.put(new Point(i + chunkStart, j),
-								Block.createBlock(BlockType.EMPTY, i + chunkStart, j));
+								Block.createBlock(BlockType.EMPTY, i + chunkStart, j,
+										false));
 					}
 				}
 			}

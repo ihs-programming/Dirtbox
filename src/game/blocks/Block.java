@@ -25,7 +25,7 @@ public abstract class Block {
 	private int lighting;
 	public final BlockType type;
 
-	public static Block createBlock(BlockType type, float xpos, float ypos) {
+	public static Block createBlock(BlockType type, float xpos, float ypos, boolean b) {
 		if (type == BlockType.EMPTY) {
 			return new EmptyBlock(xpos, ypos);
 		} else if (type == BlockType.WATER) {
@@ -36,8 +36,15 @@ public abstract class Block {
 		return new SolidBlock(type, xpos, ypos);
 	}
 
-	protected Block(BlockType type, int sx, int sy, float xpos, float ypos) {
-		sprite = new Sprite(SpriteSheetLoader.getBlockImage(sx, sy));
+	public static Block createBlock(BlockType type, float xpos, float ypos) {
+		return createBlock(type, xpos, ypos, true);
+	}
+
+	protected Block(BlockType type, int sx, int sy, float xpos, float ypos,
+			boolean createSpriteSheet) {
+		if (createSpriteSheet) {
+			sprite = new Sprite(SpriteSheetLoader.getBlockImage(sx, sy));
+		}
 		pos = new Vector2f(xpos, ypos);
 
 		this.type = type;
@@ -62,9 +69,11 @@ public abstract class Block {
 							255 - (int) ((1f - Viewport.gamma) * 255 * lighting / 63.0)));
 		}
 	}
+
 	public BlockType getBlockType() {
 		return this.type;
 	}
+
 	public Vector2f getPos() {
 		return pos;
 	}
