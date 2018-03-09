@@ -13,15 +13,9 @@ import game.world.World;
 
 public class ControllableCharacter extends Creature {
 	public boolean flying = false;
-	private static final float SPEED = 10f;
-	private static final float JUMP = 500f;
-	// 1 block = 1 m^2, 1 block = 16 px,
-	// 1 m =
-	// 16 px,
-	// 1 frame = 1/60s, 1 frame = 16.7ms,
-	// 9.8m/s^2
-	// = 9.8*16px/60frames, gravity =
-	// -2.613px/frame
+	private static final float MAX_SPEED = 10f;
+	private static final float ACCELERATION = 10f;
+	private static final float JUMP = 250f;
 	private float reach = 5f; // distance (in game units) in which the player
 								// can interact
 								// with items in the game
@@ -69,7 +63,7 @@ public class ControllableCharacter extends Creature {
 	 * @param isLeft
 	 */
 	public void move(boolean isLeft) {
-		float move = (flying ? 10 : 1) * SPEED;
+		float move = (flying ? 10 : 1) * MAX_SPEED;
 		Vector2f velocity = getVelocity();
 		if (isLeft) {
 			velocity.x = -move;
