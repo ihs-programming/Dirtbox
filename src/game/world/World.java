@@ -41,6 +41,7 @@ import game.network.SocketListenerImpl;
 import game.network.event.BlockBreakEvent;
 import game.network.event.Event;
 import game.network.gamestate.BlockState;
+import game.save.Saver;
 import game.utils.Geometry;
 
 public class World {
@@ -61,6 +62,7 @@ public class World {
 	private TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
 
 	private Queue<Event> eventQueue = new LinkedList<>();
+	private Queue<byte[]> blockQueue = new LinkedList<>();
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
 	 */
@@ -331,8 +333,8 @@ public class World {
 		return new Vector2f();
 	}
 
-	public void recieveNewBlocks(TreeMap<Point, Block> newBlocks) {
-		newBlocks.entrySet().forEach(e -> blocks.put(e.getKey(), e.getValue()));
+	public void recieveNewBlocks(byte[] data) {
+		blockQueue.add(data);
 	}
 
 	public void update(int delta) {
@@ -380,7 +382,12 @@ public class World {
 			} catch (ReflectiveOperationException e1) {
 			}
 		}
+		for (byte[] blockData : blockQueue) {
+			Saver.load(blockData).entrySet()
+					.forEach(e -> blocks.put(e.getKey(), e.getValue()));
+		}
 		eventQueue.clear();
+		blockQueue.clear();
 	}
 
 	/**

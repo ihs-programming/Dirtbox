@@ -45,6 +45,13 @@ public class SocketListenerImpl implements SocketListener {
 		try {
 			User u = new User(s);
 
+			System.out.println("HI");
+			byte[] bd = blockStates
+					.getBlocks(new Rectangle(-1000, -1000, 2000, 2000));
+			System.out.println("HI");
+			u.out.write(Header.WORLD, bd);
+			System.out.println("HI");
+
 			u.in.addListener((header, data) -> {
 				switch (header) {
 				case EVENT:

@@ -11,7 +11,6 @@ import game.network.io.EncodedOutputStream;
 import game.network.io.EncodedReader;
 import game.network.io.Header;
 import game.network.io.Util;
-import game.save.Saver;
 import game.world.World;
 
 public class Client {
@@ -53,7 +52,7 @@ public class Client {
 				}
 				break;
 			case WORLD:
-				w.recieveNewBlocks(Saver.load(data));
+				w.recieveNewBlocks(data);
 				break;
 			}
 		});

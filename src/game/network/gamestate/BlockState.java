@@ -1,9 +1,7 @@
 package game.network.gamestate;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.NavigableSet;
 import java.util.TreeMap;
 
@@ -40,8 +38,7 @@ public class BlockState {
 	 */
 	public byte[] getBlocks(Rectangle rect) {
 		regionGenerator.generate(rect);
-
-		List<Block> allBlocks = getVisibleBlocks(rect);
+		TreeMap<Point, Block> allBlocks = getVisibleBlocks(rect);
 		return Saver.serializeBlocks(allBlocks);
 	}
 
@@ -52,8 +49,8 @@ public class BlockState {
 	 * @param view
 	 * @return
 	 */
-	public List<Block> getVisibleBlocks(Rectangle view) {
-		ArrayList<Block> blockLocs = new ArrayList<>();
+	public TreeMap<Point, Block> getVisibleBlocks(Rectangle view) {
+		TreeMap<Point, Block> blockLocs = new TreeMap<>(BlockState.pointComparer);
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
 			Point start = new Point(i, (int) (view.getMinY() - 1));
 			Point end = new Point(i, (int) (view.getMaxY() + 1));
@@ -61,7 +58,7 @@ public class BlockState {
 					start,
 					true, end, true);
 			for (Point p : existingBlocks) {
-				blockLocs.add(blocks.get(p));
+				blockLocs.put(p, blocks.get(p));
 			}
 		}
 		return blockLocs;
