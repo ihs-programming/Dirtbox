@@ -1,13 +1,17 @@
 package game.world;
 
 import java.awt.Point;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -32,6 +36,11 @@ import game.entities.creature.Bunny;
 import game.entities.creature.Wolf;
 import game.generation.RegionGenerator;
 import game.items.BlockItem;
+import game.network.Client;
+import game.network.ServerThread;
+import game.network.SocketListenerImpl;
+import game.network.event.BlockBreakEvent;
+import game.network.event.Event;
 import game.utils.Geometry;
 
 public class World {
@@ -48,6 +57,8 @@ public class World {
 	private ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
+	private Client c;
+
 	private Image sunsprite;
 	private Entity sun;
 
@@ -56,6 +67,7 @@ public class World {
 	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
 	public RegionGenerator regionGenerator;
 
+	private Queue<Event> eventQueue = new LinkedList<>();
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
 	 */
@@ -67,6 +79,26 @@ public class World {
 		backgroundsprites = new ArrayList<>();
 		regionGenerator = new RegionGenerator(blocks);
 		addDefaultEntities();
+
+		try {
+			new Thread(new ServerThread(new SocketListenerImpl())).start();
+			c = new Client(InetAddress.getLocalHost());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Please change this
+	 */
+	private boolean hasInited = false;
+
+	private void init() {
+		if (hasInited) {
+			return;
+		}
+		hasInited = true;
+		c.bindTo(this);
 	}
 
 	public Block getBlock(Point location) {
@@ -138,6 +170,7 @@ public class World {
 	}
 
 	public void draw(Viewport vp) {
+		init();
 		updateSun(vp);
 
 		if (Viewport.day) {
@@ -296,6 +329,8 @@ public class World {
 	}
 
 	public void update(int delta) {
+		processEventQueue();
+
 		BlockUpdates.propagateLiquids(changedBlocks, getBlocks());
 		updateEntityList();
 		Iterator<Entity> iter = entities.iterator();
@@ -318,6 +353,14 @@ public class World {
 				if (b instanceof SolidBlock) {
 					e.collide(b.getHitbox());
 				}
+			}
+		}
+	}
+
+	private void processEventQueue() {
+		for (Event e : eventQueue) {
+			if (e instanceof BlockBreakEvent) {
+				processBlockBreakEvent((BlockBreakEvent) e);
 			}
 		}
 	}
@@ -352,19 +395,7 @@ public class World {
 	}
 
 	public void breakBlock(Point pos) {
-		Block prevBlock = getBlocks().get(pos);
-		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
-			return;
-		}
-
-		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
-
-		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
-			Vector2f newPos = prevBlock.getPos();
-			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
-			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos, this));
-		}
-		changedBlocks.add(pos);
+		c.sendEvent(new BlockBreakEvent(pos.x, pos.y));
 	}
 
 	public void explode(Point pos, int str) {
@@ -386,6 +417,27 @@ public class World {
 				}
 			}
 		}
+	}
+
+	public void addEvent(Event e) {
+		eventQueue.add(e);
+	}
+
+	public void processBlockBreakEvent(BlockBreakEvent bbe) {
+		Point pos = bbe.getPos();
+		Block prevBlock = getBlocks().get(pos);
+		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
+			return;
+		}
+
+		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
+
+		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
+			Vector2f newPos = prevBlock.getPos();
+			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos, this));
+		}
+		changedBlocks.add(pos);
 	}
 
 	public Point getFirstBlock() {

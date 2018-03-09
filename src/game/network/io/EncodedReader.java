@@ -82,4 +82,10 @@ public class EncodedReader implements Runnable {
 			listeners.add(pl);
 		}
 	}
+
+	public void clearListeners() {
+		synchronized (listeners) {
+			listeners.clear();
+		}
+	}
 }

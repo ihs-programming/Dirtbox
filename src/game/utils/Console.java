@@ -1,6 +1,7 @@
 package game.utils;
 
 import java.awt.Dimension;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import game.entities.ControllableCharacter;
+import game.network.UDPBroadcast;
 import game.save.Saver;
 import game.world.World;
 
@@ -42,7 +44,30 @@ public class Console extends Thread {
 				ret.append(String.format("%s : %s\n", s, commands.get(s).command(null)));
 			}
 			return ret.toString();
-		}, "!help", "!h", "!?", "!loool");
+		}, "!help");
+		addCommand(args -> {
+			if (args == null) {
+				return "Searches for avaliable servers";
+			}
+			try {
+				UDPBroadcast broad = new UDPBroadcast(1000, 2000);
+				Thread.sleep(2000);
+				return "Active addresses : " + broad.getActiveAddresses().toString();
+			} catch (InterruptedException | IOException e) {
+				e.printStackTrace();
+			}
+			return "";
+
+		}, "!list");
+		addCommand(args -> {
+			if (args == null) {
+				return "Connects to an address";
+			}
+			if (args.length == 0) {
+				return "Please provide an address";
+			}
+			return "Connecting to " + args[0];
+		}, "!connect");
 
 		// You can add commands from other places as well!
 	}
