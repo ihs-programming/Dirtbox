@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.Settings;
+import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
@@ -61,8 +63,8 @@ public class World {
 	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
 	public RegionGenerator regionGenerator;
 
-	private Set<Body> blockBodies = new HashSet<>();
 	private org.dyn4j.dynamics.World dynWorld = new org.dyn4j.dynamics.World();
+	private Body totalBlockBody = new Body();
 
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
@@ -75,6 +77,10 @@ public class World {
 		backgroundsprites = new ArrayList<>();
 		regionGenerator = new RegionGenerator(blocks);
 		dynWorld.setGravity(new Vector2(0, GRAVITY_STRENGTH));
+		Settings s = dynWorld.getSettings();
+		s.setAutoSleepingEnabled(false);
+		dynWorld.setSettings(s);
+		totalBlockBody.setMass(MassType.INFINITE);
 		addDefaultEntities();
 	}
 
@@ -203,8 +209,11 @@ public class World {
 		if (Viewport.DEBUG_MODE) {
 			List<Point> locs = getVisibleBlockLocations(
 					Geometry.getBoundingBox(vp.getGameViewShape()));
-			for (Point p : locs) {
-				vp.draw(blocks.get(p).getHitbox(), Color.green);
+			for (Body bb : this.dynWorld.getBodies()) {
+				Shape[] v = Geometry.convertShape(bb);
+				if (v.length > 0) {
+					vp.draw(v[0], Color.green);
+				}
 			}
 		}
 	}
@@ -322,16 +331,11 @@ public class World {
 			}
 		}
 
-		// Collision Detection with surroundings
-		/*
-		 * for (Body b : blockBodies) { dynWorld.removeBody(b); }
-		 */
-		// blockBodies.clear();
 		for (Entity e : entities) {
 			Rectangle boundingBox = Geometry.getBoundingBox(e.getHitbox());
 			Vector2f boxPos = new Vector2f(boundingBox.getCenter());
-			boundingBox.setWidth(boundingBox.getWidth() + 5);
-			boundingBox.setHeight(boundingBox.getHeight() + 5);
+			boundingBox.setWidth(boundingBox.getWidth() + 10);
+			boundingBox.setHeight(boundingBox.getHeight() + 10);
 			boundingBox.setCenterX(boxPos.x);
 			boundingBox.setCenterY(boxPos.y);
 			List<Point> locs = getVisibleBlockLocations(boundingBox);
@@ -341,7 +345,6 @@ public class World {
 					continue;
 				}
 				dynWorld.addBody(b);
-				blockBodies.add(b);
 			}
 		}
 		dynWorld.update(delta);

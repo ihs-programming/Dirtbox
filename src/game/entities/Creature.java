@@ -7,6 +7,7 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.dynamics.CollisionListener;
 import org.dyn4j.dynamics.contact.ContactConstraint;
+import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Transform;
@@ -109,8 +110,9 @@ public abstract class Creature extends Entity {
 
 	protected void jump(float jumpStrength, int jumplimit) {
 		if (isInWater() || numberOfJumps < jumplimit) {
+			getBody().applyForce(new Vector2(0, -jumpStrength));
 			Vector2f vel = getVelocity();
-			vel.y = -jumpStrength;
+			vel.y = 0;
 			setVelocity(vel);
 			numberOfJumps++;
 		}
