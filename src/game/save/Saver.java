@@ -1,86 +1,64 @@
 package game.save;
 
 import java.awt.Point;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
-
-import org.newdawn.slick.geom.Rectangle;
+import java.util.stream.Collectors;
 
 import game.blocks.Block;
 import game.blocks.BlockType;
-import game.generation.RegionGenerator;
+import game.network.io.Util;
 import game.world.World;
 
 public class Saver {
 	private ArrayList<String> arraylist = new ArrayList<>();
 
-	public Rectangle generatedBlocks(World w) {
-		return new Rectangle(w.getFirstBlock().x, w.getFirstBlock().y,
-				w.getLastBlock().x - w.getFirstBlock().x,
-				w.getLastBlock().y - w.getFirstBlock().y);
+	public HashSet<Block> getAllBlocks(World w) {
+		Set<Block> blocks = w.getBlocks().entrySet().stream().map(e -> e.getValue())
+				.collect(Collectors.toSet());
+
+		return new HashSet<>(blocks);
 	}
 
-	public void save(World w, RegionGenerator rg) {
-		arraylist = blocksToArrayList(arraylist, w.getBlocks(), generatedBlocks(w));
-	}
-
-	public void load(World w) {
-		w.setBlocks(arrayListToBlocks(arraylist));
-	}
-
-	private String BlockToString(Block block) {
-		return block.type.toString() + " " + String.valueOf((int) block.getPos().x) + " "
-				+ String.valueOf((int) block.getPos().y);
-	}
-
-	private Block stringToBlock(String blockstring) {
-		String[] stringarray = blockstring.split(" ");
-		BlockType blocktype = BlockType
-				.valueOf(stringarray[0]);
-		float xpos = Float.parseFloat(stringarray[1]);
-		float ypos = Float.parseFloat(stringarray[2]);
-		return Block.createBlock(blocktype, xpos, ypos);
-	}
-
-	private TreeMap<Point, Block> arrayListToBlocks(ArrayList<String> savearraylist) {
-		TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
-			if (p1.x == p2.x) {
-				return p1.y - p2.y;
+	/**
+	 * We store these blocks in 12 byte chunks. [xpos] [ypos] [type]
+	 *
+	 * @param w
+	 */
+	public byte[] save(World w) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		HashSet<Block> all = getAllBlocks(w);
+		for (Block b : all) {
+			byte[] tmp = Util.combine(
+					Util.combine(Util.toBytes((int) b.getPos().x),
+							Util.toBytes((int) b.getPos().y)),
+					Util.toBytes(b.type.ordinal()));
+			try {
+				out.write(tmp);
+			} catch (IOException e) {
 			}
-			return p1.x - p2.x;
-		});
-		Point currentpoint = new Point();
-		String blockstring = null;
-		float xpos = 0f;
-		float ypos = 0f;
-		for (int index = 0; index < Integer.MAX_VALUE; index++) {
-			blockstring = savearraylist.get(index);
-			if (blockstring.equals("END OF BLOCKS")) {
-				break;
-			}
-			String[] stringarray = blockstring.split(" ");
-			xpos = Float.parseFloat(stringarray[1]);
-			ypos = Float.parseFloat(stringarray[2]);
-			currentpoint = new Point(Math.round(xpos), Math.round(ypos));
-			blocks.put(currentpoint, stringToBlock(blockstring));
+		}
+
+		return out.toByteArray();
+	}
+
+	public TreeMap<Point, Block> load(byte[] data) {
+		TreeMap<Point, Block> blocks = new TreeMap<>();
+		if (data.length % 12 != 0) {
+			throw new IllegalArgumentException("Invalid data length");
+		}
+		for (int i = 0; i < data.length; i += 12) {
+			int xpos = Util.toInt(data, i);
+			int ypos = Util.toInt(data, i + 4);
+			BlockType type = BlockType.values()[Util.toInt(data, i + 8)];
+
+			blocks.put(new Point(xpos, ypos), Block.createBlock(type, xpos, ypos));
 		}
 		return blocks;
 	}
 
-	private ArrayList<String> blocksToArrayList(ArrayList<String> savearraylist,
-			TreeMap<Point, Block> blocks, Rectangle generatedblocks) {
-		Point curpos = new Point();
-		System.out
-				.println(generatedblocks.getMinX() + " to " + generatedblocks.getMaxX());
-		for (int x = (int) Math.floor(generatedblocks.getMinX()); x < generatedblocks
-				.getMaxX(); x++) {
-			for (int y = (int) Math.floor(generatedblocks.getMinY()); y < generatedblocks
-					.getMaxY(); y++) {
-				curpos.setLocation(x, y);
-				savearraylist.add(BlockToString(blocks.get(curpos)));
-			}
-		}
-		savearraylist.add("END OF BLOCKS");
-		return savearraylist;
-	}
 }
