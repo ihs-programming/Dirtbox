@@ -109,8 +109,7 @@ public class ControllableCharacter extends Creature {
 		}
 		Block newBlock = world.getBlockAtPosition(position);
 		if (newBlock == null || attackedEntity == null) {
-			if (newBlock == null && attackedEntity == null) {
-			} else if (newBlock == null) {
+			if (newBlock == null) {
 				if (attackedEntity instanceof Creature) {
 					attack((Creature) attackedEntity);
 				}

@@ -12,11 +12,12 @@ import game.MainGameState;
 import game.Viewport;
 
 public class AmbiancePlayer extends Thread {
-	AmbiancePlayer() {
-	}
 
 	private File daymusic = new File("data/music/daymusic.wav");
 	private File nightmusic = new File("data/music/nightmusic.wav");
+
+	AmbiancePlayer() {
+	}
 
 	public void playsound(File soundFile) {
 		try {
