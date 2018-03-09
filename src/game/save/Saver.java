@@ -3,7 +3,7 @@ package game.save;
 import java.awt.Point;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
@@ -15,9 +15,8 @@ import game.network.io.Util;
 import game.world.World;
 
 public class Saver {
-	private ArrayList<String> arraylist = new ArrayList<>();
 
-	public HashSet<Block> getAllBlocks(World w) {
+	public static HashSet<Block> getAllBlocks(World w) {
 		Set<Block> blocks = w.getBlocks().entrySet().stream().map(e -> e.getValue())
 				.collect(Collectors.toSet());
 
@@ -29,14 +28,16 @@ public class Saver {
 	 *
 	 * @param w
 	 */
-	public byte[] save(World w) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+	public static byte[] save(World w) {
 		HashSet<Block> all = getAllBlocks(w);
-		for (Block b : all) {
-			byte[] tmp = Util.combine(
-					Util.combine(Util.toBytes((int) b.getPos().x),
-							Util.toBytes((int) b.getPos().y)),
-					Util.toBytes(b.type.ordinal()));
+
+		return serializeBlocks(all);
+	}
+
+	public static byte[] serializeBlocks(Collection<Block> blocks) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		for (Block b : blocks) {
+			byte[] tmp = toBytes(b);
 			try {
 				out.write(tmp);
 			} catch (IOException e) {
@@ -46,7 +47,7 @@ public class Saver {
 		return out.toByteArray();
 	}
 
-	public TreeMap<Point, Block> load(byte[] data) {
+	public static TreeMap<Point, Block> load(byte[] data) {
 		TreeMap<Point, Block> blocks = new TreeMap<>();
 		if (data.length % 12 != 0) {
 			throw new IllegalArgumentException("Invalid data length");
@@ -59,6 +60,13 @@ public class Saver {
 			blocks.put(new Point(xpos, ypos), Block.createBlock(type, xpos, ypos));
 		}
 		return blocks;
+	}
+
+	public static byte[] toBytes(Block b) {
+		return Util.combine(
+				Util.combine(Util.toBytes((int) b.getPos().x),
+						Util.toBytes((int) b.getPos().y)),
+				Util.toBytes(b.type.ordinal()));
 	}
 
 }

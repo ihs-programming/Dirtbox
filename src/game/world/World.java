@@ -2,10 +2,10 @@ package game.world;
 
 import java.awt.Point;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,23 +34,17 @@ import game.entities.Creature;
 import game.entities.Entity;
 import game.entities.creature.Bunny;
 import game.entities.creature.Wolf;
-import game.generation.RegionGenerator;
 import game.items.BlockItem;
 import game.network.Client;
 import game.network.ServerThread;
 import game.network.SocketListenerImpl;
 import game.network.event.BlockBreakEvent;
 import game.network.event.Event;
+import game.network.gamestate.BlockState;
 import game.utils.Geometry;
 
 public class World {
 	public static final double DAY_NIGHT_DURATION = 1200000.0;
-	private static final Comparator<Point> pointComparer = (p1, p2) -> {
-		if (p1.x == p2.x) {
-			return p1.y - p2.y;
-		}
-		return p1.x - p2.x;
-	};
 
 	private ArrayList<Entity> entitiesToAdd;
 	private ArrayList<Entity> entities;
@@ -64,8 +58,7 @@ public class World {
 
 	private Input userInp = null; // used only for debugging purposes currently
 
-	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
-	public RegionGenerator regionGenerator;
+	private TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
 
 	private Queue<Event> eventQueue = new LinkedList<>();
 	/**
@@ -77,7 +70,6 @@ public class World {
 		entities = new ArrayList<>();
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
-		regionGenerator = new RegionGenerator(blocks);
 		addDefaultEntities();
 
 		try {
@@ -169,6 +161,15 @@ public class World {
 				this);
 	}
 
+	/**
+	 * TODO
+	 *
+	 * @param rect
+	 */
+	public boolean needToGenerate(Rectangle rect) {
+		return true;
+	}
+
 	public void draw(Viewport vp) {
 		init();
 		updateSun(vp);
@@ -194,7 +195,9 @@ public class World {
 					System.currentTimeMillis() - time);
 		}
 
-		regionGenerator.generate(viewRect);
+		if (needToGenerate(viewRect)) {
+			c.requestBlocks(viewRect);
+		}
 
 		/*
 		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
@@ -328,6 +331,10 @@ public class World {
 		return new Vector2f();
 	}
 
+	public void recieveNewBlocks(TreeMap<Point, Block> newBlocks) {
+		newBlocks.entrySet().forEach(e -> blocks.put(e.getKey(), e.getValue()));
+	}
+
 	public void update(int delta) {
 		processEventQueue();
 
@@ -357,12 +364,23 @@ public class World {
 		}
 	}
 
+	/**
+	 * Process all the events in the eventQueue.
+	 *
+	 * Note that methods for processing events should be written as
+	 * <code>processEvent(? extends Event)</code>
+	 *
+	 * e.g. <code>processEvent(BlockBreakEvent e)</code>
+	 */
 	private void processEventQueue() {
 		for (Event e : eventQueue) {
-			if (e instanceof BlockBreakEvent) {
-				processBlockBreakEvent((BlockBreakEvent) e);
+			try {
+				Method m = getClass().getMethod("processEvent", e.getClass());
+				m.invoke(this, e.getClass().cast(e));
+			} catch (ReflectiveOperationException e1) {
 			}
 		}
+		eventQueue.clear();
 	}
 
 	/**
@@ -423,7 +441,7 @@ public class World {
 		eventQueue.add(e);
 	}
 
-	public void processBlockBreakEvent(BlockBreakEvent bbe) {
+	public void processEvent(BlockBreakEvent bbe) {
 		Point pos = bbe.getPos();
 		Block prevBlock = getBlocks().get(pos);
 		if (prevBlock == null || prevBlock.type == BlockType.WATER) {

@@ -1,9 +1,14 @@
 package game.network;
 
+import static game.network.io.Util.toInt;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashSet;
 
+import org.newdawn.slick.geom.Rectangle;
+
+import game.network.gamestate.BlockState;
 import game.network.io.EncodedOutputStream;
 import game.network.io.EncodedReader;
 import game.network.io.Header;
@@ -33,6 +38,7 @@ public class SocketListenerImpl implements SocketListener {
 	}
 
 	private HashSet<User> users = new HashSet<>();
+	private BlockState blockStates = new BlockState();
 
 	@Override
 	public boolean addSocket(Socket s) {
@@ -43,6 +49,12 @@ public class SocketListenerImpl implements SocketListener {
 				switch (header) {
 				case EVENT:
 					sendAll(Header.EVENT, data);
+					break;
+				case WORLD:
+					Rectangle rect = new Rectangle(toInt(data, 0), toInt(data, 4),
+							toInt(data, 8), toInt(data, 12));
+					byte[] blockData = blockStates.getBlocks(rect);
+					u.out.write(Header.WORLD, blockData);
 					break;
 				}
 			});

@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import org.newdawn.slick.geom.Rectangle;
+
 import game.network.event.Event;
 import game.network.io.EncodedOutputStream;
 import game.network.io.EncodedReader;
 import game.network.io.Header;
+import game.network.io.Util;
+import game.save.Saver;
 import game.world.World;
 
 public class Client {
@@ -30,6 +34,12 @@ public class Client {
 		out.write(Header.EVENT, Event.toBytes(e));
 	}
 
+	public void requestBlocks(Rectangle rect) {
+		out.write(Header.WORLD, Util.toBytes((int) rect.getX()),
+				Util.toBytes((int) rect.getY()), Util.toBytes((int) rect.getWidth()),
+				Util.toBytes((int) rect.getHeight()));
+	}
+
 	public void bindTo(World w) {
 		in.clearListeners();
 
@@ -41,6 +51,9 @@ public class Client {
 				} catch (ReflectiveOperationException e) {
 					System.err.println("Malformed event packet");
 				}
+				break;
+			case WORLD:
+				w.recieveNewBlocks(Saver.load(data));
 				break;
 			}
 		});
