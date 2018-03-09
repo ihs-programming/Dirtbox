@@ -29,13 +29,18 @@ public class Entity {
 	protected Vector2f accel = new Vector2f();
 
 	protected Polygon[] lastMovement = new Polygon[4];
-	private Body physicsBody;
+	protected Body physicsBody;
 
 	protected World world;
 
 	public Entity(Sprite sprite, Vector2f pos, World w) {
 		this.sprite = sprite.getCopy();
 		world = w;
+
+		physicsBody = new Body();
+		physicsBody.setMass(new Mass(new Vector2(), 1, 1));
+		physicsBody.setMassType(MassType.FIXED_ANGULAR_VELOCITY);
+		generateHitbox();
 	}
 
 	public Entity(Image img, Vector2f pos, World w) {
@@ -43,12 +48,6 @@ public class Entity {
 	}
 
 	public Body getBody() {
-		if (physicsBody == null) {
-			physicsBody = new Body();
-			physicsBody.setMass(new Mass(new Vector2(), 1, 1));
-			physicsBody.setMassType(MassType.FIXED_ANGULAR_VELOCITY);
-			generateHitbox();
-		}
 		return physicsBody;
 	}
 
@@ -61,7 +60,7 @@ public class Entity {
 	}
 
 	public Shape getHitbox() {
-		return Geometry.convertShape(getBody())[0];
+		return Geometry.convertShape(physicsBody)[0];
 	}
 
 	public void draw(Viewport vp) {
@@ -73,8 +72,9 @@ public class Entity {
 				vp.draw(String.format("Hitbox shape position: %f %f",
 						getHitbox().getCenterX(),
 						getHitbox().getCenterY()), 20, 50, Color.white);
-				vp.draw(String.format("Velocity: %f %f", getBody().getLinearVelocity().x,
-						getBody().getLinearVelocity().y), 20, 70, Color.white);
+				vp.draw(String.format("Velocity: %f %f",
+						physicsBody.getLinearVelocity().x,
+						physicsBody.getLinearVelocity().y), 20, 70, Color.white);
 			}
 		}
 	}
@@ -84,28 +84,28 @@ public class Entity {
 	}
 
 	public Vector2f getLocation() {
-		Vector2 v = getBody().getWorldCenter();
+		Vector2 v = physicsBody.getWorldCenter();
 		return convert(v);
 	}
 
 	public void setLocation(Vector2f loc) {
 		Vector2f prevCent = getLocation();
-		getBody().translate(convert(prevCent.negate().add(loc)));
+		physicsBody.translate(convert(prevCent.negate().add(loc)));
 	}
 
 	public Vector2f getVelocity() {
-		return convert(getBody().getLinearVelocity());
+		return convert(physicsBody.getLinearVelocity());
 	}
 
 	public void setVelocity(Vector2f v) {
-		getBody().setLinearVelocity(convert(v));
+		physicsBody.setLinearVelocity(convert(v));
 	}
 
-	private Vector2f convert(Vector2 v) {
+	protected Vector2f convert(Vector2 v) {
 		return new Vector2f((float) v.x, (float) v.y);
 	}
 
-	private Vector2 convert(Vector2f v) {
+	protected Vector2 convert(Vector2f v) {
 		return new Vector2(v.x, v.y);
 	}
 

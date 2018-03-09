@@ -70,6 +70,7 @@ public class ControllableCharacter extends Creature {
 		} else {
 			velocity.x = move;
 		}
+		physicsBody.applyImpulse(convert(velocity));
 		setVelocity(velocity);
 	}
 
