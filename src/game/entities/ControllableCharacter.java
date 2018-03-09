@@ -64,14 +64,14 @@ public class ControllableCharacter extends Creature {
 	 */
 	public void move(boolean isLeft) {
 		float move = (flying ? 10 : 1) * MAX_SPEED;
-		Vector2f velocity = getVelocity();
+		Vector2f velocity = new Vector2f();
 		if (isLeft) {
 			velocity.x = -move;
 		} else {
 			velocity.x = move;
 		}
-		physicsBody.applyImpulse(convert(velocity));
-		setVelocity(velocity);
+		physicsBody.applyForce(convert(velocity.scale(100)));
+		// setVelocity(velocity);
 	}
 
 	/**
