@@ -163,12 +163,36 @@ public class World {
 				this);
 	}
 
+	private int minGenLim = 0;
+	private int maxGenLim = 0;
+
 	/**
 	 * TODO
 	 *
 	 * @param rect
 	 */
 	public boolean needToGenerate(Rectangle rect) {
+		int min = (int) rect.getMinX();
+		int max = (int) rect.getMaxX();
+
+		if (minGenLim <= min && max <= maxGenLim) {
+			return false;
+		}
+		if (min < minGenLim && maxGenLim < max) {
+			return true;
+		}
+		if (min < minGenLim) {
+
+			int width = minGenLim - min;
+			rect.setX(min);
+			rect.setWidth(width);
+			minGenLim = Math.min(min, minGenLim);
+
+		}
+		int width = max - maxGenLim;
+		rect.setX(maxGenLim);
+		rect.setWidth(width);
+		maxGenLim = Math.max(max, maxGenLim);
 		return true;
 	}
 
@@ -197,8 +221,10 @@ public class World {
 					System.currentTimeMillis() - time);
 		}
 
-		if (needToGenerate(viewRect)) {
-			c.requestBlocks(viewRect);
+		Rectangle genRect = new Rectangle(viewRect.getX(), viewRect.getY(),
+				viewRect.getWidth(), 300);
+		if (needToGenerate(genRect)) {
+			c.requestBlocks(genRect);
 		}
 
 		/*
@@ -455,7 +481,7 @@ public class World {
 			return;
 		}
 
-		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
+		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y, true));
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
 			Vector2f newPos = prevBlock.getPos();

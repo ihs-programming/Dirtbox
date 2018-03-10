@@ -45,12 +45,9 @@ public class SocketListenerImpl implements SocketListener {
 		try {
 			User u = new User(s);
 
-			System.out.println("HI");
 			byte[] bd = blockStates
-					.getBlocks(new Rectangle(-1000, -1000, 2000, 2000));
-			System.out.println("HI");
+					.getBlocks(new Rectangle(-28, -5, 60, 100));
 			u.out.write(Header.WORLD, bd);
-			System.out.println("HI");
 
 			u.in.addListener((header, data) -> {
 				switch (header) {
@@ -60,6 +57,7 @@ public class SocketListenerImpl implements SocketListener {
 				case WORLD:
 					Rectangle rect = new Rectangle(toInt(data, 0), toInt(data, 4),
 							toInt(data, 8), toInt(data, 12));
+					System.out.println(rect.getMinX() + " " + rect.getMaxX());
 					byte[] blockData = blockStates.getBlocks(rect);
 					u.out.write(Header.WORLD, blockData);
 					break;
