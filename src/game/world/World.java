@@ -334,8 +334,8 @@ public class World {
 		for (Entity e : entities) {
 			Rectangle boundingBox = Geometry.getBoundingBox(e.getHitbox());
 			Vector2f boxPos = new Vector2f(boundingBox.getCenter());
-			boundingBox.setWidth(boundingBox.getWidth() + 10);
-			boundingBox.setHeight(boundingBox.getHeight() + 10);
+			boundingBox.setWidth(boundingBox.getWidth() + 5);
+			boundingBox.setHeight(boundingBox.getHeight() + 5);
 			boundingBox.setCenterX(boxPos.x);
 			boundingBox.setCenterY(boxPos.y);
 			List<Point> locs = getVisibleBlockLocations(boundingBox);
