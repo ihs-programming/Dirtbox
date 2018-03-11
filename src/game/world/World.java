@@ -47,6 +47,8 @@ import game.utils.Geometry;
 public class World {
 	public static final double DAY_NIGHT_DURATION = 1200000.0;
 
+	private static final int VIEW_DISTANCE = 32;
+
 	private ArrayList<Entity> entitiesToAdd;
 	private ArrayList<Entity> entities;
 	private ArrayList<Entity> backgroundsprites;
@@ -179,15 +181,16 @@ public class World {
 			return false;
 		}
 		if (min < minGenLim && maxGenLim < max) {
+			minGenLim = Math.min(min, minGenLim);
+			maxGenLim = Math.max(max, maxGenLim);
 			return true;
 		}
 		if (min < minGenLim) {
-
 			int width = minGenLim - min;
 			rect.setX(min);
 			rect.setWidth(width);
 			minGenLim = Math.min(min, minGenLim);
-
+			return true;
 		}
 		int width = max - maxGenLim;
 		rect.setX(maxGenLim);
@@ -221,8 +224,10 @@ public class World {
 					System.currentTimeMillis() - time);
 		}
 
-		Rectangle genRect = new Rectangle(viewRect.getX(), viewRect.getY(),
-				viewRect.getWidth(), 300);
+		Rectangle genRect = new Rectangle(
+				(int) (viewRect.getX() - VIEW_DISTANCE) / 16 * 16,
+				viewRect.getY(),
+				viewRect.getWidth() + 2 * VIEW_DISTANCE, 300);
 		if (needToGenerate(genRect)) {
 			c.requestBlocks(genRect);
 		}
