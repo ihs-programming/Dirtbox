@@ -55,6 +55,7 @@ public class Entity {
 		float width = 0.95f * sprite.getWidth();
 		float height = 0.99f * sprite.getHeight();
 		Convex shape = new org.dyn4j.geometry.Rectangle(width, height);
+		shape.translate(sprite.getWidth() * 0.475, sprite.getHeight() * 0.5);
 		physicsBody.removeAllFixtures();
 		physicsBody.addFixture(shape, 1, 0, 0);
 	}
