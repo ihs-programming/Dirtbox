@@ -70,7 +70,6 @@ public class SocketListenerImpl implements SocketListener {
 				case WORLD:
 					Rectangle rect = new Rectangle(toInt(data, 0), toInt(data, 4),
 							toInt(data, 8), toInt(data, 12));
-					System.out.println(rect.getMinX() + " " + rect.getMaxX());
 					byte[] blockData = blockStates.getBlocks(rect);
 					u.out.write(Header.WORLD, blockData);
 					break;
@@ -88,7 +87,6 @@ public class SocketListenerImpl implements SocketListener {
 	public void sendAll(Header h, byte[]... data) {
 		for (User u : users) {
 			u.out.write(h, data);
-			System.out.println(h);
 		}
 	}
 
