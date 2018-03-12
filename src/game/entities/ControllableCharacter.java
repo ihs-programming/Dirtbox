@@ -9,6 +9,7 @@ import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
+import game.utils.Geometry;
 import game.world.World;
 
 public class ControllableCharacter extends Creature {
@@ -70,7 +71,7 @@ public class ControllableCharacter extends Creature {
 		} else {
 			velocity.x = move;
 		}
-		physicsBody.applyForce(convert(velocity.scale(100)));
+		physicsBody.applyForce(Geometry.convert(velocity.scale(100)));
 		// setVelocity(velocity);
 	}
 

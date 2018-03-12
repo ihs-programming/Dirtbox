@@ -43,4 +43,12 @@ public class Geometry {
 		}
 		return np;
 	}
+
+	public static Vector2f convert(Vector2 v) {
+		return new Vector2f((float) v.x, (float) v.y);
+	}
+
+	public static Vector2 convert(Vector2f v) {
+		return new Vector2(v.x, v.y);
+	}
 }

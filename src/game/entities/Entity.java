@@ -86,28 +86,20 @@ public class Entity {
 
 	public Vector2f getLocation() {
 		Vector2 v = physicsBody.getWorldCenter();
-		return convert(v);
+		return Geometry.convert(v);
 	}
 
 	public void setLocation(Vector2f loc) {
 		Vector2f prevCent = getLocation();
-		physicsBody.translate(convert(prevCent.negate().add(loc)));
+		physicsBody.translate(Geometry.convert(prevCent.negate().add(loc)));
 	}
 
 	public Vector2f getVelocity() {
-		return convert(physicsBody.getLinearVelocity());
+		return Geometry.convert(physicsBody.getLinearVelocity());
 	}
 
 	public void setVelocity(Vector2f v) {
-		physicsBody.setLinearVelocity(convert(v));
-	}
-
-	protected Vector2f convert(Vector2 v) {
-		return new Vector2f((float) v.x, (float) v.y);
-	}
-
-	protected Vector2 convert(Vector2f v) {
-		return new Vector2(v.x, v.y);
+		physicsBody.setLinearVelocity(Geometry.convert(v));
 	}
 
 	protected void falldamage() {

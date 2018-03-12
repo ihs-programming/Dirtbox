@@ -9,6 +9,7 @@ import org.dyn4j.dynamics.CollisionListener;
 import org.dyn4j.dynamics.contact.ContactConstraint;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
@@ -17,6 +18,7 @@ import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
+import game.utils.Geometry;
 import game.world.World;
 
 public abstract class Creature extends Entity {
@@ -32,6 +34,8 @@ public abstract class Creature extends Entity {
 	private float timeSinceLastDrownDamage = 0f;
 	private int drownDamage = 3;
 	private float drownDamageRate = 1500f;
+
+	Vector2f collisionDirection;
 
 	public Creature(Sprite sprite, Vector2f pos, World w) {
 		super(sprite, pos, w);
@@ -79,6 +83,18 @@ public abstract class Creature extends Entity {
 
 			vp.fill(healthBar.transform(barTransform), Color.red);
 			vp.draw(healthBarOutline.transform(barTransform), Color.white);
+		}
+		if (Viewport.DEBUG_MODE) {
+			drawCollisionDirection(vp);
+		}
+	}
+
+	private void drawCollisionDirection(Viewport vp) {
+		if (collisionDirection != null) {
+			Vector2f disp = collisionDirection.copy();
+			Line normalLine = new Line(getLocation(),
+					getLocation().add(disp.copy().scale(1f / disp.length())));
+			vp.draw(normalLine, Color.pink);
 		}
 	}
 
@@ -153,9 +169,11 @@ public abstract class Creature extends Entity {
 
 			@Override
 			public boolean collision(ContactConstraint contactConstraint) {
-				if (contactConstraint.getNormal().y < 0) {
-					numberOfJumps--;
+				Vector2 res = contactConstraint.getNormal().copy();
+				if (res.y < 0) {
+					numberOfJumps = 0;
 				}
+				collisionDirection = Geometry.convert(res);
 				return true;
 			}
 		};
