@@ -38,9 +38,11 @@ import game.network.Client;
 import game.network.ServerThread;
 import game.network.SocketListenerImpl;
 import game.network.event.BlockBreakEvent;
+import game.network.event.ChatEvent;
 import game.network.event.Event;
 import game.network.gamestate.BlockState;
 import game.save.Saver;
+import game.utils.Chat;
 import game.utils.Geometry;
 
 public class World {
@@ -54,6 +56,7 @@ public class World {
 	private ControllableCharacter controlledCharacter;
 
 	private Client c;
+	private Chat chat;
 
 	private Image sunsprite;
 	private Entity sun;
@@ -466,8 +469,20 @@ public class World {
 		}
 	}
 
+	public Client getClient() {
+		return c;
+	}
+
+	public void setChat(Chat c) {
+		this.chat = c;
+	}
+
 	public void addEvent(Event e) {
 		eventQueue.add(e);
+	}
+
+	public void processEvent(ChatEvent ce) {
+		chat.chatAddLine(new String(ce.toBytes()));
 	}
 
 	public void processEvent(BlockBreakEvent bbe) {

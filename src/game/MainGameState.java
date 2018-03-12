@@ -37,6 +37,7 @@ public class MainGameState implements DefaultGameState {
 
 		chat = new Chat(new Console(world.getMainCharacter(), world));
 		vpc.setChat(chat);
+		world.setChat(chat);
 	}
 
 	@Override

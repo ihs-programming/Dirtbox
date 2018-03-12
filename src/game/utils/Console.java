@@ -13,6 +13,7 @@ import javax.swing.WindowConstants;
 
 import game.entities.ControllableCharacter;
 import game.network.UDPBroadcast;
+import game.network.event.ChatEvent;
 import game.save.Saver;
 import game.world.World;
 
@@ -108,6 +109,11 @@ public class Console extends Thread {
 
 	public static void addCommand(CommandParser cp, String... texts) {
 		Arrays.asList(texts).forEach(s -> commands.put(s, cp));
+	}
+
+	public void sendChatMessage(String s) {
+		ChatEvent ce = new ChatEvent(s);
+		world.getClient().sendEvent(ce);
 	}
 
 	public String doCommand(String input) {
