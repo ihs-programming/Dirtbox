@@ -390,7 +390,7 @@ public class World {
 			return;
 		}
 
-		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
+		setBlock(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
 			Vector2f newPos = prevBlock.getPos();
@@ -442,7 +442,9 @@ public class World {
 	}
 
 	public void setBlock(Point p, Block b) {
+		dynWorld.removeBody(blocks.get(p).getBody());
 		blocks.put(p, b);
+		dynWorld.addBody(b.getBody());
 	}
 
 	public void setBlocks(TreeMap<Point, Block> blocks) {
