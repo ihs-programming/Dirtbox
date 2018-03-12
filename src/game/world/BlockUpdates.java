@@ -128,8 +128,8 @@ public class BlockUpdates {
 			Block second = blocks.get(b);
 			Vector2f oriPos = first.getPos();
 			Vector2f newPos = second.getPos();
-			blocks.put(a, Block.createBlock(second.type, oriPos.x, oriPos.y));
-			blocks.put(b, Block.createBlock(first.type, newPos.x, newPos.y));
+			blocks.put(a, Block.createBlock(second.type, oriPos.x, oriPos.y, true));
+			blocks.put(b, Block.createBlock(first.type, newPos.x, newPos.y, true));
 		}
 	}
 
