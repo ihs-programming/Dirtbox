@@ -8,6 +8,7 @@ import java.util.HashSet;
 
 import org.newdawn.slick.geom.Rectangle;
 
+import game.network.event.Event;
 import game.network.gamestate.BlockState;
 import game.network.io.EncodedOutputStream;
 import game.network.io.EncodedReader;
@@ -40,6 +41,8 @@ public class SocketListenerImpl implements SocketListener {
 	private HashSet<User> users = new HashSet<>();
 	private BlockState blockStates = new BlockState();
 
+	private Object[] eventListeners = new Object[] { blockStates };
+
 	@Override
 	public boolean addSocket(Socket s) {
 		try {
@@ -52,6 +55,16 @@ public class SocketListenerImpl implements SocketListener {
 			u.in.addListener((header, data) -> {
 				switch (header) {
 				case EVENT:
+					Event e;
+					try {
+						e = Event.fromBytes(data);
+						for (Object obj : eventListeners) {
+							e.processIfPossible(obj);
+						}
+					} catch (ReflectiveOperationException e1) {
+						System.err.println("Unknown event class");
+					}
+
 					sendAll(Header.EVENT, data);
 					break;
 				case WORLD:

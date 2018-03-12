@@ -28,8 +28,6 @@ public class Saver {
 			Block b = blocks.get(p);
 			byte[] tmp = toBytes(b);
 			try {
-				out.write(Util.toBytes(p.x));
-				out.write(Util.toBytes(p.y));
 				out.write(tmp);
 			} catch (IOException e) {
 			}
@@ -40,17 +38,15 @@ public class Saver {
 
 	public static TreeMap<Point, Block> load(byte[] data) {
 		TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
-		if (data.length % 20 != 0) {
+		if (data.length % 12 != 0) {
 			throw new IllegalArgumentException("Invalid data length");
 		}
-		for (int i = 0; i < data.length; i += 20) {
+		for (int i = 0; i < data.length; i += 12) {
 			int px = Util.toInt(data, i);
 			int py = Util.toInt(data, i + 4);
-			int xpos = Util.toInt(data, i + 8);
-			int ypos = Util.toInt(data, i + 12);
-			BlockType type = BlockType.values()[Util.toInt(data, i + 16)];
+			BlockType type = BlockType.values()[Util.toInt(data, i + 8)];
 
-			blocks.put(new Point(px, py), Block.createBlock(type, xpos, ypos, true));
+			blocks.put(new Point(px, py), Block.createBlock(type, px, py, true));
 		}
 		return blocks;
 	}

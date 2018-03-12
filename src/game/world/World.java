@@ -2,7 +2,6 @@ package game.world;
 
 import java.awt.Point;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -400,18 +399,10 @@ public class World {
 	/**
 	 * Process all the events in the eventQueue.
 	 *
-	 * Note that methods for processing events should be written as
-	 * <code>processEvent(? extends Event)</code>
-	 *
-	 * e.g. <code>processEvent(BlockBreakEvent e)</code>
 	 */
 	private void processEventQueue() {
 		for (Event e : eventQueue) {
-			try {
-				Method m = getClass().getMethod("processEvent", e.getClass());
-				m.invoke(this, e.getClass().cast(e));
-			} catch (ReflectiveOperationException e1) {
-			}
+			e.processIfPossible(this);
 		}
 		for (byte[] blockData : blockQueue) {
 			Saver.load(blockData).entrySet()

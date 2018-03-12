@@ -8,7 +8,9 @@ import java.util.TreeMap;
 import org.newdawn.slick.geom.Rectangle;
 
 import game.blocks.Block;
+import game.blocks.BlockType;
 import game.generation.RegionGenerator;
+import game.network.event.BlockBreakEvent;
 import game.save.Saver;
 
 /**
@@ -62,5 +64,10 @@ public class BlockState {
 			}
 		}
 		return blockLocs;
+	}
+
+	public void processEvent(BlockBreakEvent e) {
+		blocks.put(e.getPos(),
+				Block.createBlock(BlockType.EMPTY, e.getPos().x, e.getPos().y));
 	}
 }

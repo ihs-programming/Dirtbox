@@ -1,6 +1,7 @@
 package game.network.event;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import game.network.io.Util;
@@ -76,6 +77,23 @@ public abstract class Event {
 		}
 
 		return ret;
+	}
+
+	/**
+	 * Note that methods for processing events should be written as
+	 * <code>processEvent(? extends Event)</code>
+	 *
+	 * e.g. <code>processEvent(BlockBreakEvent e)</code>
+	 *
+	 * @param obj
+	 *            Object to attempt execution on
+	 */
+	public void processIfPossible(Object obj) {
+		try {
+			Method m = obj.getClass().getMethod("processEvent", this.getClass());
+			m.invoke(obj, this);
+		} catch (ReflectiveOperationException e1) {
+		}
 	}
 
 	/**
