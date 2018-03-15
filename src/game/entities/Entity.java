@@ -23,6 +23,7 @@ import game.world.World;
 public class Entity {
 	protected static final float GRAVITY = 0.00002613f;
 	private static final boolean DEBUG_COLLISION = true;
+	public static final float HITBOX_CORNER_INDENT = .01f;
 
 	protected Sprite sprite;
 	protected Vector2f prevPos = new Vector2f();
@@ -54,6 +55,19 @@ public class Entity {
 	private void generateHitbox() {
 		float width = 0.95f * sprite.getWidth();
 		float height = 0.99f * sprite.getHeight();
+		/** @formatter:off
+		 *    2--3
+		 *   /    \
+		 *  1      4
+		 *  |      |
+		 *  0      5
+		 *   \    /
+		 *    7--6
+		 *  @formatter:on
+		 */
+		for (int i = 0; i < 8; i++) {
+
+		}
 		Convex shape = new org.dyn4j.geometry.Rectangle(width, height);
 		shape.translate(sprite.getWidth() * 0.475, sprite.getHeight() * 0.5);
 		physicsBody.removeAllFixtures();

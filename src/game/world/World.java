@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -321,14 +320,15 @@ public class World {
 	public void update(int delta) {
 		BlockUpdates.propagateLiquids(changedBlocks, getBlocks());
 		updateEntityList();
-		Iterator<Entity> iter = entities.iterator();
-		while (iter.hasNext()) {
-			Entity e = iter.next();
+		List<Entity> deadEntities = new ArrayList<>();
+		for (Entity e : entities) {
 			e.update(this, delta);
-
 			if (!e.alive()) {
-				iter.remove();
+				deadEntities.add(e);
 			}
+		}
+		for (Entity e : deadEntities) {
+			removeEntity(e);
 		}
 
 		for (Entity e : entities) {
@@ -429,6 +429,7 @@ public class World {
 
 	public void removeEntity(Entity e) {
 		entities.remove(e);
+		System.out.println("Enity removed");
 		dynWorld.removeBody(e.getBody());
 		dynWorld.removeListener(e.getPhysicsListener());
 	}
