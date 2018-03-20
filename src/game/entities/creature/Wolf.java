@@ -10,6 +10,7 @@ import game.entities.Entity;
 import game.world.World;
 
 public class Wolf extends Creature {
+	private int count;
 
 	public Wolf(Sprite sprite, Vector2f pos, World w) {
 		super(sprite, pos, w);

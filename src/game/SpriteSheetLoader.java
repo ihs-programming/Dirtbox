@@ -12,6 +12,10 @@ import game.blocks.Block;
 public class SpriteSheetLoader {
 	private static final SpriteSheet BLOCK_SHEET = loadSpriteSheet("data/blocks.png", 16,
 			16);
+	private static final SpriteSheet GUI_SPRITE = loadGuiSheet("data/exitbutton.png", 47,
+			17);
+	private static final SpriteSheet GUI_H = loadGuiSheet("data/hotbar.png", 400,
+			50);
 
 	private static SpriteSheet loadSpriteSheet(String filename, int spriteWidth,
 			int spriteHeight) {
@@ -22,7 +26,6 @@ public class SpriteSheetLoader {
 		} catch (SlickException e) {
 			System.out.printf("Unable to load sprite sheet %s...\n", filename);
 			e.printStackTrace();
-			System.exit(1);
 		}
 		return null;
 	}
@@ -42,15 +45,9 @@ public class SpriteSheetLoader {
 		} catch (SlickException e) {
 			System.out.printf("Unable to load sprite sheet %s...\n", filename);
 			e.printStackTrace();
-			System.exit(1);
 		}
 		return null;
 	}
-
-	private static final SpriteSheet GUI_SPRITE = loadGuiSheet("data/exitbutton.png", 47,
-			17);
-	private static final SpriteSheet GUI_H = loadGuiSheet("data/hotbar.png", 400,
-			50);
 
 	public static Image getGuiImage(int x, int y) {
 		Image img = GUI_SPRITE.getSprite(x, y);

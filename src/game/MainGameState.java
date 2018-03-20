@@ -96,11 +96,9 @@ public class MainGameState implements DefaultGameState {
 			// open exit menu
 			inGame = !inGame;
 		}
-		if (!ViewportController.inChat) {
-			if (keycode == Input.KEY_L) {
-				// toggle whether viewport will center on character
-				lockCharacter = !lockCharacter;
-			}
+		if (!ViewportController.inChat && keycode == Input.KEY_L) {
+			// toggle whether viewport will center on character
+			lockCharacter = !lockCharacter;
 		}
 	}
 }

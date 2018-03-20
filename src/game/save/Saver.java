@@ -12,7 +12,6 @@ import game.network.io.Util;
 import game.world.World;
 
 public class Saver {
-
 	/**
 	 * We store these blocks in 20 byte chunks. [xpos] [ypos] [type]
 	 *
@@ -32,7 +31,6 @@ public class Saver {
 			} catch (IOException e) {
 			}
 		}
-
 		return out.toByteArray();
 	}
 
@@ -57,5 +55,4 @@ public class Saver {
 						Util.toBytes((int) b.getPos().y)),
 				Util.toBytes(b.type.ordinal()));
 	}
-
 }

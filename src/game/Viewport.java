@@ -33,7 +33,7 @@ public class Viewport {
 	 */
 	public static float gamma = 0.0f;
 	public static long globaltimer = 0;
-	static long timerupdate = 0;
+	protected static long timerupdate = 0;
 
 	public static boolean day = true;
 	public static boolean DEBUG_MODE = false;
@@ -97,7 +97,7 @@ public class Viewport {
 				/ 2) {
 			day = false;
 		} else if (!day
-				&& !(globaltimer % World.DAY_NIGHT_DURATION > World.DAY_NIGHT_DURATION)) {
+				&& globaltimer % World.DAY_NIGHT_DURATION <= World.DAY_NIGHT_DURATION) {
 			day = true;
 		}
 		resetTransformCache = true;

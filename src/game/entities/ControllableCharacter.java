@@ -104,8 +104,7 @@ public class ControllableCharacter extends Creature {
 		}
 		Block newBlock = world.getBlockAtPosition(position);
 		if (newBlock == null || attackedEntity == null) {
-			if (newBlock == null && attackedEntity == null) {
-			} else if (newBlock == null) {
+			if (newBlock == null) {
 				if (attackedEntity instanceof Creature) {
 					attack((Creature) attackedEntity);
 				}
@@ -153,7 +152,7 @@ public class ControllableCharacter extends Creature {
 
 	public boolean checkBlockType(BlockType[] b, BlockType block) {
 		for (BlockType element : b) {
-			if (element == block) {
+			if (element.equals(block)) {
 				return true;
 			}
 		}

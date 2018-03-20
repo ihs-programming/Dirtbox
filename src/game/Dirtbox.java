@@ -8,6 +8,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.util.Log;
 
 import game.music.MusicPlayer;
+import game.utils.Checksum;
 
 public class Dirtbox {
 	private static final Dimension screenSize = Toolkit.getDefaultToolkit()
@@ -17,6 +18,8 @@ public class Dirtbox {
 
 	public static final int DEFAULT_FRAME_RATE = 60;
 	private static boolean DEFAULT_FULLSCREEN = false;
+
+	public static final String CHECKSUM = Checksum.getChecksum();
 
 	public static void main(String[] args) {
 		try {

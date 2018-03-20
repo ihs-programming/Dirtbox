@@ -31,7 +31,8 @@ public class Lighting {
 	 * @param strength
 	 *            Strength of the light
 	 */
-	static void doSunLighting(TreeMap<Point, Block> blocks, int xStart, int xEnd,
+	protected static void doSunLighting(TreeMap<Point, Block> blocks, int xStart,
+			int xEnd,
 			int yStart, int yEnd, int strength) {
 		PriorityQueue<Point> sources = new PriorityQueue<>(
 				(a, b) -> blocks.get(b).getLighting() - blocks.get(a).getLighting());
@@ -95,24 +96,22 @@ public class Lighting {
 
 			for (int[] dir : cardinalDirections) {
 				Point next = new Point(curr.x + dir[0], curr.y + dir[1]);
-				if (!visited.contains(next) && blocks.containsKey(next)) {
-					if (next.x >= xStart && next.x <= xEnd && next.y >= yStart
-							&& next.y <= yEnd) {
-
-						int str = blocks.get(curr).getLighting() - 4;
-						if (blocks.get(next) instanceof LiquidBlock) {
-							str -= 2;
-						}
-						if (blocks.get(next) instanceof SolidBlock) {
-							str -= 10;
-						}
-						str = Math.max(str, 0);
-
-						blocks.get(next).setLighting(str);
-
-						lightSources.add(next);
-						visited.add(next);
+				if (!visited.contains(next) && blocks.containsKey(next)
+						&& next.x >= xStart && next.x <= xEnd && next.y >= yStart
+						&& next.y <= yEnd) {
+					int str = blocks.get(curr).getLighting() - 4;
+					if (blocks.get(next) instanceof LiquidBlock) {
+						str -= 2;
 					}
+					if (blocks.get(next) instanceof SolidBlock) {
+						str -= 10;
+					}
+					str = Math.max(str, 0);
+
+					blocks.get(next).setLighting(str);
+
+					lightSources.add(next);
+					visited.add(next);
 				}
 			}
 		}

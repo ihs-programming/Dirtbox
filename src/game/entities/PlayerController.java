@@ -117,6 +117,8 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 					character.jump();
 				}
 				break;
+			default:
+				break;
 			}
 		}
 	}

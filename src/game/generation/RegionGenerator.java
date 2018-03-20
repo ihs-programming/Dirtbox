@@ -78,7 +78,7 @@ public class RegionGenerator {
 		}
 		if (y >= BEDROCK_LAYER) {
 			blocks.put(curpos, Block.createBlock(BlockType.BEDROCK, x, y));
-		} else if (y >= 0) {
+		} else if (y >= 0) { // Don't generate blocks in air
 			int chunkStart = x / CHUNK_SIZE * CHUNK_SIZE;
 			if (x < 0) {
 				chunkStart -= CHUNK_SIZE;
@@ -95,8 +95,6 @@ public class RegionGenerator {
 					}
 				}
 			}
-		} else {
-			// Do not generate blocks in the air
 		}
 	}
 
@@ -236,13 +234,12 @@ public class RegionGenerator {
 
 			for (int a = 0; a < tree.length; a++) {
 				for (int b = 0; b < tree[a].length; b++) {
-					if (tree[tree.length - 1 - a][b] != BlockType.EMPTY) {
-						if (blocks[i + a][trunkHeight - b].type == BlockType.EMPTY) {
-							blocks[i + a][trunkHeight - b] = Block.createBlock(
-									tree[tree.length - 1 - a][b],
-									(i + a + x) * Block.BLOCK_SPRITE_SIZE,
-									(trunkHeight - b + y) * Block.BLOCK_SPRITE_SIZE);
-						}
+					if (tree[tree.length - 1 - a][b] != BlockType.EMPTY
+							&& blocks[i + a][trunkHeight - b].type == BlockType.EMPTY) {
+						blocks[i + a][trunkHeight - b] = Block.createBlock(
+								tree[tree.length - 1 - a][b],
+								(i + a + x) * Block.BLOCK_SPRITE_SIZE,
+								(trunkHeight - b + y) * Block.BLOCK_SPRITE_SIZE);
 					}
 				}
 			}
@@ -263,6 +260,7 @@ public class RegionGenerator {
 			break;
 		case HILLS:
 			amplitude = 25;
+			break;
 		case MOUNTAIN:
 			amplitude = 30;
 			break;
@@ -295,7 +293,6 @@ public class RegionGenerator {
 		if (y == 0) {
 			switch (biome) {
 			case OCEAN:
-				type = BlockType.SAND;
 			case DESERT:
 				type = BlockType.SAND;
 				break;
@@ -326,7 +323,7 @@ public class RegionGenerator {
 				return BlockType.SANDSTONE;
 			}
 			if (Math.random() < 0.003) {
-				type = oreselector(x, y, heightMap);
+				type = oreselector(y);
 			} else {
 				type = BlockType.STONE;
 			}
@@ -334,7 +331,7 @@ public class RegionGenerator {
 		return type;
 	}
 
-	private BlockType oreselector(int x, int j, int heightMap[]) {
+	private BlockType oreselector(int j) {
 
 		BlockType[] ores = new BlockType[] { BlockType.COAL_ORE, BlockType.IRON_ORE,
 				BlockType.GOLD_ORE, BlockType.REDSTONE_ORE, BlockType.DIAMOND_ORE };
