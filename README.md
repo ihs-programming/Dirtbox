@@ -3,3 +3,5 @@
 [![Build Status](https://travis-ci.org/ihs-programming/Dirtbox.svg?branch=develop)](https://travis-ci.org/ihs-programming/Dirtbox)
 
 Terraria, but with more Dirt.
+
+Talk with us through IRC! The channel is #Dirtbox. https://kiwiirc.com/client/irc.freenode.net
