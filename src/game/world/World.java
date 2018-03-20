@@ -1,13 +1,16 @@
 package game.world;
 
 import java.awt.Point;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -30,32 +33,40 @@ import game.entities.Creature;
 import game.entities.Entity;
 import game.entities.creature.Bunny;
 import game.entities.creature.Wolf;
-import game.generation.RegionGenerator;
 import game.items.BlockItem;
+import game.network.Client;
+import game.network.ServerThread;
+import game.network.SocketListenerImpl;
+import game.network.event.BlockBreakEvent;
+import game.network.event.ChatEvent;
+import game.network.event.Event;
+import game.network.gamestate.BlockState;
+import game.save.Saver;
+import game.utils.Chat;
 import game.utils.Geometry;
 
 public class World {
 	public static final double DAY_NIGHT_DURATION = 1200000.0;
-	private static final Comparator<Point> pointComparer = (p1, p2) -> {
-		if (p1.x == p2.x) {
-			return p1.y - p2.y;
-		}
-		return p1.x - p2.x;
-	};
+
+	private static final int VIEW_DISTANCE = 32;
 
 	private ArrayList<Entity> entitiesToAdd;
 	private ArrayList<Entity> entities;
 	private ArrayList<Entity> backgroundsprites;
 	private ControllableCharacter controlledCharacter;
 
+	private Client c;
+	private Chat chat;
+
 	private Image sunsprite;
 	private Entity sun;
 
 	private Input userInp = null; // used only for debugging purposes currently
 
-	private TreeMap<Point, Block> blocks = new TreeMap<>(pointComparer);
-	public RegionGenerator regionGenerator;
+	private TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
 
+	private Queue<Event> eventQueue = new LinkedList<>();
+	private Queue<byte[]> blockQueue = new LinkedList<>();
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
 	 */
@@ -65,8 +76,27 @@ public class World {
 		entities = new ArrayList<>();
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
-		regionGenerator = new RegionGenerator(blocks);
 		addDefaultEntities();
+
+		try {
+			new Thread(new ServerThread(new SocketListenerImpl())).start();
+			c = new Client(InetAddress.getLocalHost());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Please change this
+	 */
+	private boolean hasInited = false;
+
+	private void init() {
+		if (hasInited) {
+			return;
+		}
+		hasInited = true;
+		c.bindTo(this);
 	}
 
 	public Block getBlock(Point location) {
@@ -137,7 +167,42 @@ public class World {
 				this);
 	}
 
+	private int minGenLim = 0;
+	private int maxGenLim = 0;
+
+	/**
+	 * TODO
+	 *
+	 * @param rect
+	 */
+	public boolean needToGenerate(Rectangle rect) {
+		int min = (int) rect.getMinX();
+		int max = (int) rect.getMaxX();
+
+		if (minGenLim <= min && max <= maxGenLim) {
+			return false;
+		}
+		if (min < minGenLim && maxGenLim < max) {
+			minGenLim = Math.min(min, minGenLim);
+			maxGenLim = Math.max(max, maxGenLim);
+			return true;
+		}
+		if (min < minGenLim) {
+			int width = minGenLim - min;
+			rect.setX(min);
+			rect.setWidth(width);
+			minGenLim = Math.min(min, minGenLim);
+			return true;
+		}
+		int width = max - maxGenLim;
+		rect.setX(maxGenLim);
+		rect.setWidth(width);
+		maxGenLim = Math.max(max, maxGenLim);
+		return true;
+	}
+
 	public void draw(Viewport vp) {
+		init();
 		updateSun(vp);
 
 		if (Viewport.day) {
@@ -161,7 +226,13 @@ public class World {
 					System.currentTimeMillis() - time);
 		}
 
-		regionGenerator.generate(viewRect);
+		Rectangle genRect = new Rectangle(
+				(int) (viewRect.getX() - VIEW_DISTANCE) / 16 * 16,
+				viewRect.getY(),
+				viewRect.getWidth() + 2 * VIEW_DISTANCE, 300);
+		if (needToGenerate(genRect)) {
+			c.requestBlocks(genRect);
+		}
 
 		/*
 		 * The following three lines somehow randomly cause up to 1000 ms of lag This is
@@ -295,7 +366,13 @@ public class World {
 		return new Vector2f();
 	}
 
+	public void recieveNewBlocks(byte[] data) {
+		blockQueue.add(data);
+	}
+
 	public void update(int delta) {
+		processEventQueue();
+
 		BlockUpdates.propagateLiquids(changedBlocks, getBlocks());
 		updateEntityList();
 		Iterator<Entity> iter = entities.iterator();
@@ -320,6 +397,22 @@ public class World {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Process all the events in the eventQueue.
+	 *
+	 */
+	private void processEventQueue() {
+		for (Event e : eventQueue) {
+			e.processIfPossible(this);
+		}
+		for (byte[] blockData : blockQueue) {
+			Saver.load(blockData).entrySet()
+					.forEach(e -> blocks.put(e.getKey(), e.getValue()));
+		}
+		eventQueue.clear();
+		blockQueue.clear();
 	}
 
 	/**
@@ -352,19 +445,7 @@ public class World {
 	}
 
 	public void breakBlock(Point pos) {
-		Block prevBlock = getBlocks().get(pos);
-		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
-			return;
-		}
-
-		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
-
-		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
-			Vector2f newPos = prevBlock.getPos();
-			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
-			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos, this));
-		}
-		changedBlocks.add(pos);
+		c.sendEvent(new BlockBreakEvent(pos.x, pos.y));
 	}
 
 	public void explode(Point pos, int str) {
@@ -386,6 +467,39 @@ public class World {
 				}
 			}
 		}
+	}
+
+	public Client getClient() {
+		return c;
+	}
+
+	public void setChat(Chat c) {
+		this.chat = c;
+	}
+
+	public void addEvent(Event e) {
+		eventQueue.add(e);
+	}
+
+	public void processEvent(ChatEvent ce) {
+		chat.chatAddLine(new String(ce.toBytes()));
+	}
+
+	public void processEvent(BlockBreakEvent bbe) {
+		Point pos = bbe.getPos();
+		Block prevBlock = getBlocks().get(pos);
+		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
+			return;
+		}
+
+		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y, true));
+
+		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
+			Vector2f newPos = prevBlock.getPos();
+			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos, this));
+		}
+		changedBlocks.add(pos);
 	}
 
 	public Point getFirstBlock() {

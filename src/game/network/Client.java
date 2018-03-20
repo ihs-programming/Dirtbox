@@ -1,123 +1,60 @@
 package game.network;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.net.InetAddress;
+import java.net.Socket;
 
-/**
- * Low level interface that maintains packet reliability and network discovery
- */
+import org.newdawn.slick.geom.Rectangle;
+
+import game.network.event.Event;
+import game.network.io.EncodedOutputStream;
+import game.network.io.EncodedReader;
+import game.network.io.Header;
+import game.network.io.Util;
+import game.world.World;
+
 public class Client {
-	private DatagramSocket socket;
-	private Map<InetSocketAddress, HostInformation> knownHosts = new HashMap<>();
-	private Thread listenerThread;
-	private ArrayList<String> hostMessages = new ArrayList<>();
-	private Optional<UDPConnection> connection = Optional.empty();
+	public static final int TCP_PORT = 8837;
+	private Socket s;
+	private EncodedOutputStream out;
+	private EncodedReader in;
 
-	public Client() {
-		try {
-			socket = new DatagramSocket(Protocol.DEFAULT_DISCOVERY_PORT);
-			socket.setBroadcast(true);
-			listenerThread = new RecieverThread();
-			listenerThread.start();
-		} catch (SocketException e) {
-			e.printStackTrace();
-		}
+	private World w;
+
+	public Client(InetAddress inetAddress) throws IOException {
+		s = new Socket("", TCP_PORT);
+		out = new EncodedOutputStream(s.getOutputStream());
+		in = new EncodedReader(s.getInputStream());
+
+		new Thread(in).start();
 	}
 
-	public Map<InetSocketAddress, String> getHostInfo() {
-		Map<InetSocketAddress, String> hostmap = new HashMap<>();
-		ArrayList<InetSocketAddress> toRemove = new ArrayList<>();
-		for (Map.Entry<InetSocketAddress, HostInformation> host : knownHosts.entrySet()) {
-			String hostname = host.getKey().getHostName();
-			String hostinfo = host.getValue().toString();
-			if (host.getValue().timeSinceLastUpdate() > Protocol.TIMEOUT) {
-				toRemove.add(host.getKey());
-			} else {
-				String info = String.format("%s: %s\n", hostname, hostinfo);
-				hostmap.put(host.getKey(), info);
-			}
-		}
-		for (InetSocketAddress addr : toRemove) {
-			knownHosts.remove(addr);
-		}
-		return hostmap;
+	public void sendEvent(Event e) {
+		out.write(Header.EVENT, Event.toBytes(e));
 	}
 
-	public Optional<InetSocketAddress> getCurrentHost() {
-		if (connection.isPresent()) {
-			return Optional.of(connection.get().addr);
-		}
-		return Optional.empty();
+	public void requestBlocks(Rectangle rect) {
+		out.write(Header.WORLD, Util.toBytes((int) rect.getX()),
+				Util.toBytes((int) rect.getY()), Util.toBytes((int) rect.getWidth()),
+				Util.toBytes((int) rect.getHeight()));
 	}
 
-	/**
-	 * Establishes tcp connection with server
-	 *
-	 * @param addr
-	 */
-	public void connect(InetSocketAddress addr) throws IOException {
-		connection = Optional.of(new UDPConnection(socket, addr));
-	}
+	public void bindTo(World w) {
+		in.clearListeners();
 
-	public void disconnect() {
-		if (connection.isPresent()) {
-			connection.get().disconnect();
-		}
-		connection = Optional.empty();
-	}
-
-	public List<String> getMessages() {
-		return hostMessages;
-	}
-
-	public void send(String message) throws IOException {
-		if (!connection.isPresent()) {
-			throw new IOException("Not connected to host");
-		}
-		UDPConnection con = connection.get();
-		con.sendMessage(message.getBytes());
-	}
-
-	private void parsePacket(DatagramPacket packet) {
-		if (Protocol.parseMessage(packet) == MessageType.DISCOVERY) {
-			InetSocketAddress addr = (InetSocketAddress) packet
-					.getSocketAddress();
-			HostInformation info = knownHosts
-					.getOrDefault(addr, new HostInformation());
-			info.update();
-			knownHosts.put(addr, info);
-		} else if (connection.isPresent()
-				&& connection.get().addr.equals(packet.getSocketAddress())) {
-			hostMessages.add(new String(packet.getData(), packet.getOffset(),
-					packet.getLength()));
-			connection.get().parseMessage(packet);
-		}
-	}
-
-	/**
-	 * Receives and parses incoming messages
-	 */
-	private class RecieverThread extends Thread {
-		@Override
-		public void run() {
-			byte[] buffer = new byte[Protocol.MAX_PACKET_SIZE];
-			while (!socket.isClosed()) {
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+		in.addListener((header, data) -> {
+			switch (header) {
+			case EVENT:
 				try {
-					socket.receive(packet);
-					parsePacket(packet);
-				} catch (IOException e) {
-					e.printStackTrace();
+					w.addEvent(Event.fromBytes(data));
+				} catch (ReflectiveOperationException e) {
+					System.err.println("Malformed event packet");
 				}
+				break;
+			case WORLD:
+				w.recieveNewBlocks(data);
+				break;
 			}
-		}
+		});
 	}
 }
