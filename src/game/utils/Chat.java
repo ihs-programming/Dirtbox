@@ -21,6 +21,7 @@ public class Chat {
 	public void chatAddLine(String chatstring) {
 		chat.add(chatstring);
 		timeofmessage.add(System.currentTimeMillis());
+
 	}
 
 	/**
@@ -32,13 +33,21 @@ public class Chat {
 	public boolean keyPressed(int key, char c) {
 		switch (key) {
 		case Input.KEY_ENTER:
-			chatAddLine(curr);
-			String result = console.doCommand(curr);
-			if (result != null) {
-				chatAddLine(result);
+			if (curr.length() == 0) {
+				return false;
+			}
+			if (curr.charAt(0) == '!') {
+				chatAddLine(curr);
+				String result = console.doCommand(curr);
+				if (result != null) {
+					chatAddLine(result);
+				}
+			} else {
+				console.sendChatMessage(curr);
 			}
 			displaychat = false;
 			curr = "";
+
 			return false;
 		case Input.KEY_BACK:
 			if (curr.length() > 0) {

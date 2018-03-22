@@ -29,19 +29,35 @@ public abstract class Block {
 	private int lighting;
 	public final BlockType type;
 
-	public static Block createBlock(BlockType type, float xpos, float ypos) {
+	public static Block createBlock(BlockType type, float xpos, float ypos, boolean b) {
 		if (type == BlockType.EMPTY) {
-			return new EmptyBlock(xpos, ypos);
+			return new EmptyBlock(xpos, ypos, b);
 		} else if (type == BlockType.WATER) {
-			return new LiquidBlock(type, xpos, ypos);
+			return new LiquidBlock(type, xpos, ypos, b);
 		} else if (type == BlockType.WOOD || type == BlockType.LEAVES) {
-			return new BackgroundBlock(type, xpos, ypos);
+			return new BackgroundBlock(type, xpos, ypos, b);
 		}
-		return new SolidBlock(type, xpos, ypos);
+		return new SolidBlock(type, xpos, ypos, b);
 	}
 
-	protected Block(BlockType type, int sx, int sy, float xpos, float ypos) {
-		sprite = new Sprite(SpriteSheetLoader.getBlockImage(sx, sy));
+	/**
+	 * Create a block without spreadsheet. Use
+	 * <code> createBlock(type, xpos, ypos, true) </code> for renderable blocks.
+	 *
+	 * @param type
+	 * @param xpos
+	 * @param ypos
+	 * @return
+	 */
+	public static Block createBlock(BlockType type, float xpos, float ypos) {
+		return createBlock(type, xpos, ypos, false);
+	}
+
+	protected Block(BlockType type, int sx, int sy, float xpos, float ypos,
+			boolean createSpriteSheet) {
+		if (createSpriteSheet) {
+			sprite = new Sprite(SpriteSheetLoader.getBlockImage(sx, sy));
+		}
 		pos = new Vector2f(xpos, ypos);
 
 		this.type = type;

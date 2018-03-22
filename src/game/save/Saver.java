@@ -1,84 +1,58 @@
 package game.save;
 
 import java.awt.Point;
-import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.TreeMap;
-
-import org.newdawn.slick.geom.Rectangle;
 
 import game.blocks.Block;
 import game.blocks.BlockType;
-import game.generation.RegionGenerator;
+import game.network.gamestate.BlockState;
+import game.network.io.Util;
 import game.world.World;
 
 public class Saver {
-	private ArrayList<String> arraylist = new ArrayList<>();
-
-	public Rectangle generatedBlocks(World w) {
-		return new Rectangle(w.getFirstBlock().x, w.getFirstBlock().y,
-				w.getLastBlock().x - w.getFirstBlock().x,
-				w.getLastBlock().y - w.getFirstBlock().y);
+	/**
+	 * We store these blocks in 20 byte chunks. [xpos] [ypos] [type]
+	 *
+	 * @param w
+	 */
+	public static byte[] save(World w) {
+		return serializeBlocks(w.getBlocks());
 	}
 
-	public void save(World w, RegionGenerator rg) {
-		arraylist = blocksToArrayList(arraylist, w.getBlocks(), generatedBlocks(w));
-	}
-
-	public void load(World w) {
-		w.setBlocks(arrayListToBlocks(arraylist));
-	}
-
-	private String blockToString(Block block) {
-		return block.type.toString() + " " + String.valueOf((int) block.getPos().x) + " "
-				+ String.valueOf((int) block.getPos().y);
-	}
-
-	private Block stringToBlock(String blockstring) {
-		String[] stringarray = blockstring.split(" ");
-		BlockType blocktype = BlockType
-				.valueOf(stringarray[0]);
-		float xpos = Float.parseFloat(stringarray[1]);
-		float ypos = Float.parseFloat(stringarray[2]);
-		return Block.createBlock(blocktype, xpos, ypos);
-	}
-
-	private TreeMap<Point, Block> arrayListToBlocks(ArrayList<String> savearraylist) {
-		TreeMap<Point, Block> blocks = new TreeMap<>((p1, p2) -> {
-			if (p1.x == p2.x) {
-				return p1.y - p2.y;
+	public static byte[] serializeBlocks(TreeMap<Point, Block> blocks) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		for (Point p : blocks.keySet()) {
+			Block b = blocks.get(p);
+			byte[] tmp = toBytes(b);
+			try {
+				out.write(tmp);
+			} catch (IOException e) {
 			}
-			return p1.x - p2.x;
-		});
-		Point currentpoint = new Point();
-		String blockstring = null;
-		float xpos = 0f;
-		float ypos = 0f;
-		for (int index = 0; index < Integer.MAX_VALUE; index++) {
-			blockstring = savearraylist.get(index);
-			if ("END OF BLOCKS".equals(blockstring)) {
-				break;
-			}
-			String[] stringarray = blockstring.split(" ");
-			xpos = Float.parseFloat(stringarray[1]);
-			ypos = Float.parseFloat(stringarray[2]);
-			currentpoint = new Point(Math.round(xpos), Math.round(ypos));
-			blocks.put(currentpoint, stringToBlock(blockstring));
+		}
+		return out.toByteArray();
+	}
+
+	public static TreeMap<Point, Block> load(byte[] data) {
+		TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
+		if (data.length % 12 != 0) {
+			throw new IllegalArgumentException("Invalid data length");
+		}
+		for (int i = 0; i < data.length; i += 12) {
+			int px = Util.toInt(data, i);
+			int py = Util.toInt(data, i + 4);
+			BlockType type = BlockType.values()[Util.toInt(data, i + 8)];
+
+			blocks.put(new Point(px, py), Block.createBlock(type, px, py, true));
 		}
 		return blocks;
 	}
 
-	private ArrayList<String> blocksToArrayList(ArrayList<String> savearraylist,
-			TreeMap<Point, Block> blocks, Rectangle generatedblocks) {
-		Point curpos = new Point();
-		for (int x = (int) Math.floor(generatedblocks.getMinX()); x < generatedblocks
-				.getMaxX(); x++) {
-			for (int y = (int) Math.floor(generatedblocks.getMinY()); y < generatedblocks
-					.getMaxY(); y++) {
-				curpos.setLocation(x, y);
-				savearraylist.add(blockToString(blocks.get(curpos)));
-			}
-		}
-		savearraylist.add("END OF BLOCKS");
-		return savearraylist;
+	public static byte[] toBytes(Block b) {
+		return Util.combine(
+				Util.combine(Util.toBytes((int) b.getPos().x),
+						Util.toBytes((int) b.getPos().y)),
+				Util.toBytes(b.type.ordinal()));
 	}
 }

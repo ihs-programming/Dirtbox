@@ -1,7 +1,9 @@
 package game.utils;
 
 import java.awt.Dimension;
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,8 +12,8 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import game.entities.ControllableCharacter;
-import game.network.Client;
-import game.network.Server;
+import game.network.UDPBroadcast;
+import game.network.event.ChatEvent;
 import game.save.Saver;
 import game.world.World;
 
@@ -22,8 +24,6 @@ public class Console extends Thread {
 
 	private ControllableCharacter character;
 	private World world;
-	private Client client = new Client();
-	private Server server;
 	private Saver saver = new Saver();
 	private Map<Integer, InetSocketAddress> serverUI = new HashMap<>();
 
@@ -34,14 +34,8 @@ public class Console extends Thread {
 
 	private static HashMap<String, CommandParser> commands = new HashMap<>();
 	static {
-		addCommand("!ping", args -> "Pong");
-		addCommand("!pong", args -> {
-			if (args != null && args[1].equals("a")) {
-				return "yay";
-			}
-			return "Usage !pong. Stuff";
-		});
-		addCommand("!help", args -> {
+		addCommand(args -> "Pong", "!ping");
+		addCommand(args -> {
 			StringBuilder ret = new StringBuilder();
 
 			for (String s : commands.keySet()) {
@@ -51,7 +45,30 @@ public class Console extends Thread {
 				ret.append(String.format("%s : %s\n", s, commands.get(s).command(null)));
 			}
 			return ret.toString();
-		});
+		}, "!help");
+		addCommand(args -> {
+			if (args == null) {
+				return "Searches for avaliable servers";
+			}
+			try {
+				UDPBroadcast broad = new UDPBroadcast(1000, 2000);
+				Thread.sleep(2000);
+				return "Active addresses : " + broad.getActiveAddresses().toString();
+			} catch (InterruptedException | IOException e) {
+				e.printStackTrace();
+			}
+			return "";
+
+		}, "!list");
+		addCommand(args -> {
+			if (args == null) {
+				return "Connects to an address";
+			}
+			if (args.length == 0) {
+				return "Please provide an address";
+			}
+			return "Connecting to " + args[0];
+		}, "!connect");
 
 		// You can add commands from other places as well!
 	}
@@ -89,8 +106,13 @@ public class Console extends Thread {
 		frame.pack();
 	}
 
-	public static void addCommand(String text, CommandParser cp) {
-		commands.put(text, cp);
+	public static void addCommand(CommandParser cp, String... texts) {
+		Arrays.asList(texts).forEach(s -> commands.put(s, cp));
+	}
+
+	public void sendChatMessage(String s) {
+		ChatEvent ce = new ChatEvent(s);
+		world.getClient().sendEvent(ce);
 	}
 
 	public String doCommand(String input) {
