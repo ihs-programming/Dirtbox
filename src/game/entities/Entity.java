@@ -9,6 +9,7 @@ import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Polygon;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -55,20 +56,11 @@ public class Entity {
 	private void generateHitbox() {
 		float width = 0.95f * sprite.getWidth();
 		float height = 0.99f * sprite.getHeight();
-		/** @formatter:off
-		 *    2--3
-		 *   /    \
-		 *  1      4
-		 *  |      |
-		 *  0      5
-		 *   \    /
-		 *    7--6
-		 *  @formatter:on
-		 */
-		for (int i = 0; i < 8; i++) {
 
-		}
-		Convex shape = new org.dyn4j.geometry.Rectangle(width, height);
+		Rectangle hitbox = new Rectangle(-width / 2, -height / 2, width, height);
+		Polygon pruned = Geometry.dampenEdges(hitbox, .05f);
+
+		Convex shape = Geometry.convertShape(pruned);
 		shape.translate(sprite.getWidth() * 0.475, sprite.getHeight() * 0.5);
 		physicsBody.removeAllFixtures();
 		physicsBody.addFixture(shape, 1, 0, 0);
