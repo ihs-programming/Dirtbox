@@ -17,6 +17,7 @@ public class ControllableCharacter extends Creature {
 	private static final float MAX_SPEED = 10f;
 	private static final float ACCELERATION = 10f;
 	private static final float JUMP = 250f;
+	private static final float VEL_FORCE_MULTIPLIER = 100;
 	private float reach = 5f; // distance (in game units) in which the player
 								// can interact
 								// with items in the game
@@ -71,8 +72,7 @@ public class ControllableCharacter extends Creature {
 		} else {
 			velocity.x = move;
 		}
-		physicsBody.applyForce(Geometry.convert(velocity.scale(100)));
-		// setVelocity(velocity);
+		physicsBody.applyForce(Geometry.convert(velocity.scale(VEL_FORCE_MULTIPLIER)));
 	}
 
 	/**

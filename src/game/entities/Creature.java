@@ -18,7 +18,6 @@ import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
-import game.utils.Geometry;
 import game.world.World;
 
 public abstract class Creature extends Entity {
@@ -169,11 +168,6 @@ public abstract class Creature extends Entity {
 
 			@Override
 			public boolean collision(ContactConstraint contactConstraint) {
-				Vector2 res = contactConstraint.getNormal().copy();
-				if (res.y < 0) {
-					numberOfJumps = 0;
-				}
-				collisionDirection = Geometry.convert(res);
 				return true;
 			}
 		};

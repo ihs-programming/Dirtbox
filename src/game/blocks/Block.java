@@ -112,16 +112,21 @@ public abstract class Block {
 									// class
 	}
 
+	protected Body createBlockBody() {
+		Convex c = new org.dyn4j.geometry.Rectangle(Block.BLOCK_SPRITE_SIZE,
+				Block.BLOCK_SPRITE_SIZE);
+		Body body = new Body();
+		body.addFixture(c);
+		body.translateToOrigin();
+		float disp = BLOCK_SPRITE_SIZE / 2f;
+		body.translate(pos.x + disp, pos.y + disp);
+		body.setMass(MassType.INFINITE);
+		return body;
+	}
+
 	public Body getBody() {
 		if (physicsBody == null) {
-			Convex c = new org.dyn4j.geometry.Rectangle(Block.BLOCK_SPRITE_SIZE,
-					Block.BLOCK_SPRITE_SIZE);
-			physicsBody = new Body();
-			physicsBody.addFixture(c);
-			physicsBody.translateToOrigin();
-			float disp = BLOCK_SPRITE_SIZE / 2f;
-			physicsBody.translate(pos.x + disp, pos.y + disp);
-			physicsBody.setMass(MassType.INFINITE);
+			physicsBody = createBlockBody();
 		}
 		return physicsBody;
 	}
