@@ -1,6 +1,8 @@
 package game.blocks;
 
-public enum BlockType {
+import game.utils.BodyType;
+
+public enum BlockType implements BodyType {
 	// Align the blocks like this to help git with version control
 	// Git keeps track of what lines change, so keeping blocks on different
 	// lines should reduce merge conflicts)
@@ -59,5 +61,13 @@ public enum BlockType {
 		default:
 			return -1;
 		}
+	}
+
+	@Override
+	public boolean compare(BodyType b) {
+		if (b instanceof BlockType) {
+			return equals(b);
+		}
+		return false;
 	}
 }

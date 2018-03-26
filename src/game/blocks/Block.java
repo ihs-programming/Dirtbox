@@ -12,6 +12,7 @@ import org.newdawn.slick.geom.Vector2f;
 import game.Sprite;
 import game.SpriteSheetLoader;
 import game.Viewport;
+import game.utils.BodyData;
 import game.utils.Geometry;
 
 public abstract class Block {
@@ -121,6 +122,7 @@ public abstract class Block {
 		float disp = BLOCK_SPRITE_SIZE / 2f;
 		body.translate(pos.x + disp, pos.y + disp);
 		body.setMass(MassType.INFINITE);
+		body.setUserData(new BodyData(type));
 		return body;
 	}
 
