@@ -167,9 +167,7 @@ public abstract class Creature extends Entity {
 						if (bdata.getType() instanceof BlockType) {
 							hasBlock = true;
 						}
-					}
-					if (data == this) {
-						System.out.println("Has creature");
+					} else if (data == Creature.this) {
 						hasCreature = true;
 					}
 				}
