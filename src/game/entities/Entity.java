@@ -64,6 +64,7 @@ public class Entity {
 		shape.translate(sprite.getWidth() * 0.475, sprite.getHeight() * 0.5);
 		physicsBody.removeAllFixtures();
 		physicsBody.addFixture(shape, 1, 0, 0);
+		physicsBody.setUserData(this);
 	}
 
 	public Shape getHitbox() {

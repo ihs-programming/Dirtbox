@@ -152,30 +152,30 @@ public abstract class Creature extends Entity {
 			}
 
 			@Override
-			public boolean begin(ContactPoint point) {
-				Body[] bodies = { point.getBody1(), point.getBody2() };
-				boolean blockInt = false, charInt = false;
-				for (Body bodie : bodies) {
-					BodyData data = (BodyData) bodie.getUserData();
-					if (data == null) {
-						continue;
-					}
-					if (data.getType() instanceof BlockType) {
-						blockInt = true;
-					}
-				}
-				if (blockInt && charInt) {
-					numberOfJumps = 0;
-				}
-				return true;
-			}
-
-			@Override
 			public void end(ContactPoint point) {
 			}
 
 			@Override
-			public boolean persist(PersistedContactPoint point) {
+			public boolean begin(ContactPoint point) {
+				Body[] bodies = { point.getBody1(),
+						point.getBody2() };
+				boolean hasBlock = false, hasCreature = false;
+				for (Body bodie : bodies) {
+					Object data = bodie.getUserData();
+					if (data instanceof BodyData) {
+						BodyData bdata = (BodyData) data;
+						if (bdata.getType() instanceof BlockType) {
+							hasBlock = true;
+						}
+					}
+					if (data == this) {
+						System.out.println("Has creature");
+						hasCreature = true;
+					}
+				}
+				if (hasBlock && hasCreature) {
+					numberOfJumps = 0;
+				}
 				return true;
 			}
 
@@ -187,6 +187,12 @@ public abstract class Creature extends Entity {
 			@Override
 			public void postSolve(SolvedContactPoint point) {
 			}
+
+			@Override
+			public boolean persist(PersistedContactPoint point) {
+				return true;
+			}
+
 		};
 	}
 }
