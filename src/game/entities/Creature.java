@@ -1,12 +1,11 @@
 package game.entities;
 
 import org.dyn4j.Listener;
-import org.dyn4j.collision.manifold.Manifold;
-import org.dyn4j.collision.narrowphase.Penetration;
 import org.dyn4j.dynamics.Body;
-import org.dyn4j.dynamics.BodyFixture;
-import org.dyn4j.dynamics.CollisionListener;
-import org.dyn4j.dynamics.contact.ContactConstraint;
+import org.dyn4j.dynamics.contact.ContactListener;
+import org.dyn4j.dynamics.contact.ContactPoint;
+import org.dyn4j.dynamics.contact.PersistedContactPoint;
+import org.dyn4j.dynamics.contact.SolvedContactPoint;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Line;
@@ -19,7 +18,6 @@ import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.utils.BodyData;
-import game.utils.Geometry;
 import game.world.World;
 
 public abstract class Creature extends Entity {
@@ -148,37 +146,46 @@ public abstract class Creature extends Entity {
 
 	@Override
 	public Listener getPhysicsListener() {
-		return new CollisionListener() {
-
+		return new ContactListener() {
 			@Override
-			public boolean collision(Body body1, BodyFixture fixture1, Body body2,
-					BodyFixture fixture2) {
-				return true;
+			public void sensed(ContactPoint point) {
 			}
 
 			@Override
-			public boolean collision(Body body1, BodyFixture fixture1, Body body2,
-					BodyFixture fixture2, Penetration penetration) {
-				return true;
-			}
-
-			@Override
-			public boolean collision(Body body1, BodyFixture fixture1, Body body2,
-					BodyFixture fixture2, Manifold manifold) {
-				Body[] bodies = { body1, body2 };
+			public boolean begin(ContactPoint point) {
+				Body[] bodies = { point.getBody1(), point.getBody2() };
+				boolean blockInt = false, charInt = false;
 				for (Body bodie : bodies) {
 					BodyData data = (BodyData) bodie.getUserData();
-					if (data != null && data.getType() instanceof BlockType) {
-						collisionDirection = Geometry.convert(manifold.getNormal());
-						numberOfJumps = 0;
+					if (data == null) {
+						continue;
 					}
+					if (data.getType() instanceof BlockType) {
+						blockInt = true;
+					}
+				}
+				if (blockInt && charInt) {
+					numberOfJumps = 0;
 				}
 				return true;
 			}
 
 			@Override
-			public boolean collision(ContactConstraint contactConstraint) {
+			public void end(ContactPoint point) {
+			}
+
+			@Override
+			public boolean persist(PersistedContactPoint point) {
 				return true;
+			}
+
+			@Override
+			public boolean preSolve(ContactPoint point) {
+				return true;
+			}
+
+			@Override
+			public void postSolve(SolvedContactPoint point) {
 			}
 		};
 	}
