@@ -19,7 +19,6 @@ import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.utils.BodyData;
-import game.utils.Geometry;
 import game.world.World;
 
 public abstract class Creature extends Entity {
@@ -165,19 +164,30 @@ public abstract class Creature extends Entity {
 			@Override
 			public boolean collision(Body body1, BodyFixture fixture1, Body body2,
 					BodyFixture fixture2, Manifold manifold) {
-				Body[] bodies = { body1, body2 };
-				for (Body bodie : bodies) {
-					BodyData data = (BodyData) bodie.getUserData();
-					if (data != null && data.getType() instanceof BlockType) {
-						collisionDirection = Geometry.convert(manifold.getNormal());
-						numberOfJumps = 0;
-					}
-				}
 				return true;
 			}
 
 			@Override
 			public boolean collision(ContactConstraint contactConstraint) {
+				Body[] bodies = { contactConstraint.getBody1(),
+						contactConstraint.getBody2() };
+				boolean hasBlock = false, hasCreature = false;
+				for (Body bodie : bodies) {
+					Object data = bodie.getUserData();
+					if (data instanceof BodyData) {
+						BodyData bdata = (BodyData) data;
+						if (bdata.getType() instanceof BlockType) {
+							hasBlock = true;
+						}
+					}
+					if (data == this) {
+						System.out.println("Has creature");
+						hasCreature = true;
+					}
+				}
+				if (hasBlock && hasCreature) {
+					numberOfJumps = 0;
+				}
 				return true;
 			}
 		};
