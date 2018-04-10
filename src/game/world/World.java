@@ -556,7 +556,6 @@ public class World {
 
 	public void removeEntity(Entity e) {
 		entities.remove(e);
-		System.out.println("Enity removed");
 		dynWorld.removeBody(e.getBody());
 		dynWorld.removeListener(e.getPhysicsListener());
 	}
