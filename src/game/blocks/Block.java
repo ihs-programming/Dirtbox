@@ -9,14 +9,15 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
-import game.PhysicsBodyFactory;
 import game.Sprite;
 import game.SpriteSheetLoader;
 import game.Viewport;
+import game.physics.PhysicsBody;
+import game.physics.PhysicsBodyFactory;
 import game.utils.BodyData;
 import game.utils.Geometry;
 
-public abstract class Block {
+public abstract class Block implements PhysicsBody {
 	public static final int BLOCK_SPRITE_SIZE = 1;
 
 	/**
@@ -129,6 +130,7 @@ public abstract class Block {
 		return body;
 	}
 
+	@Override
 	public Body getBody() {
 		if (physicsBody == null) {
 			physicsBody = bodyFactory.createBody(new BodyData(type));

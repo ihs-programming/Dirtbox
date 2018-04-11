@@ -18,7 +18,7 @@ public class Saver {
 	 * @param w
 	 */
 	public static byte[] save(World w) {
-		return serializeBlocks(w.getBlocks());
+		return serializeBlocks(w.blocks);
 	}
 
 	public static byte[] serializeBlocks(TreeMap<Point, Block> blocks) {

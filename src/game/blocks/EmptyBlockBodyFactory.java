@@ -2,7 +2,7 @@ package game.blocks;
 
 import org.dyn4j.dynamics.Body;
 
-import game.PhysicsBodyFactory;
+import game.physics.PhysicsBodyFactory;
 
 public class EmptyBlockBodyFactory implements PhysicsBodyFactory {
 

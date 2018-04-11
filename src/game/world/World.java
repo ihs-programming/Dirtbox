@@ -16,7 +16,6 @@ import java.util.TreeMap;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.Settings;
-import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
@@ -46,6 +45,7 @@ import game.network.event.BlockBreakEvent;
 import game.network.event.ChatEvent;
 import game.network.event.Event;
 import game.network.gamestate.BlockState;
+import game.physics.PhysicsBody;
 import game.save.Saver;
 import game.utils.Chat;
 import game.utils.Geometry;
@@ -69,10 +69,9 @@ public class World {
 
 	private Input userInp = null; // used only for debugging purposes currently
 
-	private TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
+	public TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
 
 	private org.dyn4j.dynamics.World dynWorld = new org.dyn4j.dynamics.World();
-	private Body totalBlockBody = new Body();
 
 	private Queue<Event> eventQueue = new LinkedList<>();
 	private Queue<byte[]> blockQueue = new LinkedList<>();
@@ -85,11 +84,7 @@ public class World {
 		entities = new ArrayList<>();
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
-		dynWorld.setGravity(new Vector2(0, GRAVITY_STRENGTH));
-		Settings s = dynWorld.getSettings();
-		s.setAutoSleepingEnabled(false);
-		dynWorld.setSettings(s);
-		totalBlockBody.setMass(MassType.INFINITE);
+		intitializePhysicsEngine();
 		addDefaultEntities();
 
 		try {
@@ -98,6 +93,13 @@ public class World {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void intitializePhysicsEngine() {
+		dynWorld.setGravity(new Vector2(0, GRAVITY_STRENGTH));
+		Settings s = dynWorld.getSettings();
+		s.setAutoSleepingEnabled(false);
+		dynWorld.setSettings(s);
 	}
 
 	/**
@@ -235,7 +237,7 @@ public class World {
 		Rectangle viewRect = Geometry.getBoundingBox(view);
 
 		long time = System.currentTimeMillis();
-		Lighting.doSunLighting(getBlocks(), (int) viewRect.getX() - 10,
+		Lighting.doSunLighting(blocks, (int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
 				(int) viewRect.getY() - 10,
 				(int) (viewRect.getY() + view.getHeight()) + 10, 63);
@@ -261,7 +263,7 @@ public class World {
 		time = System.currentTimeMillis();
 		Block.draw_hit_count = 0;
 		for (Point p : visibleBlocks) {
-			getBlocks().get(p).draw(vp);
+			getBlock(p).draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
 			System.out.printf(
@@ -271,7 +273,7 @@ public class World {
 		}
 		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
-			getBlocks().get(p).drawShading(vp);
+			getBlock(p).drawShading(vp);
 		}
 		for (Entity e : entities) {
 			e.draw(vp);
@@ -367,7 +369,7 @@ public class World {
 		for (int i = (int) (view.getMinX() - 1); i <= view.getMaxX(); i++) {
 			Point start = new Point(i, (int) (view.getMinY() - 1));
 			Point end = new Point(i, (int) (view.getMaxY() + 1));
-			NavigableSet<Point> existingBlocks = getBlocks().navigableKeySet().subSet(
+			NavigableSet<Point> existingBlocks = blocks.navigableKeySet().subSet(
 					start,
 					true, end, true);
 			for (Point p : existingBlocks) {
@@ -395,7 +397,7 @@ public class World {
 	public void update(int delta) {
 		processEventQueue();
 
-		BlockUpdates.propagateLiquids(changedBlocks, getBlocks());
+		BlockUpdates.propagateLiquids(changedBlocks, blocks);
 		updateEntityList();
 		List<Entity> deadEntities = new ArrayList<>();
 		for (Entity e : entities) {
@@ -405,7 +407,7 @@ public class World {
 			}
 		}
 		for (Entity e : deadEntities) {
-			removeEntity(e);
+			remove(e);
 		}
 
 		for (Entity e : entities) {
@@ -417,7 +419,7 @@ public class World {
 			boundingBox.setCenterY(boxPos.y);
 			List<Point> locs = getVisibleBlockLocations(boundingBox);
 			for (Point p : locs) {
-				Body b = blocks.get(p).getBody();
+				Body b = getBlock(p).getBody();
 				if (dynWorld.containsBody(b)) {
 					continue;
 				}
@@ -454,7 +456,7 @@ public class World {
 	public Block getBlockAtPosition(Vector2f gameMouseLocation) {
 		List<Point> clickLine = rayTrace(getCharacterPosition(), gameMouseLocation);
 		for (Point p : clickLine) {
-			Block b = getBlocks().get(p);
+			Block b = getBlock(p);
 			if (b instanceof SolidBlock) {
 				return b;
 			}
@@ -478,7 +480,7 @@ public class World {
 	 * @param pos
 	 */
 	public void breakBlock(Point pos) {
-		Block prevBlock = getBlocks().get(pos);
+		Block prevBlock = getBlock(pos);
 		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
 			return;
 		}
@@ -531,12 +533,12 @@ public class World {
 
 	public void processEvent(BlockBreakEvent bbe) {
 		Point pos = bbe.getPos();
-		Block prevBlock = getBlocks().get(pos);
+		Block prevBlock = getBlock(pos);
 		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
 			return;
 		}
 
-		getBlocks().put(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y, true));
+		setBlock(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y, true));
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
 			Vector2f newPos = prevBlock.getPos();
@@ -554,28 +556,28 @@ public class World {
 		return blocks.lastKey();
 	}
 
-	public void removeEntity(Entity e) {
+	public void remove(Entity e) {
 		entities.remove(e);
-		dynWorld.removeBody(e.getBody());
 		dynWorld.removeListener(e.getPhysicsListener());
+		remove((PhysicsBody) e);
+	}
+
+	public void remove(PhysicsBody b) {
+		dynWorld.removeBody(b.getBody());
 	}
 
 	public List<Entity> getEntities() {
 		return entities;
 	}
 
-	public TreeMap<Point, Block> getBlocks() {
-		return blocks;
-	}
-
 	public void setBlock(Point p, Block b) {
-		dynWorld.removeBody(blocks.get(p).getBody());
+		remove(blocks.get(p));
 		blocks.put(p, b);
 		dynWorld.addBody(b.getBody());
 	}
 
 	public void setBlocks(TreeMap<Point, Block> blocks) {
-		this.blocks.clear();
+		blocks.clear();
 		for (Map.Entry<Point, Block> ent : blocks.entrySet()) {
 			setBlock(ent.getKey(), ent.getValue());
 		}

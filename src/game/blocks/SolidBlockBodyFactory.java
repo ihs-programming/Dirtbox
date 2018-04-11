@@ -4,7 +4,7 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Convex;
 import org.dyn4j.geometry.MassType;
 
-import game.PhysicsBodyFactory;
+import game.physics.PhysicsBodyFactory;
 
 public class SolidBlockBodyFactory implements PhysicsBodyFactory {
 

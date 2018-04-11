@@ -1,4 +1,4 @@
-package game;
+package game.physics;
 
 import org.dyn4j.dynamics.Body;
 

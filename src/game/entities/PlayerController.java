@@ -81,7 +81,7 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 				if (e.getLocation().distance(character.getLocation()) > pickupRange) {
 					continue;
 				}
-				world.removeEntity(e);
+				world.remove(e);
 				CollectibleItem item = (CollectibleItem) e;
 				inventory.addItem(item.getItem());
 			}

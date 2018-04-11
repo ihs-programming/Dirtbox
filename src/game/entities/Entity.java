@@ -15,13 +15,14 @@ import org.newdawn.slick.geom.Vector2f;
 
 import game.Sprite;
 import game.Viewport;
+import game.physics.PhysicsBody;
 import game.utils.Geometry;
 import game.world.World;
 
 /**
  * Represents anything that is in the world
  */
-public class Entity {
+public class Entity implements PhysicsBody {
 	protected static final float GRAVITY = 0.00002613f;
 	private static final boolean DEBUG_COLLISION = true;
 	public static final float HITBOX_CORNER_INDENT = .01f;
