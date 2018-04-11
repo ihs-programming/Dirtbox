@@ -17,7 +17,7 @@ public class LiquidBlock extends Block {
 	}
 
 	protected LiquidBlock(BlockType t, float xpos, float ypos, boolean b) {
-		super(t, t.sx, t.sy, xpos, ypos, b);
+		super(t, t.sx, t.sy, xpos, ypos, b, new EmptyBlockBodyFactory());
 
 		// change size later
 		hitbox = new Rectangle(super.getPos().x, super.getPos().y, 1, 1);
@@ -27,4 +27,5 @@ public class LiquidBlock extends Block {
 	public Shape getHitbox() {
 		return this.hitbox;
 	}
+
 }

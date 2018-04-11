@@ -14,7 +14,8 @@ public class EmptyBlock extends Block {
 	}
 
 	protected EmptyBlock(float xpos, float ypos, boolean b) {
-		super(BlockType.EMPTY, EMPTY_SPRITE_X, EMPTY_SPRITE_Y, xpos, ypos, b);
+		super(BlockType.EMPTY, EMPTY_SPRITE_X, EMPTY_SPRITE_Y, xpos, ypos, b,
+				new EmptyBlockBodyFactory());
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.PhysicsBodyFactory;
 import game.Sprite;
 import game.SpriteSheetLoader;
 import game.Viewport;
@@ -25,6 +26,7 @@ public abstract class Block {
 
 	private Sprite sprite;
 	private Vector2f pos;
+	private PhysicsBodyFactory bodyFactory;
 	protected Body physicsBody;
 
 	private int lighting;
@@ -55,20 +57,21 @@ public abstract class Block {
 	}
 
 	protected Block(BlockType type, int sx, int sy, float xpos, float ypos,
-			boolean createSpriteSheet) {
+			boolean createSpriteSheet, PhysicsBodyFactory pbf) {
 		if (createSpriteSheet) {
 			sprite = new Sprite(SpriteSheetLoader.getBlockImage(sx, sy));
 		}
 		pos = new Vector2f(xpos, ypos);
 
 		this.type = type;
+		bodyFactory = pbf;
 	}
 
 	public void draw(Viewport vp) {
-		sprite.loc.set(pos.x, pos.y);
 		if (this instanceof EmptyBlock) {
 			return;
 		}
+		sprite.loc.set(pos.x, pos.y);
 
 		if (lighting > 0) {
 			vp.draw(sprite);
@@ -128,7 +131,7 @@ public abstract class Block {
 
 	public Body getBody() {
 		if (physicsBody == null) {
-			physicsBody = createBlockBody();
+			physicsBody = bodyFactory.createBody(new BodyData(type));
 		}
 		return physicsBody;
 	}
