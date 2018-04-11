@@ -2,14 +2,19 @@ package game.blocks;
 
 import java.awt.Point;
 
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.geometry.Convex;
+import org.dyn4j.geometry.MassType;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
 
+import game.PhysicsBodyFactory;
 import game.Sprite;
 import game.SpriteSheetLoader;
 import game.Viewport;
+import game.utils.BodyData;
+import game.utils.Geometry;
 
 public abstract class Block {
 	public static final int BLOCK_SPRITE_SIZE = 1;
@@ -21,6 +26,8 @@ public abstract class Block {
 
 	private Sprite sprite;
 	private Vector2f pos;
+	private PhysicsBodyFactory bodyFactory;
+	protected Body physicsBody;
 
 	private int lighting;
 	public final BlockType type;
@@ -50,20 +57,21 @@ public abstract class Block {
 	}
 
 	protected Block(BlockType type, int sx, int sy, float xpos, float ypos,
-			boolean createSpriteSheet) {
+			boolean createSpriteSheet, PhysicsBodyFactory pbf) {
 		if (createSpriteSheet) {
 			sprite = new Sprite(SpriteSheetLoader.getBlockImage(sx, sy));
 		}
 		pos = new Vector2f(xpos, ypos);
 
 		this.type = type;
+		bodyFactory = pbf;
 	}
 
 	public void draw(Viewport vp) {
-		sprite.loc.set(pos.x, pos.y);
 		if (this instanceof EmptyBlock) {
 			return;
 		}
+		sprite.loc.set(pos.x, pos.y);
 
 		if (lighting > 0) {
 			vp.draw(sprite);
@@ -92,10 +100,7 @@ public abstract class Block {
 	}
 
 	public Shape getHitbox() {
-		Rectangle hitbox = sprite.getBoundingBox();
-		hitbox.setX(pos.x);
-		hitbox.setY(pos.y);
-		return hitbox;
+		return Geometry.convertShape(getBody())[0];
 	}
 
 	public int getLighting() {
@@ -109,5 +114,25 @@ public abstract class Block {
 	public Sprite getSprite() {
 		return sprite.getCopy(); // ensure image can't be modified outside of this
 									// class
+	}
+
+	protected Body createBlockBody() {
+		Convex c = new org.dyn4j.geometry.Rectangle(Block.BLOCK_SPRITE_SIZE,
+				Block.BLOCK_SPRITE_SIZE);
+		Body body = new Body();
+		body.addFixture(c);
+		body.translateToOrigin();
+		float disp = BLOCK_SPRITE_SIZE / 2f;
+		body.translate(pos.x + disp, pos.y + disp);
+		body.setMass(MassType.INFINITE);
+		body.setUserData(new BodyData(type));
+		return body;
+	}
+
+	public Body getBody() {
+		if (physicsBody == null) {
+			physicsBody = bodyFactory.createBody(new BodyData(type));
+		}
+		return physicsBody;
 	}
 }

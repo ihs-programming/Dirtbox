@@ -20,7 +20,9 @@ public class Bunny extends Creature {
 	public void update(World w, float frametime) {
 		super.update(w, frametime);
 
+		Vector2f vel = getVelocity();
 		vel.x *= 0.9f;
+		setVelocity(vel);
 
 		if (Math.random() < 0.01) {
 			jump(ImprovedNoise.noise(-0.1, count++ / 10.0, 1) > 0);
@@ -29,6 +31,8 @@ public class Bunny extends Creature {
 
 	public void jump(boolean forward) {
 		jump(Bunny.JUMP_STRENGTH, 1);
+		Vector2f vel = getVelocity();
 		vel.x = JUMP_STRENGTH * (forward ? 1 : -1);
+		setVelocity(vel);
 	}
 }

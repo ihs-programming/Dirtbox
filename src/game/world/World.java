@@ -6,14 +6,19 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.Settings;
+import org.dyn4j.geometry.MassType;
+import org.dyn4j.geometry.Vector2;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
@@ -47,6 +52,7 @@ import game.utils.Geometry;
 
 public class World {
 	public static final double DAY_NIGHT_DURATION = 1200000.0;
+	private static final double GRAVITY_STRENGTH = 5;
 
 	private static final int VIEW_DISTANCE = 32;
 
@@ -65,6 +71,9 @@ public class World {
 
 	private TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
 
+	private org.dyn4j.dynamics.World dynWorld = new org.dyn4j.dynamics.World();
+	private Body totalBlockBody = new Body();
+
 	private Queue<Event> eventQueue = new LinkedList<>();
 	private Queue<byte[]> blockQueue = new LinkedList<>();
 	/**
@@ -76,6 +85,11 @@ public class World {
 		entities = new ArrayList<>();
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
+		dynWorld.setGravity(new Vector2(0, GRAVITY_STRENGTH));
+		Settings s = dynWorld.getSettings();
+		s.setAutoSleepingEnabled(false);
+		dynWorld.setSettings(s);
+		totalBlockBody.setMass(MassType.INFINITE);
 		addDefaultEntities();
 
 		try {
@@ -150,7 +164,11 @@ public class World {
 	}
 
 	private void updateEntityList() {
-		entities.addAll(entitiesToAdd);
+		for (Entity e : entitiesToAdd) {
+			dynWorld.addBody(e.getBody());
+			dynWorld.addListener(e.getPhysicsListener());
+			entities.add(e);
+		}
 		entitiesToAdd.clear();
 	}
 
@@ -259,10 +277,14 @@ public class World {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
-			System.out.printf("%d ms for shading\n",
-					System.currentTimeMillis() - time);
-			// renderHitboxes(vp);
-			// renderMouseRaytrace(vp);
+			List<Point> locs = getVisibleBlockLocations(
+					Geometry.getBoundingBox(vp.getGameViewShape()));
+			for (Body bb : this.dynWorld.getBodies()) {
+				Shape[] v = Geometry.convertShape(bb);
+				if (v.length > 0) {
+					vp.draw(v[0], Color.green);
+				}
+			}
 		}
 	}
 
@@ -375,28 +397,34 @@ public class World {
 
 		BlockUpdates.propagateLiquids(changedBlocks, getBlocks());
 		updateEntityList();
-		Iterator<Entity> iter = entities.iterator();
-		while (iter.hasNext()) {
-			Entity e = iter.next();
-			e.update(this, delta);
-
-			if (!e.alive()) {
-				iter.remove();
-			}
-		}
-
-		// Collision Detection with surroundings
+		List<Entity> deadEntities = new ArrayList<>();
 		for (Entity e : entities) {
-			Shape hitbox = e.getHitbox();
-			Rectangle boundingBox = Geometry.getBoundingBox(hitbox);
-			List<Point> collidingBlocks = getVisibleBlockLocations(boundingBox);
-			for (Point p : collidingBlocks) {
-				Block b = getBlocks().get(p);
-				if (b instanceof SolidBlock) {
-					e.collide(b.getHitbox());
-				}
+			e.update(this, delta);
+			if (!e.alive()) {
+				deadEntities.add(e);
 			}
 		}
+		for (Entity e : deadEntities) {
+			removeEntity(e);
+		}
+
+		for (Entity e : entities) {
+			Rectangle boundingBox = Geometry.getBoundingBox(e.getHitbox());
+			Vector2f boxPos = new Vector2f(boundingBox.getCenter());
+			boundingBox.setWidth(boundingBox.getWidth() + 5);
+			boundingBox.setHeight(boundingBox.getHeight() + 5);
+			boundingBox.setCenterX(boxPos.x);
+			boundingBox.setCenterY(boxPos.y);
+			List<Point> locs = getVisibleBlockLocations(boundingBox);
+			for (Point p : locs) {
+				Body b = blocks.get(p).getBody();
+				if (dynWorld.containsBody(b)) {
+					continue;
+				}
+				dynWorld.addBody(b);
+			}
+		}
+		dynWorld.update(delta);
 	}
 
 	/**
@@ -444,7 +472,25 @@ public class World {
 		return ret;
 	}
 
+	/**
+	 * Breaks block and spawns a new block entity
+	 *
+	 * @param pos
+	 */
 	public void breakBlock(Point pos) {
+		Block prevBlock = getBlocks().get(pos);
+		if (prevBlock == null || prevBlock.type == BlockType.WATER) {
+			return;
+		}
+
+		setBlock(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
+
+		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
+			Vector2f newPos = prevBlock.getPos();
+			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
+			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos, this));
+		}
+		changedBlocks.add(pos);
 		c.sendEvent(new BlockBreakEvent(pos.x, pos.y));
 	}
 
@@ -458,10 +504,8 @@ public class World {
 			}
 		}
 		for (Entity e : entities) {
-			Point entityCenter = new Point((int) e.getHitbox().getCenterX(),
-					(int) e.getHitbox().getCenterY());
-
-			if (entityCenter.distance(pos) < str) {
+			Vector2f entityCenter = e.getLocation();
+			if (pos.distance(entityCenter.x, entityCenter.y) < str) {
 				if (e instanceof Creature) {
 					((Creature) e).doHit(1);
 				}
@@ -512,6 +556,8 @@ public class World {
 
 	public void removeEntity(Entity e) {
 		entities.remove(e);
+		dynWorld.removeBody(e.getBody());
+		dynWorld.removeListener(e.getPhysicsListener());
 	}
 
 	public List<Entity> getEntities() {
@@ -522,7 +568,16 @@ public class World {
 		return blocks;
 	}
 
+	public void setBlock(Point p, Block b) {
+		dynWorld.removeBody(blocks.get(p).getBody());
+		blocks.put(p, b);
+		dynWorld.addBody(b.getBody());
+	}
+
 	public void setBlocks(TreeMap<Point, Block> blocks) {
-		this.blocks = blocks;
+		this.blocks.clear();
+		for (Map.Entry<Point, Block> ent : blocks.entrySet()) {
+			setBlock(ent.getKey(), ent.getValue());
+		}
 	}
 }

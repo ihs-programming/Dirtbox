@@ -1,6 +1,14 @@
 package game.entities;
 
+import org.dyn4j.Listener;
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.contact.ContactListener;
+import org.dyn4j.dynamics.contact.ContactPoint;
+import org.dyn4j.dynamics.contact.PersistedContactPoint;
+import org.dyn4j.dynamics.contact.SolvedContactPoint;
+import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
@@ -9,9 +17,12 @@ import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
+import game.utils.BodyData;
+import game.utils.Geometry;
 import game.world.World;
 
 public abstract class Creature extends Entity {
+	public static final float VERTICAL_EPSILON = 1e-3f;
 	private final float HEALTH_BAR_HEIGHT = .1f;
 	private final float HEALTH_BAR_DISPLACEMENT = .1f;
 	private final float DAMAGE_FADE_TIME = 250;
@@ -25,6 +36,8 @@ public abstract class Creature extends Entity {
 	private int drownDamage = 3;
 	private float drownDamageRate = 1500f;
 
+	Vector2f collisionDirection;
+
 	public Creature(Sprite sprite, Vector2f pos, World w) {
 		super(sprite, pos, w);
 		accel.y = GRAVITY;
@@ -35,7 +48,9 @@ public abstract class Creature extends Entity {
 		Vector2f dist = getLocation().sub(aggressor.getLocation());
 
 		if (dist.length() < 5) {
+			Vector2f vel = getVelocity();
 			vel.x += dist.normalise().scale(0.01f).x;
+			setVelocity(vel);
 			health -= damage;
 			timeSinceLastHit = 0f;
 		}
@@ -62,12 +77,25 @@ public abstract class Creature extends Entity {
 			// create health bar
 			Rectangle healthBarOutline = new Rectangle(0, 0, 1, 1);
 			Rectangle healthBar = new Rectangle(0, 0, 1.0f * health / totalHealth, 1);
-			Transform barTransform = new Transform(new float[] { getHitbox().getWidth(),
+			Transform barTransform = new Transform(new float[] { sprite.getWidth(),
 					0,
-					pos.x, 0, HEALTH_BAR_HEIGHT, pos.y - HEALTH_BAR_DISPLACEMENT });
+					getLocation().x, 0, HEALTH_BAR_HEIGHT,
+					getLocation().y - HEALTH_BAR_DISPLACEMENT });
 
 			vp.fill(healthBar.transform(barTransform), Color.red);
 			vp.draw(healthBarOutline.transform(barTransform), Color.white);
+		}
+		if (Viewport.DEBUG_MODE) {
+			drawCollisionDirection(vp);
+		}
+	}
+
+	private void drawCollisionDirection(Viewport vp) {
+		if (collisionDirection != null) {
+			Vector2f disp = collisionDirection.copy();
+			Line normalLine = new Line(getLocation(),
+					getLocation().add(disp.copy().scale(1f / disp.length())));
+			vp.draw(normalLine, Color.pink);
 		}
 	}
 
@@ -93,13 +121,16 @@ public abstract class Creature extends Entity {
 	}
 
 	private boolean isInWater() {
-		Block testBlock = world.getBlock(World.getCoordinates(super.pos));
+		Block testBlock = world.getBlock(World.getCoordinates(getLocation()));
 		return testBlock != null && testBlock.type == BlockType.WATER;
 	}
 
 	protected void jump(float jumpStrength, int jumplimit) {
 		if (isInWater() || numberOfJumps < jumplimit) {
-			vel.y = -jumpStrength;
+			getBody().applyForce(new Vector2(0, -jumpStrength));
+			Vector2f vel = getVelocity();
+			vel.y = 0;
+			setVelocity(vel);
 			numberOfJumps++;
 		}
 	}
@@ -109,8 +140,63 @@ public abstract class Creature extends Entity {
 		if (numberOfJumps != 0) {
 			numberOfJumps = 0;
 		}
+		Vector2f vel = getVelocity();
 		if (vel.getY() > 0.03) {
 			doHit((int) (vel.getY() * 300));
 		}
+	}
+
+	@Override
+	public Listener getPhysicsListener() {
+		return new ContactListener() {
+			@Override
+			public void sensed(ContactPoint point) {
+			}
+
+			@Override
+			public void end(ContactPoint point) {
+			}
+
+			@Override
+			public boolean begin(ContactPoint point) {
+				return true;
+			}
+
+			@Override
+			public boolean preSolve(ContactPoint point) {
+				return true;
+			}
+
+			@Override
+			public void postSolve(SolvedContactPoint point) {
+			}
+
+			@Override
+			public boolean persist(PersistedContactPoint point) {
+				Body[] bodies = { point.getBody1(),
+						point.getBody2() };
+				boolean hasBlock = false, hasCreature = false;
+				for (Body bodie : bodies) {
+					Object data = bodie.getUserData();
+					if (data instanceof BodyData) {
+						BodyData bdata = (BodyData) data;
+						if (bdata.getType() instanceof BlockType) {
+							hasBlock = true;
+						}
+					} else if (data == Creature.this) {
+						hasCreature = true;
+					}
+				}
+				if (hasBlock && hasCreature) {
+					Vector2f normal = Geometry.convert(point.getNormal());
+					if (Math.abs(normal.getTheta()
+							- new Vector2f(0, -1).getTheta()) < VERTICAL_EPSILON) {
+						numberOfJumps = 0;
+					}
+				}
+				return true;
+			}
+
+		};
 	}
 }

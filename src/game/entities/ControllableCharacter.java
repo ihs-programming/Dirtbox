@@ -9,19 +9,15 @@ import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
+import game.utils.Geometry;
 import game.world.World;
 
 public class ControllableCharacter extends Creature {
 	public boolean flying = false;
-	private static final float SPEED = 0.0085f;
-	private static final float JUMP = 0.012f;
-	// 1 block = 1 m^2, 1 block = 16 px,
-	// 1 m =
-	// 16 px,
-	// 1 frame = 1/60s, 1 frame = 16.7ms,
-	// 9.8m/s^2
-	// = 9.8*16px/60frames, gravity =
-	// -2.613px/frame
+	private static final float MAX_SPEED = 10f;
+	private static final float ACCELERATION = 10f;
+	private static final float JUMP = 250f;
+	private static final float VEL_FORCE_MULTIPLIER = 100;
 	private float reach = 5f; // distance (in game units) in which the player
 								// can interact
 								// with items in the game
@@ -69,19 +65,23 @@ public class ControllableCharacter extends Creature {
 	 * @param isLeft
 	 */
 	public void move(boolean isLeft) {
-		float move = (flying ? 10 : 1) * SPEED;
+		float move = (flying ? 10 : 1) * MAX_SPEED;
+		Vector2f velocity = new Vector2f();
 		if (isLeft) {
-			vel.x = -move;
+			velocity.x = -move;
 		} else {
-			vel.x = move;
+			velocity.x = move;
 		}
+		physicsBody.applyForce(Geometry.convert(velocity.scale(VEL_FORCE_MULTIPLIER)));
 	}
 
 	/**
 	 * Stops the character from moving (if he were moving)
 	 */
 	public void stopMoving() {
-		vel.x = 0;
+		Vector2f velocity = getVelocity();
+		velocity.x = 0;
+		setVelocity(velocity);
 	}
 
 	public void jump() {
@@ -90,15 +90,16 @@ public class ControllableCharacter extends Creature {
 
 	public void interact(Vector2f position) {
 		Entity attackedEntity = null;
-		Line characterClick = new Line(pos, position);
+		Line characterClick = new Line(getLocation(), position);
 		for (Entity e : world.getEntities()) {
 			if (e == this) {
 				continue;
 			}
 			if (e.getHitbox().intersects(characterClick) &&
 					(attackedEntity == null ||
-							attackedEntity.getLocation().distance(pos) > e.getLocation()
-									.distance(pos))) {
+							attackedEntity.getLocation().distance(getLocation()) > e
+									.getLocation()
+									.distance(getLocation()))) {
 				attackedEntity = e;
 			}
 		}
@@ -114,7 +115,8 @@ public class ControllableCharacter extends Creature {
 			return;
 		}
 		Vector2f blockCenter = new Vector2f(newBlock.getHitbox().getCenter());
-		if (blockCenter.distance(pos) < attackedEntity.getLocation().distance(pos)) {
+		if (blockCenter.distance(getLocation()) < attackedEntity.getLocation()
+				.distance(getLocation())) {
 			mineBlock(newBlock);
 		} else if (attackedEntity instanceof Creature) {
 			attack((Creature) attackedEntity);
@@ -133,7 +135,7 @@ public class ControllableCharacter extends Creature {
 	}
 
 	public void mineBlock(Block newBlock) {
-		if (newBlock == null || newBlock.getPos().distance(pos) > reach) {
+		if (newBlock == null || newBlock.getPos().distance(getLocation()) > reach) {
 			stopMining();
 			return;
 		}
@@ -179,8 +181,9 @@ public class ControllableCharacter extends Creature {
 	public void draw(Viewport vp) {
 		super.draw(vp);
 		if (Viewport.DEBUG_MODE) {
-			String debugString = String.format("Character position: %f %f\n", pos.x,
-					pos.y);
+			String debugString = String.format("Character position: %f %f\n",
+					getLocation().x,
+					getLocation().y);
 			vp.draw(debugString, 20, 30, Color.white);
 		}
 	}

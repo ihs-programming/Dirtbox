@@ -30,11 +30,13 @@ public class Wolf extends Creature {
 
 		if (target != null) {
 			if (Math.abs(target.getLocation().getX() - getLocation().getX()) > 2) {
+				Vector2f vel = getVelocity();
 				if (target.getLocation().getX() > getLocation().getX()) {
 					vel.x = 0.005f;
 				} else {
 					vel.x = -0.005f;
 				}
+				setVelocity(vel);
 			}
 			if (Math.random() < 0.1) {
 				((Creature) target).doHit(this, 1);
