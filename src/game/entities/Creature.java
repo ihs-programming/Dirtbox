@@ -18,9 +18,11 @@ import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.utils.BodyData;
+import game.utils.Geometry;
 import game.world.World;
 
 public abstract class Creature extends Entity {
+	public static final float VERTICAL_EPSILON = 1e-3f;
 	private final float HEALTH_BAR_HEIGHT = .1f;
 	private final float HEALTH_BAR_DISPLACEMENT = .1f;
 	private final float DAMAGE_FADE_TIME = 250;
@@ -157,6 +159,20 @@ public abstract class Creature extends Entity {
 
 			@Override
 			public boolean begin(ContactPoint point) {
+				return true;
+			}
+
+			@Override
+			public boolean preSolve(ContactPoint point) {
+				return true;
+			}
+
+			@Override
+			public void postSolve(SolvedContactPoint point) {
+			}
+
+			@Override
+			public boolean persist(PersistedContactPoint point) {
 				Body[] bodies = { point.getBody1(),
 						point.getBody2() };
 				boolean hasBlock = false, hasCreature = false;
@@ -172,22 +188,12 @@ public abstract class Creature extends Entity {
 					}
 				}
 				if (hasBlock && hasCreature) {
-					numberOfJumps = 0;
+					Vector2f normal = Geometry.convert(point.getNormal());
+					if (Math.abs(normal.getTheta()
+							- new Vector2f(0, -1).getTheta()) < VERTICAL_EPSILON) {
+						numberOfJumps = 0;
+					}
 				}
-				return true;
-			}
-
-			@Override
-			public boolean preSolve(ContactPoint point) {
-				return true;
-			}
-
-			@Override
-			public void postSolve(SolvedContactPoint point) {
-			}
-
-			@Override
-			public boolean persist(PersistedContactPoint point) {
 				return true;
 			}
 
