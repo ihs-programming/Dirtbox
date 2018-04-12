@@ -14,7 +14,7 @@ import game.network.io.EncodedOutputStream;
 import game.network.io.EncodedReader;
 import game.network.io.Header;
 
-public class SocketListenerImpl {
+public class SocketListener {
 	private class User {
 		public final EncodedOutputStream out;
 		public final EncodedReader in;

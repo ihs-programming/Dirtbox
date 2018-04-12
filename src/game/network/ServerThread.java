@@ -8,9 +8,9 @@ import java.net.Socket;
  * Created by Robert on 8/6/2017.
  */
 public class ServerThread implements Runnable {
-	private SocketListenerImpl sl;
+	private SocketListener sl;
 
-	public ServerThread(SocketListenerImpl sl) {
+	public ServerThread(SocketListener sl) {
 		this.sl = sl;
 	}
 

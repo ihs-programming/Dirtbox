@@ -40,7 +40,7 @@ import game.entities.creature.Wolf;
 import game.items.BlockItem;
 import game.network.Client;
 import game.network.ServerThread;
-import game.network.SocketListenerImpl;
+import game.network.SocketListener;
 import game.network.event.BlockBreakEvent;
 import game.network.event.ChatEvent;
 import game.network.event.Event;
@@ -88,7 +88,7 @@ public class World {
 		addDefaultEntities();
 
 		try {
-			new Thread(new ServerThread(new SocketListenerImpl())).start();
+			new Thread(new ServerThread(new SocketListener())).start();
 			c = new Client(InetAddress.getLocalHost());
 		} catch (IOException e) {
 			e.printStackTrace();
