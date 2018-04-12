@@ -1,6 +1,7 @@
 package game.utils;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import game.Viewport;
 import game.entities.ControllableCharacter;
 import game.network.UDPBroadcast;
 import game.network.event.ChatEvent;
@@ -33,44 +35,131 @@ public class Console extends Thread {
 	public static final String ERROR = "Unknown command";
 
 	private static HashMap<String, CommandParser> commands = new HashMap<>();
-	static {
-		addCommand(args -> "Pong", "!ping");
-		addCommand(args -> {
-			StringBuilder ret = new StringBuilder();
 
-			for (String s : commands.keySet()) {
-				if ("!help".equals(s)) {
-					continue;
+	private void initializeCommandList() {
+		addCommand(new CommandParser() {
+			@Override
+			public String getHelp() {
+				return buildHelp();
+			}
+
+			@Override
+			public String command(String[] args) {
+				return buildHelp();
+			}
+
+			private String buildHelp() {
+				StringBuilder ret = new StringBuilder();
+				for (String s : commands.keySet()) {
+					if ("!help".equals(s)) {
+						continue;
+					}
+					ret.append(String.format("%s : %s\n", s, commands.get(s).getHelp()));
 				}
-				ret.append(String.format("%s : %s\n", s, commands.get(s).command(null)));
+				return ret.toString();
 			}
-			return ret.toString();
 		}, "!help");
-		addCommand(args -> {
-			if (args == null) {
-				return "Searches for avaliable servers";
+		addCommand(new CommandParser() {
+			@Override
+			public String getHelp() {
+				return "lists all availible servers to connect to";
 			}
-			try {
-				UDPBroadcast broad = new UDPBroadcast(1000, 2000);
-				Thread.sleep(2000);
-				return "Active addresses : " + broad.getActiveAddresses().toString();
-			} catch (InterruptedException | IOException e) {
-				e.printStackTrace();
+
+			@Override
+			public String command(String[] args) {
+				if (args == null) {
+					return "Searches for avaliable servers";
+				}
+				try {
+					UDPBroadcast broad = new UDPBroadcast(1000, 2000);
+					Thread.sleep(2000);
+					return "Active addresses : " + broad.getActiveAddresses().toString();
+				} catch (InterruptedException | IOException e) {
+					e.printStackTrace();
+				}
+				return "";
 			}
-			return "";
 
 		}, "!list");
-		addCommand(args -> {
-			if (args == null) {
-				return "Connects to an address";
+		addCommand(new CommandParser() {
+			@Override
+			public String getHelp() {
+				return "connects to server";
 			}
-			if (args.length == 0) {
-				return "Please provide an address";
-			}
-			return "Connecting to " + args[0];
-		}, "!connect");
 
-		// You can add commands from other places as well!
+			@Override
+			public String command(String[] args) {
+				if (args == null) {
+					return "Connects to an address";
+				}
+				if (args.length == 0) {
+					return "Please provide an address";
+				}
+				return "Connecting to " + args[0];
+			}
+		}, "!connect");
+		addGameCommands();
+	}
+
+	private void addGameCommands() {
+		addCommand(command -> {
+			character.doHit(-10000);
+			return "";
+		}, "!addhealth");
+		addCommand(new CommandParser() {
+			@Override
+			public String getHelp() {
+
+				return "Breaks all blocks in a large radius around the player";
+			}
+
+			@Override
+			public String command(String[] command) {
+				Point p = new Point((int) character.getHitbox().getX(),
+						(int) character.getHitbox().getY());
+				world.explode(p, 20);
+				return "";
+			}
+		}, "!explode");
+		addCommand(new CommandParser() {
+			@Override
+			public String getHelp() {
+
+				return "increases movement speed tenfold";
+			}
+
+			@Override
+			public String command(String[] command) {
+				character.flying = !character.flying;
+				return "";
+			}
+		}, "!fly");
+		addCommand(new CommandParser() {
+			@Override
+			public String getHelp() {
+
+				return "returns the time";
+			}
+
+			@Override
+			public String command(String[] command) {
+				String output = "";
+				if (command.length < 2) {
+					output += "Time is: " + Viewport.globaltimer + "\n";
+				} else {
+					if (command.length > 1 && command[1].equals("set")) {
+						try {
+							Viewport.globaltimer = Long.parseLong(command[2]);
+							output += "Time set to " + Viewport.globaltimer + "\n";
+						} catch (NumberFormatException e) {
+							output += "\"" + command[2]
+									+ "\" is not a valid time. Use \"!time ?\" for help\n";
+						}
+					}
+				}
+				return output;
+			}
+		}, "!time");
 	}
 
 	private static interface CommandParser {
@@ -78,15 +167,20 @@ public class Console extends Thread {
 		 * Do a command.
 		 *
 		 * @param args
-		 *            is null if we want the debug message.
+		 *            is null if we want the help message.
 		 * @return
 		 */
-		public String command(String args[]);
+		String command(String args[]);
+
+		default String getHelp() {
+			return "not documented...";
+		};
 	}
 
 	public Console(ControllableCharacter character, World world) {
 		this.character = character;
 		this.world = world;
+		initializeCommandList();
 	}
 
 	@Override
