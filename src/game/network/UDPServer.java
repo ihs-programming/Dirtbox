@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
-public class UDPServer {
+public class UDPServer implements Runnable {
 	static {
 		DatagramSocket sock = null;
 		try {
@@ -21,26 +21,23 @@ public class UDPServer {
 	static final DatagramSocket socket;
 
 	public UDPServer() {
-		Runnable UDPServer = () -> {
-			try {
-
-				while (true) {
-					DatagramPacket ping = new DatagramPacket(
-							new byte[UDPBroadcast.PING_PACKET_SIZE],
-							UDPBroadcast.PING_PACKET_SIZE);
-					socket.receive(ping);
-
-					if (UDPBroadcast.validPacket(ping)) {
-						socket.send(ping);
-					}
-				}
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-		};
-		new Thread(UDPServer).start();
+		new Thread(this).start();
 	}
 
+	@Override
+	public void run() {
+		try {
+			while (true) {
+				DatagramPacket ping = new DatagramPacket(
+						new byte[UDPBroadcast.PING_PACKET_SIZE],
+						UDPBroadcast.PING_PACKET_SIZE);
+				socket.receive(ping);
+				if (UDPBroadcast.validPacket(ping)) {
+					socket.send(ping);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
