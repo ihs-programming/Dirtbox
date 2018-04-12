@@ -13,14 +13,14 @@ import game.items.Inventory;
 import game.items.Item;
 import game.utils.DefaultKeyListener;
 import game.utils.DefaultMouseListener;
-import game.world.World;
+import game.world.GameWorld;
 
 public class PlayerController implements DefaultKeyListener, DefaultMouseListener {
 	private ControllableCharacter character;
 	private Inventory inventory = new Inventory();
 	private Input userInput;
 	private Viewport vp;
-	private World world;
+	private GameWorld world;
 
 	private boolean showInventory = false;
 	private Item heldItem;
@@ -28,7 +28,7 @@ public class PlayerController implements DefaultKeyListener, DefaultMouseListene
 	private float pickupRange = 2f;
 
 	public PlayerController(ControllableCharacter character, Input inp, Viewport vp,
-			World w) {
+			GameWorld w) {
 		this.character = character;
 		userInput = inp;
 		userInput.addKeyListener(this);

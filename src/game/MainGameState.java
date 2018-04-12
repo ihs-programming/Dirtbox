@@ -11,11 +11,11 @@ import game.entities.PlayerController;
 import game.utils.Chat;
 import game.utils.Console;
 import game.utils.DefaultGameState;
-import game.world.World;
+import game.world.GameWorld;
 
 public class MainGameState implements DefaultGameState {
 	public static boolean playMusic = false;
-	private World world;
+	private GameWorld world;
 	private Viewport vp = new Viewport();
 	private ViewportController vpc;
 	public static boolean inGame = true; // whether or not to display the escape
@@ -31,7 +31,7 @@ public class MainGameState implements DefaultGameState {
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		Input gcInput = gc.getInput();
 		vpc = new ViewportController(gcInput, vp);
-		world = new World(gcInput);
+		world = new GameWorld(gcInput);
 		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp,
 				world);
 

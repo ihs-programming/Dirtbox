@@ -5,19 +5,19 @@ import org.newdawn.slick.geom.Vector2f;
 import game.Sprite;
 import game.entities.Creature;
 import game.utils.ImprovedNoise;
-import game.world.World;
+import game.world.GameWorld;
 
 public class Bunny extends Creature {
 	public static final float JUMP_STRENGTH = 0.008f;
 
 	private int count = 0;
 
-	public Bunny(Sprite sprite, Vector2f pos, World w) {
+	public Bunny(Sprite sprite, Vector2f pos, GameWorld w) {
 		super(sprite, pos, w);
 	}
 
 	@Override
-	public void update(World w, float frametime) {
+	public void update(GameWorld w, float frametime) {
 		super.update(w, frametime);
 
 		Vector2f vel = getVelocity();

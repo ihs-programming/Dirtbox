@@ -17,7 +17,7 @@ import game.entities.ControllableCharacter;
 import game.network.UDPBroadcast;
 import game.network.event.ChatEvent;
 import game.save.Saver;
-import game.world.World;
+import game.world.GameWorld;
 
 /**
  * Handles various commands in the game
@@ -25,7 +25,7 @@ import game.world.World;
 public class Console extends Thread {
 
 	private ControllableCharacter character;
-	private World world;
+	private GameWorld world;
 	private Saver saver = new Saver();
 	private Map<Integer, InetSocketAddress> serverUI = new HashMap<>();
 
@@ -177,7 +177,7 @@ public class Console extends Thread {
 		};
 	}
 
-	public Console(ControllableCharacter character, World world) {
+	public Console(ControllableCharacter character, GameWorld world) {
 		this.character = character;
 		this.world = world;
 		initializeCommandList();

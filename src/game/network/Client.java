@@ -11,7 +11,7 @@ import game.network.io.EncodedOutputStream;
 import game.network.io.EncodedReader;
 import game.network.io.Header;
 import game.network.io.Util;
-import game.world.World;
+import game.world.GameWorld;
 
 public class Client {
 	public static final int TCP_PORT = 8837;
@@ -37,7 +37,7 @@ public class Client {
 				Util.toBytes((int) rect.getHeight()));
 	}
 
-	public void bindTo(World w) {
+	public void bindTo(GameWorld w) {
 		in.clearListeners();
 
 		in.addListener((header, data) -> {

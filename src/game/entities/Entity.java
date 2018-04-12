@@ -17,7 +17,7 @@ import game.Sprite;
 import game.Viewport;
 import game.physics.PhysicsBody;
 import game.utils.Geometry;
-import game.world.World;
+import game.world.GameWorld;
 
 /**
  * Represents anything that is in the world
@@ -33,9 +33,9 @@ public class Entity implements PhysicsBody {
 	protected Polygon[] lastMovement = new Polygon[4];
 	protected Body physicsBody;
 
-	protected World world;
+	protected GameWorld world;
 
-	public Entity(Sprite sprite, Vector2f pos, World w) {
+	public Entity(Sprite sprite, Vector2f pos, GameWorld w) {
 		this.sprite = sprite.getCopy();
 		world = w;
 
@@ -45,7 +45,7 @@ public class Entity implements PhysicsBody {
 		generateHitbox();
 	}
 
-	public Entity(Image img, Vector2f pos, World w) {
+	public Entity(Image img, Vector2f pos, GameWorld w) {
 		this(new Sprite(img), pos, w);
 	}
 
@@ -88,7 +88,7 @@ public class Entity implements PhysicsBody {
 		}
 	}
 
-	public void update(World w, float frametime) {
+	public void update(GameWorld w, float frametime) {
 		prevPos.set(getLocation());
 	}
 

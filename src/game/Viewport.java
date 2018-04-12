@@ -7,7 +7,7 @@ import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.geom.Vector2f;
 
-import game.world.World;
+import game.world.GameWorld;
 
 /**
  * Handles all drawing in the game. Does not, and should not handle ui drawing
@@ -87,17 +87,17 @@ public class Viewport {
 		globaltimer += System.currentTimeMillis() - timerupdate;
 		double darknessvalue = 0.6 + Math
 				.sin(2.0 * Math.PI * globaltimer
-						/ World.DAY_NIGHT_DURATION)
+						/ GameWorld.DAY_NIGHT_DURATION)
 				* 0.4;
 		Color BackgroundColor = new Color((int) (darknessvalue * 0),
 				(int) (darknessvalue * 127), (int) (darknessvalue * 255));
 		graphics.setBackground(BackgroundColor);
 		center.add(movement.copy().scale(delta / scaleFactor));
-		if (day && globaltimer % World.DAY_NIGHT_DURATION > World.DAY_NIGHT_DURATION
+		if (day && globaltimer % GameWorld.DAY_NIGHT_DURATION > GameWorld.DAY_NIGHT_DURATION
 				/ 2) {
 			day = false;
 		} else if (!day
-				&& globaltimer % World.DAY_NIGHT_DURATION <= World.DAY_NIGHT_DURATION) {
+				&& globaltimer % GameWorld.DAY_NIGHT_DURATION <= GameWorld.DAY_NIGHT_DURATION) {
 			day = true;
 		}
 		resetTransformCache = true;

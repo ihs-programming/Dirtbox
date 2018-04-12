@@ -10,7 +10,7 @@ import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
 import game.utils.Geometry;
-import game.world.World;
+import game.world.GameWorld;
 
 public class ControllableCharacter extends Creature {
 	public boolean flying = false;
@@ -28,7 +28,7 @@ public class ControllableCharacter extends Creature {
 	private float totalAttackTime = 250;
 	private float attackCharge = 0f;
 
-	protected World world;
+	protected GameWorld world;
 	// Break times for different blocks
 	private float blockMineTime = 100.0f;
 	private BlockType[][] breakTime = {
@@ -51,7 +51,7 @@ public class ControllableCharacter extends Creature {
 			}
 	};
 
-	public ControllableCharacter(World w, Image img, Vector2f pos) {
+	public ControllableCharacter(GameWorld w, Image img, Vector2f pos) {
 		super(new Sprite(img), pos, w);
 
 		accel.y = GRAVITY;
@@ -188,7 +188,7 @@ public class ControllableCharacter extends Creature {
 	}
 
 	@Override
-	public void update(World w, float frametime) {
+	public void update(GameWorld w, float frametime) {
 		super.update(w, frametime);
 
 		if (currentBlock != null) {

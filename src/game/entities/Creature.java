@@ -19,7 +19,7 @@ import game.blocks.Block;
 import game.blocks.BlockType;
 import game.utils.BodyData;
 import game.utils.Geometry;
-import game.world.World;
+import game.world.GameWorld;
 
 public abstract class Creature extends Entity {
 	public static final float VERTICAL_EPSILON = 1e-3f;
@@ -38,7 +38,7 @@ public abstract class Creature extends Entity {
 
 	Vector2f collisionDirection;
 
-	public Creature(Sprite sprite, Vector2f pos, World w) {
+	public Creature(Sprite sprite, Vector2f pos, GameWorld w) {
 		super(sprite, pos, w);
 		accel.y = GRAVITY;
 		health = totalHealth;
@@ -100,7 +100,7 @@ public abstract class Creature extends Entity {
 	}
 
 	@Override
-	public void update(World w, float frametime) {
+	public void update(GameWorld w, float frametime) {
 		super.update(w, frametime);
 		timeSinceLastHit += frametime;
 
@@ -121,7 +121,7 @@ public abstract class Creature extends Entity {
 	}
 
 	private boolean isInWater() {
-		Block testBlock = world.getBlock(World.getCoordinates(getLocation()));
+		Block testBlock = world.getBlock(GameWorld.getCoordinates(getLocation()));
 		return testBlock != null && testBlock.type == BlockType.WATER;
 	}
 

@@ -9,7 +9,7 @@ import game.blocks.Block;
 import game.blocks.BlockType;
 import game.network.gamestate.BlockState;
 import game.network.io.Util;
-import game.world.World;
+import game.world.GameWorld;
 
 public class Saver {
 	/**
@@ -17,7 +17,7 @@ public class Saver {
 	 *
 	 * @param w
 	 */
-	public static byte[] save(World w) {
+	public static byte[] save(GameWorld w) {
 		return serializeBlocks(w.blocks);
 	}
 

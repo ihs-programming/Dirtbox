@@ -7,16 +7,16 @@ import org.newdawn.slick.geom.Vector2f;
 import game.Sprite;
 import game.entities.Creature;
 import game.entities.Entity;
-import game.world.World;
+import game.world.GameWorld;
 
 public class Wolf extends Creature {
 
-	public Wolf(Sprite sprite, Vector2f pos, World w) {
+	public Wolf(Sprite sprite, Vector2f pos, GameWorld w) {
 		super(sprite, pos, w);
 	}
 
 	@Override
-	public void update(World w, float frametime) {
+	public void update(GameWorld w, float frametime) {
 		super.update(w, frametime);
 
 		Set<Entity> targets = w.getEntities(getLocation(), 50);

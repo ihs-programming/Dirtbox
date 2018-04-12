@@ -16,6 +16,7 @@ import java.util.TreeMap;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.Settings;
+import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
@@ -50,7 +51,7 @@ import game.save.Saver;
 import game.utils.Chat;
 import game.utils.Geometry;
 
-public class World {
+public class GameWorld {
 	public static final double DAY_NIGHT_DURATION = 1200000.0;
 	private static final double GRAVITY_STRENGTH = 5;
 
@@ -71,7 +72,7 @@ public class World {
 
 	public TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
 
-	private org.dyn4j.dynamics.World dynWorld = new org.dyn4j.dynamics.World();
+	private World dynWorld = new World();
 
 	private Queue<Event> eventQueue = new LinkedList<>();
 	private Queue<byte[]> blockQueue = new LinkedList<>();
@@ -80,7 +81,7 @@ public class World {
 	 */
 	private Set<Point> changedBlocks = new HashSet<>();
 
-	public World() {
+	public GameWorld() {
 		entities = new ArrayList<>();
 		entitiesToAdd = new ArrayList<>();
 		backgroundsprites = new ArrayList<>();
@@ -156,7 +157,7 @@ public class World {
 	 *
 	 * @param inp
 	 */
-	public World(Input inp) {
+	public GameWorld(Input inp) {
 		this();
 		userInp = inp;
 	}
@@ -178,11 +179,12 @@ public class World {
 		sun = new Entity(sunsprite, new Vector2f(
 				(float) -(Math
 						.cos(2.0 * Math.PI * Viewport.globaltimer
-								/ World.DAY_NIGHT_DURATION)
+								/ GameWorld.DAY_NIGHT_DURATION)
 						* 15 - vp.getCenter().x
 						+ sunsprite.getScaledCopy(4, 4).getWidth() / 2),
 				(float) -(Math.sin(
-						2.0 * Math.PI * Viewport.globaltimer / World.DAY_NIGHT_DURATION)
+						2.0 * Math.PI * Viewport.globaltimer
+								/ GameWorld.DAY_NIGHT_DURATION)
 						* 15) + 30),
 				this);
 	}
