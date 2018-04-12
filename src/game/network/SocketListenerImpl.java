@@ -14,7 +14,7 @@ import game.network.io.EncodedOutputStream;
 import game.network.io.EncodedReader;
 import game.network.io.Header;
 
-public class SocketListenerImpl implements SocketListener {
+public class SocketListenerImpl {
 	private class User {
 		public final EncodedOutputStream out;
 		public final EncodedReader in;
@@ -43,7 +43,6 @@ public class SocketListenerImpl implements SocketListener {
 
 	private Object[] eventListeners = new Object[] { blockStates };
 
-	@Override
 	public boolean addSocket(Socket s) {
 		try {
 			User u = new User(s);
@@ -90,7 +89,6 @@ public class SocketListenerImpl implements SocketListener {
 		}
 	}
 
-	@Override
 	public Runnable getHandler(Socket s) {
 		return () -> this.addSocket(s);
 	}

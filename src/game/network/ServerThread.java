@@ -8,9 +8,9 @@ import java.net.Socket;
  * Created by Robert on 8/6/2017.
  */
 public class ServerThread implements Runnable {
-	private SocketListener sl;
+	private SocketListenerImpl sl;
 
-	public ServerThread(SocketListener sl) {
+	public ServerThread(SocketListenerImpl sl) {
 		this.sl = sl;
 	}
 
@@ -19,21 +19,19 @@ public class ServerThread implements Runnable {
 		ServerSocket ss;
 		try {
 			ss = new ServerSocket(Client.TCP_PORT);
+			while (true) {
+				try {
+					Socket s = ss.accept();
+
+					Runnable sh = sl.getHandler(s);
+
+					new Thread(sh).start();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			return;
-		}
-
-		while (true) {
-			try {
-				Socket s = ss.accept();
-
-				Runnable sh = sl.getHandler(s);
-
-				new Thread(sh).start();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 }
