@@ -279,9 +279,7 @@ public class World {
 			e.draw(vp);
 		}
 		if (Viewport.DEBUG_MODE) {
-			List<Point> locs = getVisibleBlockLocations(
-					Geometry.getBoundingBox(vp.getGameViewShape()));
-			for (Body bb : this.dynWorld.getBodies()) {
+			for (Body bb : dynWorld.getBodies()) {
 				Shape[] v = Geometry.convertShape(bb);
 				if (v.length > 0) {
 					vp.draw(v[0], Color.green);

@@ -24,7 +24,6 @@ import game.world.World;
  */
 public class Entity implements PhysicsBody {
 	protected static final float GRAVITY = 0.00002613f;
-	private static final boolean DEBUG_COLLISION = true;
 	public static final float HITBOX_CORNER_INDENT = .01f;
 
 	protected Sprite sprite;
@@ -50,6 +49,7 @@ public class Entity implements PhysicsBody {
 		this(new Sprite(img), pos, w);
 	}
 
+	@Override
 	public Body getBody() {
 		return physicsBody;
 	}

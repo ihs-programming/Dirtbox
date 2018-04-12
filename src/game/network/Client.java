@@ -19,8 +19,6 @@ public class Client {
 	private EncodedOutputStream out;
 	private EncodedReader in;
 
-	private World w;
-
 	public Client(InetAddress inetAddress) throws IOException {
 		s = new Socket("", TCP_PORT);
 		out = new EncodedOutputStream(s.getOutputStream());

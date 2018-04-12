@@ -15,7 +15,6 @@ import game.world.World;
 public class ControllableCharacter extends Creature {
 	public boolean flying = false;
 	private static final float MAX_SPEED = 10f;
-	private static final float ACCELERATION = 10f;
 	private static final float JUMP = 250f;
 	private static final float VEL_FORCE_MULTIPLIER = 100;
 	private float reach = 5f; // distance (in game units) in which the player
