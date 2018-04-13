@@ -13,6 +13,7 @@ import java.util.NavigableSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.Settings;
@@ -44,13 +45,14 @@ import game.network.SocketListener;
 import game.network.event.BlockBreakEvent;
 import game.network.event.ChatEvent;
 import game.network.event.Event;
+import game.network.event.EventProcessor;
 import game.network.gamestate.BlockState;
 import game.physics.PhysicsBody;
 import game.save.Saver;
 import game.utils.Chat;
 import game.utils.Geometry;
 
-public class GameWorld {
+public class GameWorld implements EventProcessor {
 	public static final double DAY_NIGHT_DURATION = 1200000.0;
 	private static final double GRAVITY_STRENGTH = 5;
 
@@ -71,7 +73,7 @@ public class GameWorld {
 
 	private World dynWorld = new World();
 
-	private Queue<Event> eventQueue = new LinkedList<>();
+	private Queue<Event> eventQueue = new ConcurrentLinkedQueue<>();
 	private Queue<byte[]> blockQueue = new LinkedList<>();
 	/**
 	 * A set of blocks that have been changed, and thus require updating.
@@ -421,14 +423,14 @@ public class GameWorld {
 	 *
 	 */
 	private void processEventQueue() {
-		for (Event e : eventQueue) {
+		while (!eventQueue.isEmpty()) {
+			Event e = eventQueue.poll();
 			e.processIfPossible(this);
 		}
 		for (byte[] blockData : blockQueue) {
 			Saver.load(blockData).entrySet()
-					.forEach(e -> blocks.put(e.getKey(), e.getValue()));
+					.forEach(e -> setBlock(e.getKey(), e.getValue()));
 		}
-		eventQueue.clear();
 		blockQueue.clear();
 	}
 
@@ -511,14 +513,24 @@ public class GameWorld {
 	}
 
 	public void addEvent(Event e) {
-		eventQueue.add(e);
+		eventQueue.offer(e);
 	}
 
-	public void processEvent(ChatEvent ce) {
+	@Override
+	public void processEvent(Event e) {
+		if (e instanceof ChatEvent) {
+			processEvent((ChatEvent) e);
+		}
+		if (e instanceof BlockBreakEvent) {
+			processEvent((BlockBreakEvent) e);
+		}
+	}
+
+	private void processEvent(ChatEvent ce) {
 		chat.chatAddLine(new String(ce.toBytes()));
 	}
 
-	public void processEvent(BlockBreakEvent bbe) {
+	private void processEvent(BlockBreakEvent bbe) {
 		Point pos = bbe.getPos();
 		Block prevBlock = getBlock(pos);
 		if (prevBlock == null || prevBlock.type == BlockType.WATER) {

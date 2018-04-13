@@ -58,6 +58,9 @@ public class BlockUpdates {
 	}
 
 	private static boolean shouldFall(Block b) {
+		if (b == null) {
+			return false;
+		}
 		return b.type == BlockType.SAND;
 	}
 

@@ -11,6 +11,8 @@ import game.blocks.Block;
 import game.blocks.BlockType;
 import game.generation.RegionGenerator;
 import game.network.event.BlockBreakEvent;
+import game.network.event.Event;
+import game.network.event.EventProcessor;
 import game.save.Saver;
 
 /**
@@ -19,7 +21,7 @@ import game.save.Saver;
  * @author s-chenrob
  *
  */
-public class BlockState {
+public class BlockState implements EventProcessor {
 	public static final Comparator<Point> pointComparer = (p1, p2) -> {
 		if (p1.x == p2.x) {
 			return p1.y - p2.y;
@@ -66,7 +68,9 @@ public class BlockState {
 		return blockLocs;
 	}
 
-	public void processEvent(BlockBreakEvent e) {
+	@Override
+	public void processEvent(Event event) {
+		BlockBreakEvent e = (BlockBreakEvent) event;
 		blocks.put(e.getPos(),
 				Block.createBlock(BlockType.EMPTY, e.getPos().x, e.getPos().y));
 	}

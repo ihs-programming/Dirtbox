@@ -9,6 +9,7 @@ import java.util.HashSet;
 import org.newdawn.slick.geom.Rectangle;
 
 import game.network.event.Event;
+import game.network.event.EventProcessor;
 import game.network.gamestate.BlockState;
 import game.network.io.EncodedOutputStream;
 import game.network.io.EncodedReader;
@@ -41,7 +42,7 @@ public class SocketListener {
 	private HashSet<User> users = new HashSet<>();
 	private BlockState blockStates = new BlockState();
 
-	private Object[] eventListeners = new Object[] { blockStates };
+	private EventProcessor[] eventListeners = new EventProcessor[] { blockStates };
 
 	public boolean addSocket(Socket s) {
 		try {
@@ -57,7 +58,7 @@ public class SocketListener {
 					Event e;
 					try {
 						e = Event.fromBytes(data);
-						for (Object obj : eventListeners) {
+						for (EventProcessor obj : eventListeners) {
 							e.processIfPossible(obj);
 						}
 					} catch (ReflectiveOperationException e1) {

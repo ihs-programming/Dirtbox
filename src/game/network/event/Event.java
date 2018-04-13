@@ -88,7 +88,8 @@ public abstract class Event {
 	 * @param obj
 	 *            Object to attempt execution on
 	 */
-	public void processIfPossible(Object obj) {
+	public void processIfPossible(EventProcessor obj) {
+		obj.processEvent(this);
 		try {
 			Method m = obj.getClass().getMethod("processEvent", this.getClass());
 			m.invoke(obj, this);

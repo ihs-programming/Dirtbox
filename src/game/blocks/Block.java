@@ -76,10 +76,6 @@ public abstract class Block implements PhysicsBody {
 		}
 	}
 
-	public BlockType getBlockType() {
-		return type;
-	}
-
 	public Vector2f getPos() {
 		return pos;
 	}
