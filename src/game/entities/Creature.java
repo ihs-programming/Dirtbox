@@ -17,7 +17,6 @@ import game.Sprite;
 import game.Viewport;
 import game.blocks.Block;
 import game.blocks.BlockType;
-import game.utils.BodyData;
 import game.utils.Geometry;
 import game.world.GameWorld;
 
@@ -178,11 +177,8 @@ public abstract class Creature extends Entity {
 				boolean hasBlock = false, hasCreature = false;
 				for (Body bodie : bodies) {
 					Object data = bodie.getUserData();
-					if (data instanceof BodyData) {
-						BodyData bdata = (BodyData) data;
-						if (bdata.getType() instanceof BlockType) {
-							hasBlock = true;
-						}
+					if (data instanceof BlockType) {
+						hasBlock = true;
 					} else if (data == Creature.this) {
 						hasCreature = true;
 					}

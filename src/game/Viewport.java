@@ -93,11 +93,13 @@ public class Viewport {
 				(int) (darknessvalue * 127), (int) (darknessvalue * 255));
 		graphics.setBackground(BackgroundColor);
 		center.add(movement.copy().scale(delta / scaleFactor));
-		if (day && globaltimer % GameWorld.DAY_NIGHT_DURATION > GameWorld.DAY_NIGHT_DURATION
-				/ 2) {
+		if (day && globaltimer
+				% GameWorld.DAY_NIGHT_DURATION > GameWorld.DAY_NIGHT_DURATION
+						/ 2) {
 			day = false;
 		} else if (!day
-				&& globaltimer % GameWorld.DAY_NIGHT_DURATION <= GameWorld.DAY_NIGHT_DURATION) {
+				&& globaltimer
+						% GameWorld.DAY_NIGHT_DURATION <= GameWorld.DAY_NIGHT_DURATION) {
 			day = true;
 		}
 		resetTransformCache = true;

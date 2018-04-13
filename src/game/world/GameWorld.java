@@ -567,7 +567,7 @@ public class GameWorld {
 	}
 
 	public List<Entity> getEntities() {
-		return entities;
+		return Collections.unmodifiableList(entities);
 	}
 
 	public void setBlock(Point p, Block b) {

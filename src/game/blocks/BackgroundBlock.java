@@ -1,6 +1,5 @@
 package game.blocks;
 
-import org.dyn4j.dynamics.Body;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 
@@ -27,10 +26,5 @@ public class BackgroundBlock extends Block {
 	@Override
 	public Shape getHitbox() {
 		return this.hitbox;
-	}
-
-	@Override
-	protected Body createBlockBody() {
-		return new Body();
 	}
 }

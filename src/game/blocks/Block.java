@@ -3,8 +3,6 @@ package game.blocks;
 import java.awt.Point;
 
 import org.dyn4j.dynamics.Body;
-import org.dyn4j.geometry.Convex;
-import org.dyn4j.geometry.MassType;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.geom.Vector2f;
@@ -14,7 +12,6 @@ import game.SpriteSheetLoader;
 import game.Viewport;
 import game.physics.PhysicsBody;
 import game.physics.PhysicsBodyFactory;
-import game.utils.BodyData;
 import game.utils.Geometry;
 
 public abstract class Block implements PhysicsBody {
@@ -117,23 +114,10 @@ public abstract class Block implements PhysicsBody {
 									// class
 	}
 
-	protected Body createBlockBody() {
-		Convex c = new org.dyn4j.geometry.Rectangle(Block.BLOCK_SPRITE_SIZE,
-				Block.BLOCK_SPRITE_SIZE);
-		Body body = new Body();
-		body.addFixture(c);
-		body.translateToOrigin();
-		float disp = BLOCK_SPRITE_SIZE / 2f;
-		body.translate(pos.x + disp, pos.y + disp);
-		body.setMass(MassType.INFINITE);
-		body.setUserData(new BodyData(type));
-		return body;
-	}
-
 	@Override
 	public Body getBody() {
 		if (physicsBody == null) {
-			physicsBody = bodyFactory.createBody(new BodyData(type));
+			physicsBody = bodyFactory.createBody(type);
 		}
 		return physicsBody;
 	}
