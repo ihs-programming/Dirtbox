@@ -44,7 +44,7 @@ public class Saver {
 			int py = Util.toInt(data, i + 4);
 			BlockType type = BlockType.values()[Util.toInt(data, i + 8)];
 
-			blocks.put(new Point(px, py), Block.createBlock(type, px, py, true));
+			blocks.put(new Point(px, py), Block.createBlock(type, px, py));
 		}
 		return blocks;
 	}

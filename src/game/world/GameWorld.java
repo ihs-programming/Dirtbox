@@ -538,7 +538,7 @@ public class GameWorld {
 			return;
 		}
 
-		setBlock(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y, true));
+		setBlock(pos, Block.createBlock(BlockType.EMPTY, pos.x, pos.y));
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
 			Vector2f newPos = prevBlock.getPos();
