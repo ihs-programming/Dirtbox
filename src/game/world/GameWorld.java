@@ -20,7 +20,6 @@ import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Rectangle;
@@ -67,8 +66,6 @@ public class GameWorld {
 
 	private Image sunsprite;
 	private Entity sun;
-
-	private Input userInp = null; // used only for debugging purposes currently
 
 	public TreeMap<Point, Block> blocks = new TreeMap<>(BlockState.pointComparer);
 
@@ -150,16 +147,6 @@ public class GameWorld {
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Construct world for debugging purposes
-	 *
-	 * @param inp
-	 */
-	public GameWorld(Input inp) {
-		this();
-		userInp = inp;
 	}
 
 	public void addEntity(Entity e) {

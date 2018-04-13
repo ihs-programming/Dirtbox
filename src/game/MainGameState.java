@@ -31,7 +31,7 @@ public class MainGameState implements DefaultGameState {
 	public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		Input gcInput = gc.getInput();
 		vpc = new ViewportController(gcInput, vp);
-		world = new GameWorld(gcInput);
+		world = new GameWorld();
 		playerController = new PlayerController(world.getMainCharacter(), gcInput, vp,
 				world);
 
