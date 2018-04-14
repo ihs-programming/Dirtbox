@@ -227,15 +227,10 @@ public class GameWorld implements EventProcessor {
 		Shape view = vp.getGameViewShape();
 		Rectangle viewRect = Geometry.getBoundingBox(view);
 
-		long time = System.currentTimeMillis();
 		Lighting.doSunLighting(blocks, (int) viewRect.getX() - 10,
 				(int) (viewRect.getX() + view.getWidth()) + 10,
 				(int) viewRect.getY() - 10,
 				(int) (viewRect.getY() + view.getHeight()) + 10, 63);
-		if (Viewport.DEBUG_MODE) {
-			System.out.printf("%d ms for sun lighting calculations.\n",
-					System.currentTimeMillis() - time);
-		}
 
 		Rectangle genRect = new Rectangle(
 				(int) (viewRect.getX() - VIEW_DISTANCE) / 16 * 16,
@@ -251,18 +246,10 @@ public class GameWorld implements EventProcessor {
 		 * "734.582767 ms for draw (!!!) 743.448732 ms for render"
 		 */
 		List<Point> visibleBlocks = getVisibleBlockLocations(viewRect);
-		time = System.currentTimeMillis();
 		Block.draw_hit_count = 0;
 		for (Point p : visibleBlocks) {
 			getBlock(p).draw(vp);
 		}
-		if (Viewport.DEBUG_MODE) {
-			System.out.printf(
-					"%d ms for visible | %d out of %d blocks rendered.\n",
-					System.currentTimeMillis() - time, Block.draw_hit_count,
-					visibleBlocks.size());
-		}
-		time = System.currentTimeMillis();
 		for (Point p : visibleBlocks) {
 			getBlock(p).drawShading(vp);
 		}
@@ -298,8 +285,7 @@ public class GameWorld implements EventProcessor {
 					+ start.y;
 
 			// Too lazy to figure out actual logic, so I'll just guess and check
-			// around
-			// the block to avoid edge cases
+			// around the block to avoid edge cases
 			for (int dx = -1; dx <= 1; dx++) {
 				for (int dy = -1; dy <= 1; dy++) {
 					int nx = x + dx;
@@ -427,11 +413,11 @@ public class GameWorld implements EventProcessor {
 			Event e = eventQueue.poll();
 			e.processIfPossible(this);
 		}
-		for (byte[] blockData : blockQueue) {
-			Saver.load(blockData).entrySet()
-					.forEach(e -> setBlock(e.getKey(), e.getValue()));
+		while (!blockQueue.isEmpty()) {
+			byte[] blockData = blockQueue.poll();
+			Set<Map.Entry<Point, Block>> es = Saver.load(blockData).entrySet();
+			es.forEach(e -> setBlock(e.getKey(), e.getValue()));
 		}
-		blockQueue.clear();
 	}
 
 	/**
@@ -570,9 +556,10 @@ public class GameWorld implements EventProcessor {
 	}
 
 	public void setBlock(Point p, Block b) {
-		remove(blocks.get(p));
+		if (blocks.containsKey(p)) {
+			remove(blocks.get(p));
+		}
 		blocks.put(p, b);
-		dynWorld.addBody(b.getBody());
 	}
 
 	public void setBlocks(TreeMap<Point, Block> blocks) {
