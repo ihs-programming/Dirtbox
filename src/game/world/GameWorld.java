@@ -464,7 +464,7 @@ public class GameWorld implements EventProcessor {
 
 		if (prevBlock != null && prevBlock.type != BlockType.EMPTY) {
 			Vector2f newPos = prevBlock.getPos();
-			newPos.add(new Vector2f((float) Math.random(), (float) Math.random() / 2));
+			newPos.add(new Vector2f((float) Math.random(), (float) Math.random()));
 			addEntity(new CollectibleItem(new BlockItem(prevBlock), newPos, this));
 		}
 		changedBlocks.add(pos);
